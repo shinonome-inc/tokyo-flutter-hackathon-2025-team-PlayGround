@@ -14,7 +14,16 @@
 - `terraform-aws-key.json` が手元にあること（AWS認証用）
 - `terraform-gcp-key.json` が手元にあること（GCP認証用）
 
-### 1-2. AWS認証の設定
+### 1-2. 環境変数設定時の注意事項
+
+**重要**: AWS・GCP両方の認証設定で、`~/.zshrc`や`~/.bashrc`に環境変数を追記した後は、以下のいずれかが必要です：
+
+- **現在のターミナルで反映**: `source ~/.zshrc` を実行
+- **新しいターミナルを開く**: 自動的に読み込まれます
+
+**環境変数が設定されていないとTerraformが失敗します**ので、設定後は必ず確認コマンドで確認してください。
+
+### 1-3. AWS認証の設定
 
 #### 認証キーの配置
 
@@ -47,7 +56,7 @@ export AWS_SECRET_ACCESS_KEY="..."
 export AWS_DEFAULT_REGION="ap-northeast-1"
 ```
 
-設定を反映：
+設定を反映（**1-2の注意事項参照**）：
 
 ```bash
 source ~/.zshrc
@@ -68,7 +77,7 @@ aws sts get-caller-identity
 }
 ```
 
-### 1-3. GCP認証の設定
+### 1-4. GCP認証の設定
 
 #### 認証キーの配置
 
@@ -86,7 +95,7 @@ cp terraform-gcp-key.json infra/terraform-gcp-key.json
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/project/infra/terraform-gcp-key.json"
 ```
 
-設定を反映：
+設定を反映（**1-2の注意事項参照**）：
 
 ```bash
 source ~/.zshrc
@@ -98,7 +107,7 @@ source ~/.zshrc
 echo $GOOGLE_APPLICATION_CREDENTIALS
 ```
 
-### 1-4. Terraform実行
+### 1-5. Terraform実行
 
 #### AWS dev環境
 
