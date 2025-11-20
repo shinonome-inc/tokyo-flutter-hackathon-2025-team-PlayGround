@@ -68,37 +68,6 @@ jobs:
         run: terraform plan -no-color -input=false
         continue-on-error: true
 
-      - name: Comment PR
-        uses: actions/github-script@v7
-        env:
-          PLAN: "${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `### Terraform Check Results (${{ matrix.provider }}/${{ matrix.environment }})
-
-            #### Format Check: \`${{ steps.fmt.outcome }}\`
-            #### Initialization: \`${{ steps.init.outcome }}\`
-            #### Validation: \`${{ steps.validate.outcome }}\`
-            #### Plan: \`${{ steps.plan.outcome }}\`
-
-            <details><summary>Show Plan</summary>
-
-            \`\`\`terraform
-            ${process.env.PLAN}
-            \`\`\`
-
-            </details>
-
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
-
       - name: Fail if errors
         if: steps.fmt.outcome == 'failure' || steps.init.outcome == 'failure' || steps.validate.outcome == 'failure' || steps.plan.outcome == 'failure'
         run: exit 1
