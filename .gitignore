@@ -71,3 +71,8 @@ override.tf.json
 terraform.rc
 
 # End of https://www.toptal.com/developers/gitignore/api/dart,terraform
+
+# GCP認証キー
+infra/terraform/terraform-gcp-key.json
+
+generated-pull-request-content
