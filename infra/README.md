@@ -40,40 +40,6 @@ infra/
 
 [`docs/GET_STARTED.md`](../docs/GET_STARTED.md) を参照してください。
 
-### 前提条件
-
-- Terraform v1.5.0以上
-- AWS CLI（AWS環境用）
-- Google Cloud CLI（GCP環境用）
-
-### クイックスタート
-
-#### AWS環境
-
-```bash
-# AWS認証設定
-export AWS_PROFILE=terraform
-
-# dev環境にデプロイ
-cd infra/aws/dev
-terraform init
-terraform plan
-terraform apply
-```
-
-#### GCP環境
-
-```bash
-# GCP認証設定
-export GOOGLE_APPLICATION_CREDENTIALS="/path/to/project/infra/terraform-gcp-key.json"
-
-# dev環境にデプロイ
-cd infra/gcp/dev
-terraform init
-terraform plan
-terraform apply
-```
-
 ## Terraformバックエンド
 
 Terraform Stateは、AWS S3とDynamoDBで管理されています：
