@@ -8,11 +8,13 @@
 
 ### 1-1. 前提条件
 
-- AWS CLI がインストールされていること
 - Terraform がインストールされていること (v1.5.0以上)
-- `terraform-iam-user.json` が手元にあること
+- AWS CLI がインストールされていること（AWS環境用）
+- Google Cloud CLI (`gcloud`) がインストールされていること（GCP環境用）
+- `terraform-iam-user.json` が手元にあること（AWS認証用）
+- `terraform-gcp-key.json` が手元にあること（GCP認証用）
 
-### 1-2. Terraform実行用IAMユーザーの設定
+### 1-2. AWS認証の設定
 
 #### アクセスキーの確認
 
@@ -56,7 +58,7 @@ aws sts get-caller-identity --profile terraform
 }
 ```
 
-### 1-3. Terraform実行時の設定
+#### 環境変数の設定
 
 環境変数で指定：
 
@@ -70,12 +72,7 @@ echo $AWS_PROFILE
 # 出力: terraform
 ```
 
-### 1-4. GCP認証の設定
-
-#### 前提条件
-
-- Google Cloud CLI (`gcloud`) がインストールされていること
-- `terraform-gcp-key.json` が手元にあること
+### 1-3. GCP認証の設定
 
 #### 認証キーの配置
 
@@ -105,9 +102,9 @@ source ~/.zshrc
 echo $GOOGLE_APPLICATION_CREDENTIALS
 ```
 
-### 1-5. Terraform実行
+### 1-4. Terraform実行
 
-#### AWS dev環境の例：
+#### AWS dev環境
 
 ```bash
 cd infra/aws/dev
@@ -117,7 +114,7 @@ terraform plan
 terraform apply
 ```
 
-#### GCP dev環境の例：
+#### GCP dev環境
 
 ```bash
 cd infra/gcp/dev
