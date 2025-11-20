@@ -70,13 +70,57 @@ echo $AWS_PROFILE
 # 出力: terraform
 ```
 
-### 1-4. Terraform実行
+### 1-4. GCP認証の設定
 
-dev環境の例：
+#### 前提条件
+
+- Google Cloud CLI (`gcloud`) がインストールされていること
+- `terraform-gcp-key.json` が手元にあること
+
+#### 認証キーの配置
+
+`terraform-gcp-key.json` を `infra/` 直下に配置：
 
 ```bash
-cd infra/terraform/environments/dev
+cp terraform-gcp-key.json infra/terraform-gcp-key.json
+```
+
+#### 環境変数の設定
+
+`~/.zshrc` または `~/.bashrc` に追記：
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/project/infra/terraform-gcp-key.json"
+```
+
+設定を反映：
+
+```bash
+source ~/.zshrc
+```
+
+確認：
+
+```bash
+echo $GOOGLE_APPLICATION_CREDENTIALS
+```
+
+### 1-5. Terraform実行
+
+#### AWS dev環境の例：
+
+```bash
+cd infra/aws/dev
 export AWS_PROFILE=terraform
+terraform init
+terraform plan
+terraform apply
+```
+
+#### GCP dev環境の例：
+
+```bash
+cd infra/gcp/dev
 terraform init
 terraform plan
 terraform apply
