@@ -42,4 +42,9 @@
 - View は ConsumerStatefulWidget、ConsumerWidget、StatelessWidget、StatefulWidget のいずれかを用いること
 - ViewModel は Riverpod Generator を用いること
 
+## インフラ
+- 原則コンソールやCLIではなくTarraformでIaCを実現すること
+- 原則AWSを利用すること
+- 例外として一部インフラとしてGoogle Cloudを利用する
+
 ## Terraform
