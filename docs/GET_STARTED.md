@@ -11,14 +11,22 @@
 - Terraform がインストールされていること (v1.5.0以上)
 - AWS CLI がインストールされていること（AWS環境用）
 - Google Cloud CLI (`gcloud`) がインストールされていること（GCP環境用）
-- `terraform-iam-user.json` が手元にあること（AWS認証用）
+- `terraform-aws-key.json` が手元にあること（AWS認証用）
 - `terraform-gcp-key.json` が手元にあること（GCP認証用）
 
 ### 1-2. AWS認証の設定
 
-#### アクセスキーの確認
+#### 認証キーの配置
 
-`terraform-iam-user.json` の内容を確認：
+`terraform-aws-key.json` を `infra/` 直下に配置：
+
+```bash
+cp terraform-aws-key.json infra/terraform-aws-key.json
+```
+
+#### 環境変数の設定
+
+`infra/terraform-aws-key.json` の内容を確認：
 
 ```json
 {
@@ -31,22 +39,24 @@
 }
 ```
 
-#### AWS CLIプロファイル設定
+`~/.zshrc` または `~/.bashrc` に追記（AccessKeyIdとSecretAccessKeyは上記JSONファイルから取得）：
 
 ```bash
-aws configure --profile terraform
+export AWS_ACCESS_KEY_ID="AKIA..."
+export AWS_SECRET_ACCESS_KEY="..."
+export AWS_DEFAULT_REGION="ap-northeast-1"
 ```
 
-入力内容：
-- **AWS Access Key ID**: `terraform-iam-user.json` の `AccessKeyId` をコピペ
-- **AWS Secret Access Key**: `terraform-iam-user.json` の `SecretAccessKey` をコピペ
-- **Default region name**: `ap-northeast-1`
-- **Default output format**: `json`
-
-#### 設定確認
+設定を反映：
 
 ```bash
-aws sts get-caller-identity --profile terraform
+source ~/.zshrc
+```
+
+確認：
+
+```bash
+aws sts get-caller-identity
 ```
 
 期待される出力：
@@ -56,20 +66,6 @@ aws sts get-caller-identity --profile terraform
     "Account": "851725222522",
     "Arn": "arn:aws:iam::851725222522:user/terraform-iam-user"
 }
-```
-
-#### 環境変数の設定
-
-環境変数で指定：
-
-```bash
-export AWS_PROFILE=terraform
-```
-
-確認：
-```bash
-echo $AWS_PROFILE
-# 出力: terraform
 ```
 
 ### 1-3. GCP認証の設定
@@ -108,7 +104,6 @@ echo $GOOGLE_APPLICATION_CREDENTIALS
 
 ```bash
 cd infra/aws/dev
-export AWS_PROFILE=terraform
 terraform init
 terraform plan
 terraform apply

@@ -7,6 +7,7 @@
 ```
 infra/
 ├── README.md                  # このファイル
+├── terraform-aws-key.json     # AWS認証キー（gitignore対象）
 ├── terraform-gcp-key.json     # GCP認証キー（gitignore対象）
 ├── aws/                       # AWS環境
 │   ├── dev/                   # 開発環境
