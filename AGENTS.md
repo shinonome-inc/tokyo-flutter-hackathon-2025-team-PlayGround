@@ -7,7 +7,7 @@
 
 ## 参照すべきドキュメント
 
-`docs/CORDING_GUIDE.md` - コーディングの際に確認すること
+`docs/CORDING_RULE.md` - コーディングの際に確認すること
 `docs/GIT_RULE.md` - Git 操作の際に必ず確認すること
 
 ## コマンドライン

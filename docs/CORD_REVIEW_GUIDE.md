@@ -8,5 +8,5 @@
 
 ## 観点
 
-- @docs/CORDING_GUIDE.md に違反していないかどうか
+- @docs/CORDING_RULE.md に違反していないかどうか
 - @docs/GIT_RULE.md に違反していないかどうか
