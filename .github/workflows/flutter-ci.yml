@@ -25,12 +25,10 @@ jobs:
         working-directory: app
         run: flutter pub get
 
-      # 標準的な静的解析: ゆめみLint
       - name: Run Flutter Analyze
         working-directory: app
         run: flutter analyze
 
-      # custom_lint: Riverpod Lint + 手作りLint
       - name: Run Custom Lint
         working-directory: app
         run: dart run custom_lint

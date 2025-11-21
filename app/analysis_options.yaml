@@ -1,4 +1,3 @@
-# ゆめみLintの推奨ルールを適用
 include: package:yumemi_lints/dart/2.17/recommended.yaml
 
 analyzer:
