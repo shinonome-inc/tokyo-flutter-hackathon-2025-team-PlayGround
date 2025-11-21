@@ -4,12 +4,6 @@ variable "project_name" {
   default     = "genkaimeshi-recipe"
 }
 
-variable "aws_region" {
-  description = "AWSリージョン"
-  type        = string
-  default     = "ap-northeast-1"
-}
-
 variable "gcp_project_id" {
   description = "Google CloudプロジェクトID"
   type        = string

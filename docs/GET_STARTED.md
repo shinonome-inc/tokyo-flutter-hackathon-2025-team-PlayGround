@@ -8,15 +8,34 @@
 
 ### 1-1. 前提条件
 
-- AWS CLI がインストールされていること
 - Terraform がインストールされていること (v1.5.0以上)
-- `terraform-iam-user.json` が手元にあること
+- AWS CLI がインストールされていること（AWS環境用）
+- Google Cloud CLI (`gcloud`) がインストールされていること（GCP環境用）
+- `terraform-aws-key.json` が手元にあること（AWS認証用）
+- `terraform-gcp-key.json` が手元にあること（GCP認証用）
 
-### 1-2. Terraform実行用IAMユーザーの設定
+### 1-2. 環境変数設定時の注意事項
 
-#### アクセスキーの確認
+**重要**: AWS・GCP両方の認証設定で、`~/.zshrc`や`~/.bashrc`に環境変数を追記した後は、以下のいずれかが必要です：
 
-`terraform-iam-user.json` の内容を確認：
+- **現在のターミナルで反映**: `source ~/.zshrc` を実行
+- **新しいターミナルを開く**: 自動的に読み込まれます
+
+**環境変数が設定されていないとTerraformが失敗します**ので、設定後は必ず確認コマンドで確認してください。
+
+### 1-3. AWS認証の設定
+
+#### 認証キーの配置
+
+`terraform-aws-key.json` を `infra/` 直下に配置：
+
+```bash
+cp terraform-aws-key.json infra/terraform-aws-key.json
+```
+
+#### 環境変数の設定
+
+`infra/terraform-aws-key.json` の内容を確認：
 
 ```json
 {
@@ -29,22 +48,24 @@
 }
 ```
 
-#### AWS CLIプロファイル設定
+`~/.zshrc` または `~/.bashrc` に追記（AccessKeyIdとSecretAccessKeyは上記JSONファイルから取得）：
 
 ```bash
-aws configure --profile terraform
+export AWS_ACCESS_KEY_ID="AKIA..."
+export AWS_SECRET_ACCESS_KEY="..."
+export AWS_DEFAULT_REGION="ap-northeast-1"
 ```
 
-入力内容：
-- **AWS Access Key ID**: `terraform-iam-user.json` の `AccessKeyId` をコピペ
-- **AWS Secret Access Key**: `terraform-iam-user.json` の `SecretAccessKey` をコピペ
-- **Default region name**: `ap-northeast-1`
-- **Default output format**: `json`
-
-#### 設定確認
+設定を反映（**1-2の注意事項参照**）：
 
 ```bash
-aws sts get-caller-identity --profile terraform
+source ~/.zshrc
+```
+
+確認：
+
+```bash
+aws sts get-caller-identity
 ```
 
 期待される出力：
@@ -56,27 +77,51 @@ aws sts get-caller-identity --profile terraform
 }
 ```
 
-### 1-3. Terraform実行時の設定
+### 1-4. GCP認証の設定
 
-環境変数で指定：
+#### 認証キーの配置
+
+`terraform-gcp-key.json` を `infra/` 直下に配置：
 
 ```bash
-export AWS_PROFILE=terraform
+cp terraform-gcp-key.json infra/terraform-gcp-key.json
+```
+
+#### 環境変数の設定
+
+`~/.zshrc` または `~/.bashrc` に追記：
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/project/infra/terraform-gcp-key.json"
+```
+
+設定を反映（**1-2の注意事項参照**）：
+
+```bash
+source ~/.zshrc
 ```
 
 確認：
+
 ```bash
-echo $AWS_PROFILE
-# 出力: terraform
+echo $GOOGLE_APPLICATION_CREDENTIALS
 ```
 
-### 1-4. Terraform実行
+### 1-5. Terraform実行
 
-dev環境の例：
+#### AWS dev環境
 
 ```bash
-cd infra/terraform/environments/dev
-export AWS_PROFILE=terraform
+cd infra/aws/dev
+terraform init
+terraform plan
+terraform apply
+```
+
+#### GCP dev環境
+
+```bash
+cd infra/gcp/dev
 terraform init
 terraform plan
 terraform apply

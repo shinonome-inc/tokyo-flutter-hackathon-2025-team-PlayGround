@@ -43,8 +43,12 @@
 - ViewModel は Riverpod Generator を用いること
 
 ## インフラ
-- 原則コンソールやCLIではなくTarraformでIaCを実現すること
-- 原則AWSを利用すること
-- 例外として一部インフラとしてGoogle Cloudを利用する
+
+- 原則コンソールや CLI ではなく Tarraform で IaC を実現すること
+- 原則 AWS を利用すること
+- 例外として一部インフラとして Google Cloud を利用する
 
 ## Terraform
+
+- `infra/README.md`を必ず参照すること
+- 環境やサービスごとにディレクトリやファイルを分けること
