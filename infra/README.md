@@ -1,6 +1,6 @@
 # インフラストラクチャ構成
 
-このディレクトリには、AWS・GCPのインフラストラクチャをTerraformで管理するための設定が含まれています。
+このディレクトリには、AWS・GCP のインフラストラクチャを Terraform で管理するための設定が含まれています。
 
 ## ディレクトリ構造
 
@@ -41,25 +41,24 @@ infra/
 
 [`docs/GET_STARTED.md`](../docs/GET_STARTED.md) を参照してください。
 
-## Terraformバックエンド
+## Terraform バックエンド
 
-Terraform Stateは、AWS S3とDynamoDBで管理されています：
+Terraform State は、AWS S3 と DynamoDB で管理されています：
 
-- **S3バケット**: `genkaimeshi-recipe-terraform-state`
-- **DynamoDBテーブル**: `terraform-lock`
+- **S3 バケット**: `genkaimeshi-recipe-terraform-state`
+- **DynamoDB テーブル**: `terraform-lock`
 - **リージョン**: `ap-northeast-1`
 
-### Stateファイルのパス
+### State ファイルのパス
 
 - `aws/dev/terraform.tfstate`
 - `aws/prod/terraform.tfstate`
 - `gcp/dev/terraform.tfstate`
 - `gcp/prod/terraform.tfstate`
 
-
 ## 新しいサービスの追加方法
 
-各環境の `services/` ディレクトリ内に、サービスごとのTerraformファイルを作成してください。
+各環境の `services/` ディレクトリ内に、サービスごとの Terraform ファイルを作成してください。
 
 例：
 

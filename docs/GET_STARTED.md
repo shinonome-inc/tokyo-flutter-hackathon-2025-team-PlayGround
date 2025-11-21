@@ -4,26 +4,26 @@
 
 ---
 
-## 1. Terraform環境のセットアップ
+## 1. Terraform 環境のセットアップ
 
 ### 1-1. 前提条件
 
-- Terraform がインストールされていること (v1.5.0以上)
-- AWS CLI がインストールされていること（AWS環境用）
-- Google Cloud CLI (`gcloud`) がインストールされていること（GCP環境用）
-- `terraform-aws-key.json` が手元にあること（AWS認証用）
-- `terraform-gcp-key.json` が手元にあること（GCP認証用）
+- Terraform がインストールされていること (v1.5.0 以上)
+- AWS CLI がインストールされていること（AWS 環境用）
+- Google Cloud CLI (`gcloud`) がインストールされていること（GCP 環境用）
+- `terraform-aws-key.json` が手元にあること（AWS 認証用）
+- `terraform-gcp-key.json` が手元にあること（GCP 認証用）
 
 ### 1-2. 環境変数設定時の注意事項
 
-**重要**: AWS・GCP両方の認証設定で、`~/.zshrc`や`~/.bashrc`に環境変数を追記した後は、以下のいずれかが必要です：
+**重要**: AWS・GCP 両方の認証設定で、`~/.zshrc`や`~/.bashrc`に環境変数を追記した後は、以下のいずれかが必要です：
 
 - **現在のターミナルで反映**: `source ~/.zshrc` を実行
 - **新しいターミナルを開く**: 自動的に読み込まれます
 
-**環境変数が設定されていないとTerraformが失敗します**ので、設定後は必ず確認コマンドで確認してください。
+**環境変数が設定されていないと Terraform が失敗します**ので、設定後は必ず確認コマンドで確認してください。
 
-### 1-3. AWS認証の設定
+### 1-3. AWS 認証の設定
 
 #### 認証キーの配置
 
@@ -48,7 +48,7 @@ cp terraform-aws-key.json infra/terraform-aws-key.json
 }
 ```
 
-`~/.zshrc` または `~/.bashrc` に追記（AccessKeyIdとSecretAccessKeyは上記JSONファイルから取得）：
+`~/.zshrc` または `~/.bashrc` に追記（AccessKeyId と SecretAccessKey は上記 JSON ファイルから取得）：
 
 ```bash
 export AWS_ACCESS_KEY_ID="AKIA..."
@@ -56,7 +56,7 @@ export AWS_SECRET_ACCESS_KEY="..."
 export AWS_DEFAULT_REGION="ap-northeast-1"
 ```
 
-設定を反映（**1-2の注意事項参照**）：
+設定を反映（**1-2 の注意事項参照**）：
 
 ```bash
 source ~/.zshrc
@@ -69,15 +69,16 @@ aws sts get-caller-identity
 ```
 
 期待される出力：
+
 ```json
 {
-    "UserId": "AIDA...",
-    "Account": "851725222522",
-    "Arn": "arn:aws:iam::851725222522:user/terraform-iam-user"
+  "UserId": "AIDA...",
+  "Account": "851725222522",
+  "Arn": "arn:aws:iam::851725222522:user/terraform-iam-user"
 }
 ```
 
-### 1-4. GCP認証の設定
+### 1-4. GCP 認証の設定
 
 #### 認証キーの配置
 
@@ -95,7 +96,7 @@ cp terraform-gcp-key.json infra/terraform-gcp-key.json
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/project/infra/terraform-gcp-key.json"
 ```
 
-設定を反映（**1-2の注意事項参照**）：
+設定を反映（**1-2 の注意事項参照**）：
 
 ```bash
 source ~/.zshrc
@@ -107,9 +108,9 @@ source ~/.zshrc
 echo $GOOGLE_APPLICATION_CREDENTIALS
 ```
 
-### 1-5. Terraform実行
+### 1-5. Terraform 実行
 
-#### AWS dev環境
+#### AWS dev 環境
 
 ```bash
 cd infra/aws/dev
@@ -118,7 +119,7 @@ terraform plan
 terraform apply
 ```
 
-#### GCP dev環境
+#### GCP dev 環境
 
 ```bash
 cd infra/gcp/dev
@@ -129,7 +130,7 @@ terraform apply
 
 ---
 
-## 2. Flutter環境のセットアップ
+## 2. Flutter 環境のセットアップ
 
 (TODO: 追加予定)
 
