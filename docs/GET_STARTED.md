@@ -4,19 +4,38 @@
 
 ---
 
-## 1. Terraform環境のセットアップ
+## 1. Terraform 環境のセットアップ
 
 ### 1-1. 前提条件
 
-- AWS CLI がインストールされていること
-- Terraform がインストールされていること (v1.5.0以上)
-- `terraform-iam-user.json` が手元にあること
+- Terraform がインストールされていること (v1.5.0 以上)
+- AWS CLI がインストールされていること（AWS 環境用）
+- Google Cloud CLI (`gcloud`) がインストールされていること（GCP 環境用）
+- `terraform-aws-key.json` が手元にあること（AWS 認証用）
+- `terraform-gcp-key.json` が手元にあること（GCP 認証用）
 
-### 1-2. Terraform実行用IAMユーザーの設定
+### 1-2. 環境変数設定時の注意事項
 
-#### アクセスキーの確認
+**重要**: AWS・GCP 両方の認証設定で、`~/.zshrc`や`~/.bashrc`に環境変数を追記した後は、以下のいずれかが必要です：
 
-`terraform-iam-user.json` の内容を確認：
+- **現在のターミナルで反映**: `source ~/.zshrc` を実行
+- **新しいターミナルを開く**: 自動的に読み込まれます
+
+**環境変数が設定されていないと Terraform が失敗します**ので、設定後は必ず確認コマンドで確認してください。
+
+### 1-3. AWS 認証の設定
+
+#### 認証キーの配置
+
+`terraform-aws-key.json` を `infra/` 直下に配置：
+
+```bash
+cp terraform-aws-key.json infra/terraform-aws-key.json
+```
+
+#### 環境変数の設定
+
+`infra/terraform-aws-key.json` の内容を確認：
 
 ```json
 {
@@ -29,54 +48,81 @@
 }
 ```
 
-#### AWS CLIプロファイル設定
+`~/.zshrc` または `~/.bashrc` に追記（AccessKeyId と SecretAccessKey は上記 JSON ファイルから取得）：
 
 ```bash
-aws configure --profile terraform
+export AWS_ACCESS_KEY_ID="AKIA..."
+export AWS_SECRET_ACCESS_KEY="..."
+export AWS_DEFAULT_REGION="ap-northeast-1"
 ```
 
-入力内容：
-- **AWS Access Key ID**: `terraform-iam-user.json` の `AccessKeyId` をコピペ
-- **AWS Secret Access Key**: `terraform-iam-user.json` の `SecretAccessKey` をコピペ
-- **Default region name**: `ap-northeast-1`
-- **Default output format**: `json`
-
-#### 設定確認
+設定を反映（**1-2 の注意事項参照**）：
 
 ```bash
-aws sts get-caller-identity --profile terraform
-```
-
-期待される出力：
-```json
-{
-    "UserId": "AIDA...",
-    "Account": "851725222522",
-    "Arn": "arn:aws:iam::851725222522:user/terraform-iam-user"
-}
-```
-
-### 1-3. Terraform実行時の設定
-
-環境変数で指定：
-
-```bash
-export AWS_PROFILE=terraform
+source ~/.zshrc
 ```
 
 確認：
+
 ```bash
-echo $AWS_PROFILE
-# 出力: terraform
+aws sts get-caller-identity
 ```
 
-### 1-4. Terraform実行
+期待される出力：
 
-dev環境の例：
+```json
+{
+  "UserId": "AIDA...",
+  "Account": "851725222522",
+  "Arn": "arn:aws:iam::851725222522:user/terraform-iam-user"
+}
+```
+
+### 1-4. GCP 認証の設定
+
+#### 認証キーの配置
+
+`terraform-gcp-key.json` を `infra/` 直下に配置：
 
 ```bash
-cd infra/terraform/environments/dev
-export AWS_PROFILE=terraform
+cp terraform-gcp-key.json infra/terraform-gcp-key.json
+```
+
+#### 環境変数の設定
+
+`~/.zshrc` または `~/.bashrc` に追記：
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/project/infra/terraform-gcp-key.json"
+```
+
+設定を反映（**1-2 の注意事項参照**）：
+
+```bash
+source ~/.zshrc
+```
+
+確認：
+
+```bash
+echo $GOOGLE_APPLICATION_CREDENTIALS
+```
+
+### 1-5. Terraform 実行
+
+#### AWS dev 環境
+
+```bash
+cd infra/aws/dev
+terraform init
+terraform plan
+terraform apply
+```
+
+#### GCP dev 環境
+
+```bash
+cd infra/gcp/dev
 terraform init
 terraform plan
 terraform apply
@@ -84,9 +130,57 @@ terraform apply
 
 ---
 
-## 2. Flutter環境のセットアップ
+## 2. Flutter 環境のセットアップ
 
-(TODO: 追加予定)
+### 2-1. 前提条件
+
+- Flutter がインストールされていること
+- FVM (Flutter Version Manager) がインストールされていること
+
+### 2-2. Flutter バージョンの準備
+
+このプロジェクトは **Flutter 3.38.1** を使用しています。
+
+#### FVM でバージョンを指定
+
+プロジェクトの `app/.fvmrc` ファイルに Flutter バージョンが指定されています。FVM を使用してこのバージョンをインストール・設定します：
+
+```bash
+cd app
+fvm install
+fvm use
+```
+
+#### FVM を使用した Flutter コマンドの実行
+
+FVM を使用する場合、`flutter` コマンドの代わりに `fvm flutter` を使用します。その後のセクションのコマンドも同様です：
+
+```bash
+fvm flutter pub get
+fvm flutter run
+fvm dart pub run build_runner build
+```
+
+### 2-3. 依存パッケージの取得
+
+```bash
+cd app
+fvm flutter pub get
+```
+
+### 2-4. Code Generation (今後追加予定)
+
+```bash
+# build_runner での自動生成処理（実装予定）
+# fvm dart pub run build_runner build
+```
+
+### 2-5. アプリケーションの実行
+
+```bash
+cd app
+fvm flutter run
+```
 
 ---
 
