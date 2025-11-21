@@ -1,9 +1,6 @@
 terraform {
-  backend "s3" {
-    bucket         = "genkaimeshi-recipe-terraform-state"
-    key            = "gcp/prod/terraform.tfstate"
-    region         = "ap-northeast-1"
-    dynamodb_table = "terraform-lock"
-    encrypt        = true
+  backend "gcs" {
+    bucket = "genkaimeshi-recipe-terraform-state"
+    prefix = "gcp/prod"
   }
 }
