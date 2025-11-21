@@ -1,6 +1,7 @@
 # GIT RULE
 ## ブランチ戦略
 - GitFlowに準ずる
+- defaultブランチは`develop`
 
 ## コミット戦略
 - revertなどを考慮してコミットは機能の最小単位で行う
