@@ -1,6 +1,27 @@
 # app
 
-A new Flutter project.
+## ディレクトリ構造
+
+```
+app/
+├── lib/
+│   ├── main.dart               # アプリケーションエントリーポイント
+│   ├── config/                 # アプリケーション設定
+│   ├── constants/              # 定数定義
+│   ├── enums/                  # Enum 定義
+│   ├── extensions/             # 拡張メソッド
+│   ├── models/                 # モデル
+│   ├── providers/              # 状態管理（Riverpod など）
+│   ├── repositories/           # データ取得層
+│   ├── screens/                # 画面
+│   │   └── xxx_screens/        # 各画面固有のファイルを配置
+│   │       ├─ xxx_state.dart
+│   │       ├─ xxx_provider.dart
+│   │       └─ xxx_screen.dart
+│   ├── utils/                  # ユーティリティ関数
+│   └── widgets/                # UIコンポーネント
+└── test/                       # テストファイル
+```
 
 ## Getting Started
 
