@@ -132,7 +132,55 @@ terraform apply
 
 ## 2. Flutter 環境のセットアップ
 
-(TODO: 追加予定)
+### 2-1. 前提条件
+
+- Flutter がインストールされていること
+- FVM (Flutter Version Manager) がインストールされていること
+
+### 2-2. Flutter バージョンの準備
+
+このプロジェクトは **Flutter 3.38.1** を使用しています。
+
+#### FVM でバージョンを指定
+
+プロジェクトの `app/.fvmrc` ファイルに Flutter バージョンが指定されています。FVM を使用してこのバージョンをインストール・設定します：
+
+```bash
+cd app
+fvm install
+fvm use
+```
+
+#### FVM を使用した Flutter コマンドの実行
+
+FVM を使用する場合、`flutter` コマンドの代わりに `fvm flutter` を使用します。その後のセクションのコマンドも同様です：
+
+```bash
+fvm flutter pub get
+fvm flutter run
+fvm dart pub run build_runner build
+```
+
+### 2-3. 依存パッケージの取得
+
+```bash
+cd app
+fvm flutter pub get
+```
+
+### 2-4. Code Generation (今後追加予定)
+
+```bash
+# build_runner での自動生成処理（実装予定）
+# fvm dart pub run build_runner build
+```
+
+### 2-5. アプリケーションの実行
+
+```bash
+cd app
+fvm flutter run
+```
 
 ---
 
