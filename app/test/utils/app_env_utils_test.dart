@@ -20,5 +20,25 @@ void main() {
         expect(() => AppEnvUtils.fromString('PROD'), throwsArgumentError);
       });
     });
+
+    group('isDev', () {
+      test('AppEnv.devの場合trueを返す', () {
+        expect(AppEnvUtils.isDev(AppEnv.dev), isTrue);
+      });
+
+      test('AppEnv.prodの場合falseを返す', () {
+        expect(AppEnvUtils.isDev(AppEnv.prod), isFalse);
+      });
+    });
+
+    group('isProd', () {
+      test('AppEnv.prodの場合trueを返す', () {
+        expect(AppEnvUtils.isProd(AppEnv.prod), isTrue);
+      });
+
+      test('AppEnv.devの場合falseを返す', () {
+        expect(AppEnvUtils.isProd(AppEnv.dev), isFalse);
+      });
+    });
   });
 }

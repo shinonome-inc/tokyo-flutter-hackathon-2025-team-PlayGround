@@ -14,4 +14,10 @@ class AppEnvUtils {
     }
     return result;
   }
+
+  /// dev環境かどうかを判定する。
+  static bool isDev(AppEnv env) => env == AppEnv.dev;
+
+  /// prod環境かどうかを判定する。
+  static bool isProd(AppEnv env) => env == AppEnv.prod;
 }
