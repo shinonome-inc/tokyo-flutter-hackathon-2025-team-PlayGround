@@ -9,10 +9,10 @@ class EnvConfigDev extends EnvConfig {
   AppEnv get env => AppEnv.dev;
 
   @override
-  String get cognitoUserPoolId => 'ap-northeast-1_zSxVTsMtg';
+  String get cognitoUserPoolId => 'ap-northeast-1_0rnubSZZr';
 
   @override
-  String get cognitoAppClientId => '7bms99sgfbmjuv7t4avqjuve2a';
+  String get cognitoAppClientId => '6tlq8t9lhkl0h3ju5p6vtokcvs';
 
   @override
   String get cognitoDomain => 'genkaimeshi-recipe-dev-auth';

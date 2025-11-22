@@ -9,10 +9,10 @@ class EnvConfigProd extends EnvConfig {
   AppEnv get env => AppEnv.prod;
 
   @override
-  String get cognitoUserPoolId => 'ap-northeast-1_To5RV6lYN';
+  String get cognitoUserPoolId => 'ap-northeast-1_j52wZRfww';
 
   @override
-  String get cognitoAppClientId => '22tilfokgug18gkaq4148o5479';
+  String get cognitoAppClientId => '16uvvgc5qql0p9j3q1hrbnkdek';
 
   @override
   String get cognitoDomain => 'genkaimeshi-recipe-prod-auth';

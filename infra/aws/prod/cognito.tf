@@ -1,7 +1,7 @@
 resource "aws_cognito_user_pool" "main" {
   name = "${var.project_name}-prod-user-pool"
 
-  username_attributes      = ["email"]
+  # LINEログインなどemail取得不可のプロバイダー対応のため、emailを必須にしない
   auto_verified_attributes = ["email"]
 
   mfa_configuration = "OPTIONAL"
@@ -35,7 +35,7 @@ resource "aws_cognito_user_pool" "main" {
   schema {
     name                     = "email"
     attribute_data_type      = "String"
-    required                 = true
+    required                 = false
     mutable                  = true
     developer_only_attribute = false
 
@@ -72,7 +72,7 @@ resource "aws_cognito_identity_provider" "line" {
   provider_details = {
     client_id                     = var.line_channel_id
     client_secret                 = var.line_channel_secret
-    authorize_scopes              = "openid profile email"
+    authorize_scopes              = "openid profile"
     oidc_issuer                   = "https://access.line.me"
     authorize_url                 = "https://access.line.me/oauth2/v2.1/authorize"
     token_url                     = "https://api.line.me/oauth2/v2.1/token"
@@ -82,7 +82,6 @@ resource "aws_cognito_identity_provider" "line" {
   }
 
   attribute_mapping = {
-    email    = "email"
     username = "sub"
     name     = "name"
   }
