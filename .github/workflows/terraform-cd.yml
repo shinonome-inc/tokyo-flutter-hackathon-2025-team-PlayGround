@@ -2,6 +2,8 @@ name: Terraform CD
 
 on:
   push:
+    branches:
+      - main
     paths:
       - "infra/**"
       - ".github/workflows/terraform-cd.yml"
