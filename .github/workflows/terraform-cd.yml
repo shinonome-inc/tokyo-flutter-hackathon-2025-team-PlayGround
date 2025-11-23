@@ -49,6 +49,18 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
 
+      - name: Create terraform.tfvars (AWS)
+        if: matrix.provider == 'aws'
+        env:
+          TF_VARS_DEV: ${{ secrets.TF_VARS_AWS_DEV }}
+          TF_VARS_PROD: ${{ secrets.TF_VARS_AWS_PROD }}
+        run: |
+          if [ "${{ matrix.environment }}" == "dev" ]; then
+            printf '%s\n' "$TF_VARS_DEV" > terraform.tfvars
+          elif [ "${{ matrix.environment }}" == "prod" ]; then
+            printf '%s\n' "$TF_VARS_PROD" > terraform.tfvars
+          fi
+
       - name: Terraform Init (dev)
         if: matrix.environment == 'dev' && github.ref == 'refs/heads/develop'
         run: terraform init
