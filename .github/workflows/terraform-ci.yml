@@ -55,6 +55,18 @@ jobs:
         run: terraform fmt -check -recursive
         continue-on-error: true
 
+      - name: Create terraform.tfvars (AWS)
+        if: matrix.provider == 'aws'
+        env:
+          TF_VARS_DEV: ${{ secrets.TF_VARS_AWS_DEV }}
+          TF_VARS_PROD: ${{ secrets.TF_VARS_AWS_PROD }}
+        run: |
+          if [ "${{ matrix.environment }}" == "dev" ]; then
+            printf '%s\n' "$TF_VARS_DEV" > terraform.tfvars
+          elif [ "${{ matrix.environment }}" == "prod" ]; then
+            printf '%s\n' "$TF_VARS_PROD" > terraform.tfvars
+          fi
+
       - name: Terraform Init
         id: init
         run: terraform init
@@ -65,7 +77,7 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color -input=false
+        run: terraform plan -no-color -input=false -lock=false
         continue-on-error: true
 
       - name: Fail if errors

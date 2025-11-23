@@ -108,7 +108,44 @@ source ~/.zshrc
 echo $GOOGLE_APPLICATION_CREDENTIALS
 ```
 
-### 1-5. Terraform 実行
+### 1-5. terraform.tfvars の配置
+
+**重要**: `.gitignore` で `*.tfvars` が除外されているため、CI/CD と同じく、ローカル環境でも `terraform.tfvars` を手動で配置する必要があります。
+
+#### AWS dev 環境
+
+```bash
+# infra/aws/dev/terraform.tfvars を作成
+cat > infra/aws/dev/terraform.tfvars << 'EOF'
+google_client_id     = "YOUR_GOOGLE_CLIENT_ID"
+google_client_secret = "YOUR_GOOGLE_CLIENT_SECRET"
+line_channel_id      = "YOUR_LINE_CHANNEL_ID"
+line_channel_secret  = "YOUR_LINE_CHANNEL_SECRET"
+EOF
+```
+
+#### AWS prod 環境
+
+```bash
+# infra/aws/prod/terraform.tfvars を作成
+cat > infra/aws/prod/terraform.tfvars << 'EOF'
+google_client_id     = "YOUR_GOOGLE_CLIENT_ID"
+google_client_secret = "YOUR_GOOGLE_CLIENT_SECRET"
+line_channel_id      = "YOUR_LINE_CHANNEL_ID"
+line_channel_secret  = "YOUR_LINE_CHANNEL_SECRET"
+EOF
+```
+
+**注意**: GCP 環境はデフォルト値で全て動作するため、`terraform.tfvars` の作成は不要です。
+
+### 1-6. CI/CD での設定
+
+GitHub Actions で Terraform CI を実行する際には、以下の Secrets をリポジトリに登録してください：
+
+- `TF_VARS_AWS_DEV` - AWS dev 環境用の `terraform.tfvars` 全体の内容
+- `TF_VARS_AWS_PROD` - AWS prod 環境用の `terraform.tfvars` 全体の内容
+
+### 1-7. Terraform 実行
 
 #### AWS dev 環境
 
@@ -119,10 +156,28 @@ terraform plan
 terraform apply
 ```
 
+#### AWS prod 環境
+
+```bash
+cd infra/aws/prod
+terraform init
+terraform plan
+terraform apply
+```
+
 #### GCP dev 環境
 
 ```bash
 cd infra/gcp/dev
+terraform init
+terraform plan
+terraform apply
+```
+
+#### GCP prod 環境
+
+```bash
+cd infra/gcp/prod
 terraform init
 terraform plan
 terraform apply
@@ -139,26 +194,12 @@ terraform apply
 
 ### 2-2. Flutter バージョンの準備
 
-このプロジェクトは **Flutter 3.38.1** を使用しています。
-
-#### FVM でバージョンを指定
-
-プロジェクトの `app/.fvmrc` ファイルに Flutter バージョンが指定されています。FVM を使用してこのバージョンをインストール・設定します：
+このプロジェクトは `app/.fvmrc` で Flutter バージョンを指定しています：
 
 ```bash
 cd app
 fvm install
 fvm use
-```
-
-#### FVM を使用した Flutter コマンドの実行
-
-FVM を使用する場合、`flutter` コマンドの代わりに `fvm flutter` を使用します。その後のセクションのコマンドも同様です：
-
-```bash
-fvm flutter pub get
-fvm flutter run
-fvm dart pub run build_runner build
 ```
 
 ### 2-3. 依存パッケージの取得
@@ -168,18 +209,34 @@ cd app
 fvm flutter pub get
 ```
 
-### 2-4. Code Generation (今後追加予定)
+### 2-4. アプリケーションの実行
+
+```bash
+# dev 環境で実行（デフォルト）
+fvm flutter run
+
+# prod 環境で実行
+fvm flutter run --dart-define=ENV=prod
+```
+
+### 2-5. 静的解析
+
+```bash
+fvm flutter analyze
+fvm dart run custom_lint
+```
+
+### 2-6. テスト実行
+
+```bash
+fvm flutter test
+```
+
+### 2-7. Code Generation (今後追加予定)
 
 ```bash
 # build_runner での自動生成処理（実装予定）
-# fvm dart pub run build_runner build
-```
-
-### 2-5. アプリケーションの実行
-
-```bash
-cd app
-fvm flutter run
+# fvm dart run build_runner build
 ```
 
 ---

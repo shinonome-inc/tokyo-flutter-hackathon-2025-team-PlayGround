@@ -32,3 +32,7 @@ jobs:
       - name: Run Custom Lint
         working-directory: app
         run: dart run custom_lint
+
+      - name: Run Tests
+        working-directory: app
+        run: flutter test

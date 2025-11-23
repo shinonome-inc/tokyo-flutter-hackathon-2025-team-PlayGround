@@ -23,15 +23,33 @@ app/
 └── test/                       # テストファイル
 ```
 
-## Getting Started
+## コマンド
 
-This project is a starting point for a Flutter application.
+このプロジェクトは FVM を使用して Flutter バージョンを管理しています。
 
-A few resources to get you started if this is your first Flutter project:
+### アプリケーションの実行
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+| コマンド | 説明 |
+|---------|------|
+| `fvm flutter run` | dev 環境でアプリを実行（デフォルト） |
+| `fvm flutter run --dart-define=ENV=prod` | prod 環境でアプリを実行 |
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 環境切り替えについて
+
+環境は `--dart-define=ENV=<env>` で切り替えます。
+
+```bash
+# dev 環境（デフォルト）
+fvm flutter run
+
+# prod 環境
+fvm flutter run --dart-define=ENV=prod
+```
+
+ビルド時も同様に指定できます：
+
+```bash
+# prod 環境でビルド
+fvm flutter build apk --dart-define=ENV=prod
+fvm flutter build ios --dart-define=ENV=prod
+```
