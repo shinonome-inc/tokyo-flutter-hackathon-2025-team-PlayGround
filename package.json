@@ -1,0 +1,12 @@
+{
+  "name": "tokyo-flutter-hackathon-2025-team-PlayGround",
+  "private": true,
+  "workspaces": [
+    "backend/lambda",
+    "backend/lambda/generate-ai-recipe"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces"
+  }
+}

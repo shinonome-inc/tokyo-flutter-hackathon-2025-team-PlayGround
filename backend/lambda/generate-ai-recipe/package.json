@@ -1,0 +1,11 @@
+{
+  "name": "@genkaimeshi/generate-ai-recipe",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p ."
+  },
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.130"
+  }
+}
