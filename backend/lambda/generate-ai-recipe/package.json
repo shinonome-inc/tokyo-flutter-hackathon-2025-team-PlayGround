@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "package": "npm run build && mkdir -p dist && find ./dist -name '*.js' | xargs zip -j ./dist/recipe_ai_generator.zip",
+    "build:package": "npm run package"
   },
   "dependencies": {
     "@types/aws-lambda": "^8.10.130"
