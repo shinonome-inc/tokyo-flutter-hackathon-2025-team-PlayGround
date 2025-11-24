@@ -6,6 +6,8 @@
     "backend/lambda/generate-ai-recipe"
   ],
   "scripts": {
+    "lambda:package": "cd backend/lambda && npm run build:package -w @genkaimeshi/generate-ai-recipe",
+    "lambda:package:zip": "cd backend/lambda && npm run build:package -w @genkaimeshi/generate-ai-recipe && cp dist/recipe_ai_generator.zip ../../backend/lambda/recipe_ai_generator.zip",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces"
   }
