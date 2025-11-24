@@ -255,19 +255,3 @@ fvm flutter test
 ```bash
 npm install
 ```
-
-### 3-3. Lambda 関数のビルド
-
-特定の Lambda 関数をビルドする場合：
-
-```bash
-npm run build -w @genkaimeshi/generate-ai-recipe
-```
-
-全ての Lambda 関数を一括でビルドする場合：
-
-```bash
-npm run build --workspaces
-```
-
-**注意**: ビルド後に Terraform を用いてデプロイを行う必要があります。
