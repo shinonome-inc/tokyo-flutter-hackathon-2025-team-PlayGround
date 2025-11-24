@@ -225,3 +225,6 @@ generated-pull-request-content
 
 # IDE
 .idea/
+
+# Lambda deployment packages
+backend/lambda/dist/*.zip
