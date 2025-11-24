@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "recipe_ai_generator" {
   function_name = "${var.project_name}-recipe-ai-generator"
-  role          = data.aws_iam_role.lambda_basic_execution.arn
+  role          = aws_iam_role.lambda_execution_role.arn
 
   runtime = "nodejs20.x"
   handler = "index.handler"

@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "recipe_ai_generator" {
   function_name = "${var.project_name}-recipe-ai-generator"
-  role          = data.aws_iam_role.lambda_basic_execution.arn
+  role          = aws_iam_role.lambda_execution_role.arn
 
   runtime = "nodejs20.x"
   handler = "index.handler"
@@ -27,5 +27,5 @@ resource "aws_lambda_permission" "api_gateway_lambda" {
   function_name = aws_lambda_function.recipe_ai_generator.function_name
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "${aws_api_gateway_rest_api.recipe_ai_api.execution_arn}/*/*"
+  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
 }
