@@ -5,9 +5,8 @@ resource "aws_lambda_function" "recipe_ai_generator" {
   runtime = "nodejs20.x"
   handler = "index.handler"
 
-  filename         = "../../../backend/lambda/recipe_ai_generator.zip"
-  # TODO: Lambda関数の実装後に有効化
-  # source_code_hash = filebase64sha256("../../../backend/lambda/recipe_ai_generator.zip")
+  filename         = "../../../backend/lambda/dist/recipe_ai_generator.zip"
+  source_code_hash = filebase64sha256("../../../backend/lambda/dist/recipe_ai_generator.zip")
 
   environment {
     variables = {
