@@ -1,12 +1,13 @@
 resource "aws_lambda_function" "recipe_ai_generator" {
   function_name = "${var.project_name}-recipe-ai-generator"
-  role          = aws_iam_role.lambda_execution_role.arn
+  role          = data.aws_iam_role.lambda_basic_execution.arn
 
   runtime = "nodejs20.x"
   handler = "index.handler"
 
   filename         = "../../../backend/lambda/recipe_ai_generator.zip"
-  source_code_hash = filebase64sha256("../../../backend/lambda/recipe_ai_generator.zip")
+  # TODO: Lambda関数の実装後に有効化
+  # source_code_hash = filebase64sha256("../../../backend/lambda/recipe_ai_generator.zip")
 
   environment {
     variables = {
