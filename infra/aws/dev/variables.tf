@@ -45,3 +45,9 @@ variable "cognito_logout_urls" {
   type        = list(string)
   default     = ["myapp://logout"]
 }
+
+variable "gemini_api_key" {
+  description = "Gemini APIキー"
+  type        = string
+  sensitive   = true
+}
