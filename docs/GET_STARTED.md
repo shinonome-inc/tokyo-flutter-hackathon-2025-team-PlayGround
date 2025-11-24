@@ -243,4 +243,31 @@ fvm flutter test
 
 ## 3. バックエンド環境のセットアップ
 
-(TODO: 追加予定)
+### 3-1. 前提条件
+
+- Node.js 20.x 以上がインストールされていること
+- npm (Node Package Manager) がインストールされていること
+
+### 3-2. プロジェクト依存関係のインストール
+
+**注意**: 以下のコマンドは `backend/lambda/` ディレクトリで実行します。
+
+```bash
+npm install
+```
+
+### 3-3. Lambda 関数のビルド
+
+特定の Lambda 関数をビルドする場合：
+
+```bash
+npm run build -w @genkaimeshi/generate-ai-recipe
+```
+
+全ての Lambda 関数を一括でビルドする場合：
+
+```bash
+npm run build --workspaces
+```
+
+**注意**: ビルド後に Terraform を用いてデプロイを行う必要があります。

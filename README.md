@@ -24,6 +24,7 @@
 ### プロジェクト
 
 - [app/README.md](app/README.md) - Flutter アプリケーション
+- [backend/README.md](backend/README.md) - バックエンド
 - [infra/README.md](infra/README.md) - インフラストラクチャ構成
 
 ### 開発ルール
