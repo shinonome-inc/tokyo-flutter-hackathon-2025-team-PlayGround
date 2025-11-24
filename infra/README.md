@@ -15,26 +15,26 @@ infra/
 │   │   ├── versions.tf
 │   │   ├── variables.tf
 │   │   ├── remote-state.tf
-│   │   └── services/          # 各種サービス定義
+│   │   └── xxx.tf.            # 各種サービスごとにファイルを作成
 │   └── prod/                  # 本番環境
 │       ├── providers.tf
 │       ├── versions.tf
 │       ├── variables.tf
 │       ├── remote-state.tf
-│       └── services/          # 各種サービス定義
+│       └── xxx.tf.            # 各種サービスごとにファイルを作成
 └── gcp/                       # GCP環境
     ├── dev/                   # 開発環境
     │   ├── providers.tf
     │   ├── versions.tf
     │   ├── variables.tf
     │   ├── remote-state.tf
-    │   └── services/          # 各種サービス定義
+    │   │   └── xxx.tf.        # 各種サービスごとにファイルを作成
     └── prod/                  # 本番環境
         ├── providers.tf
         ├── versions.tf
         ├── variables.tf
         ├── remote-state.tf
-        └── services/          # 各種サービス定義
+        │   └── xxx.tf.        # 各種サービスごとにファイルを作成
 ```
 
 ## セットアップ手順
@@ -58,16 +58,14 @@ Terraform State は、AWS S3 と DynamoDB で管理されています：
 
 ## 新しいサービスの追加方法
 
-各環境の `services/` ディレクトリ内に、サービスごとの Terraform ファイルを作成してください。
-
 例：
 
 ```bash
 # AWSでS3を追加する場合
-infra/aws/dev/services/s3.tf
-infra/aws/prod/services/s3.tf
+infra/aws/dev/s3.tf
+infra/aws/prod/s3.tf
 
 # GCPでCloud Storageを追加する場合
-infra/gcp/dev/services/storage.tf
-infra/gcp/prod/services/storage.tf
+infra/gcp/dev/storage.tf
+infra/gcp/prod/storage.tf
 ```
