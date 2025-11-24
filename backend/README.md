@@ -30,13 +30,13 @@ backend/
 
 `backend/lambda/` にて実行してください。
 
-### 特定の Lambda 関数をビルドし、ZIP パッケージを作成
+### 特定の Lambda 関数をビルド & ZIP パッケージを作成
 
 ```bash
 npm run build:package -w @genkaimeshi/generate-ai-recipe
 ```
 
-### 全ての Lambda 関数をビルドし、ZIP パッケージを作成
+### 全ての Lambda 関数をビルド & ZIP パッケージを作成
 
 ```bash
 npm run build:package --workspaces
