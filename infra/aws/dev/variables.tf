@@ -51,3 +51,9 @@ variable "gemini_api_key" {
   type        = string
   sensitive   = true
 }
+
+variable "gcp_project_id" {
+  description = "GCPプロジェクトID"
+  type        = string
+  default     = "genkaimeshi-recipe"
+}
