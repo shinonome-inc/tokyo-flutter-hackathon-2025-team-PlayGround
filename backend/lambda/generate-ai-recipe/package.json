@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "build": "tsc -p .",
-    "package": "npm run build && mkdir -p dist && find ./dist -name '*.js' | xargs zip -j ./dist/recipe_ai_generator.zip",
+    "package": "npm run build && rm -rf dist/recipe_ai_generator.zip dist/node_modules && cp -r ../node_modules dist/ && cd dist && zip -r recipe_ai_generator.zip index.js node_modules",
     "build:package": "npm run package"
   },
   "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.939.0",
+    "@google/generative-ai": "^0.24.1",
     "@types/aws-lambda": "^8.10.130"
   }
 }
