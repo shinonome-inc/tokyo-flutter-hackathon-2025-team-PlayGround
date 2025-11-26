@@ -29,21 +29,14 @@ export function createRecipeImagePrompt(
   ingredients?: Array<{ name: string; amount: string }>,
   overview?: string
 ): string {
-  let prompt = `A high-quality, appetizing photograph of "${recipeTitle}" dish. `;
+  let prompt = `料理の写真を生成してください。料理のタイトルは「${recipeTitle}」です。`;
 
   if (ingredients && ingredients.length > 0) {
-    const mainIngredients = ingredients
-      .slice(0, 3)
-      .map((ing) => ing.name)
-      .join(", ");
-    prompt += `Main ingredients visible: ${mainIngredients}. `;
+    const mainIngredients = ingredients.map((ing) => ing.name).join("、");
+    prompt += `使用する食材: ${mainIngredients}。`;
   }
 
-  if (overview) {
-    prompt += `${overview} `;
-  }
-
-  prompt += `Professional food photography with natural lighting, shallow depth of field, shot from a 45-degree angle. The dish should look delicious and ready to serve, with vibrant colors and beautiful presentation. Restaurant quality plating on a white plate, slightly angled view. Photorealistic, 4K quality.`;
+  prompt += `お皿に盛り付けられた完成した料理。食べ物の写真。食卓。キッチン。レシピ。`;
 
   return prompt;
 }

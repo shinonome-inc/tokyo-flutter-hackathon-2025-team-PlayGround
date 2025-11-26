@@ -1,62 +1,43 @@
-import { PredictionServiceClient } from "@google-cloud/aiplatform";
-import { GCP_CONFIG } from "../config/env";
+import { GoogleGenAI } from "@google/genai";
 import { createRecipeImagePrompt } from "../utils/promptGenerator";
-import { getGcpServiceAccountKey } from "./secretsManagerService";
+import { getGeminiApiKey } from "./secretsManagerService";
 
 /**
- * Vertex AI Imagen APIで画像を生成
+ * Gemini APIで画像を生成
  */
 export async function generateRecipeImage(
   recipeTitle: string,
   ingredients?: Array<{ name: string; amount: string }>,
   overview?: string
 ): Promise<Buffer> {
-  const endpoint = `projects/${GCP_CONFIG.PROJECT_ID}/locations/${GCP_CONFIG.IMAGEN_LOCATION}/publishers/google/models/imagegeneration@006`;
-
-  const credentials = await getGcpServiceAccountKey();
-
-  const predictionServiceClient = new PredictionServiceClient({
-    apiEndpoint: `${GCP_CONFIG.IMAGEN_LOCATION}-aiplatform.googleapis.com`,
-    credentials,
-  });
+  const apiKey = await getGeminiApiKey();
+  const ai = new GoogleGenAI({ apiKey });
 
   const prompt = createRecipeImagePrompt(recipeTitle, ingredients, overview);
 
-  const instanceValue = {
-    prompt,
-  };
-  const instance = {
-    structValue: {
-      fields: {
-        prompt: { stringValue: instanceValue.prompt },
-      },
-    },
-  };
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash-image-preview",
+    contents: prompt,
+  });
 
-  const parameters = {
-    structValue: {
-      fields: {
-        sampleCount: { numberValue: 1 },
-      },
-    },
-  };
-
-  const request = {
-    endpoint,
-    instances: [instance],
-    parameters,
-  };
-
-  const [response] = await predictionServiceClient.predict(request);
-  const predictions = response.predictions;
-
-  if (!predictions || predictions.length === 0) {
+  const candidates = response.candidates;
+  if (!candidates || candidates.length === 0) {
     throw new Error("No image generated");
   }
 
-  const prediction = predictions[0];
-  const imageData =
-    prediction.structValue?.fields?.bytesBase64Encoded?.stringValue;
+  const candidate = candidates[0];
+  const parts = candidate.content?.parts;
+  if (!parts || parts.length === 0) {
+    throw new Error("No parts in response");
+  }
+
+  let imageData: string | undefined;
+  for (const part of parts) {
+    if (part.inlineData?.data) {
+      imageData = part.inlineData.data;
+      break;
+    }
+  }
 
   if (!imageData) {
     throw new Error("Image data not found in response");
