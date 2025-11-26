@@ -32,7 +32,10 @@ resource "aws_iam_role_policy" "lambda_secrets_manager_policy" {
         Action = [
           "secretsmanager:GetSecretValue"
         ]
-        Resource = aws_secretsmanager_secret.gemini_api_key.arn
+        Resource = [
+          aws_secretsmanager_secret.gemini_api_key.arn,
+          aws_secretsmanager_secret.gcp_service_account_key.arn
+        ]
       },
       {
         Effect = "Allow"
