@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc -p .",
     "test:local": "npm run build && ts-node test-local.ts",
-    "package": "npm run build && mkdir -p ../dist dist/node_modules && rm -rf ../dist/recipe_ai_generator.zip && cp -rL ../../../node_modules/@aws-sdk ../../../node_modules/@google ../../../node_modules/@google-cloud ../../../node_modules/uuid dist/node_modules/ 2>/dev/null || true && cd dist && zip -r ../../dist/recipe_ai_generator.zip index.js node_modules",
+    "package": "npm run build && mkdir -p ../dist dist/node_modules && rm -rf ../dist/recipe_ai_generator.zip && cp -rL ../../../node_modules/@aws-sdk ../../../node_modules/@google ../../../node_modules/@google-cloud ../../../node_modules/uuid dist/node_modules/ 2>/dev/null || true && cd dist && zip -r ../../dist/recipe_ai_generator.zip . -x '*.map' -x 'recipe_ai_generator.zip'",
     "build:package": "npm run package"
   },
   "dependencies": {
