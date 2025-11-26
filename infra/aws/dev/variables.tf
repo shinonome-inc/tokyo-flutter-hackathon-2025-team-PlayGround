@@ -57,3 +57,9 @@ variable "gcp_project_id" {
   type        = string
   default     = "genkaimeshi-recipe"
 }
+
+variable "gcp_service_account_key" {
+  description = "GCP Vertex AI用のサービスアカウントキー（JSON文字列）"
+  type        = string
+  sensitive   = true
+}
