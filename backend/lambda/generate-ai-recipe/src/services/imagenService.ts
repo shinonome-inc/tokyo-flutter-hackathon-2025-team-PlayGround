@@ -7,7 +7,9 @@ import { getGcpServiceAccountKey } from "./secretsManagerService";
  * Vertex AI Imagen APIで画像を生成
  */
 export async function generateRecipeImage(
-  recipeTitle: string
+  recipeTitle: string,
+  ingredients?: Array<{ name: string; amount: string }>,
+  overview?: string
 ): Promise<Buffer> {
   const endpoint = `projects/${GCP_CONFIG.PROJECT_ID}/locations/${GCP_CONFIG.IMAGEN_LOCATION}/publishers/google/models/imagegeneration@006`;
 
@@ -18,7 +20,7 @@ export async function generateRecipeImage(
     credentials,
   });
 
-  const prompt = createRecipeImagePrompt(recipeTitle);
+  const prompt = createRecipeImagePrompt(recipeTitle, ingredients, overview);
 
   const instanceValue = {
     prompt,

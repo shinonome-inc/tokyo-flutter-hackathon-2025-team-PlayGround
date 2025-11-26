@@ -44,7 +44,7 @@ export const handler = async (
 
     const recipeId = uuidv4();
     const imageUrl = await uploadImageToS3(
-      await generateRecipeImage(recipe.title),
+      await generateRecipeImage(recipe.title, recipe.ingredients, recipe.overview),
       `${recipeId}.png`
     );
 
