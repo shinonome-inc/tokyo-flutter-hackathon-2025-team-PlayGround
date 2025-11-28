@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "backend/lambda/**"
+      - ".github/workflows/nodejs-ci.yml"
 
 jobs:
   discover-and-test-lambdas:

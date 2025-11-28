@@ -5,10 +5,6 @@ on:
     paths:
       - "infra/**"
       - ".github/workflows/terraform-ci.yml"
-  pull_request:
-    paths:
-      - "infra/**"
-      - ".github/workflows/terraform-ci.yml"
 
 env:
   TF_VERSION: "1.5.0"
@@ -30,6 +26,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build Lambda functions
+        if: matrix.provider == 'aws'
+        run: |
+          mkdir -p backend/lambda/dist
+          cd backend/lambda
+          npm ci
+          cd generate-ai-recipe && npm run build && zip -r ../dist/recipe_ai_generator.zip .
+          cd ../presigned-url && npm run build && zip -r ../dist/presigned_url.zip .
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
