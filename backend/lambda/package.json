@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "build:package": "npm run build --workspaces",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"No tests specified for Lambda base project\""
   },
   "devDependencies": {
     "typescript": "^5.3.2",
