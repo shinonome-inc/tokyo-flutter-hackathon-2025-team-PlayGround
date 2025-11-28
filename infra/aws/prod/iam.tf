@@ -48,9 +48,8 @@ resource "aws_iam_role_policy" "lambda_secrets_manager_policy" {
   })
 }
 
-resource "aws_iam_role_policy" "lambda_s3_policy" {
+resource "aws_iam_policy" "lambda_s3_policy" {
   name = "${var.project_name}-lambda-s3-policy"
-  role = aws_iam_role.lambda_execution_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -59,10 +58,19 @@ resource "aws_iam_role_policy" "lambda_s3_policy" {
         Effect = "Allow"
         Action = [
           "s3:PutObject",
-          "s3:PutObjectAcl"
+          "s3:GetObject",
+          "s3:ListBucket"
         ]
-        Resource = "${aws_s3_bucket.recipe_images.arn}/*"
+        Resource = [
+          "arn:aws:s3:::${aws_s3_bucket.recipe_images.bucket}",
+          "arn:aws:s3:::${aws_s3_bucket.recipe_images.bucket}/*"
+        ]
       }
     ]
   })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3_policy_attach" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_s3_policy.arn
 }
