@@ -24,6 +24,18 @@ resource "aws_secretsmanager_secret_version" "gcp_service_account_key" {
   secret_string = var.gcp_service_account_key
 }
 
+resource "aws_secretsmanager_secret" "vision_service_account_key" {
+  name        = "${var.project_name}-vision-service-account-key"
+  description = "Cloud Vision用のサービスアカウントキーを安全に保管するためのSecretsManagerリソース"
+
+  kms_key_id = aws_kms_key.secrets_encryption.key_id
+}
+
+resource "aws_secretsmanager_secret_version" "vision_service_account_key" {
+  secret_id     = aws_secretsmanager_secret.vision_service_account_key.id
+  secret_string = var.vision_service_account_key
+}
+
 resource "aws_kms_key" "secrets_encryption" {
   description             = "Secrets Manager用の暗号化キー"
   deletion_window_in_days = 10

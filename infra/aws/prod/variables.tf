@@ -63,3 +63,9 @@ variable "gcp_service_account_key" {
   type        = string
   sensitive   = true
 }
+
+variable "vision_service_account_key" {
+  description = "Cloud Vision用のサービスアカウントキー（JSON文字列）"
+  type        = string
+  sensitive   = true
+}
