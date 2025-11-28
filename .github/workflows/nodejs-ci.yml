@@ -25,6 +25,18 @@ jobs:
             echo "Processing directory: $directory"
             cd "$GITHUB_WORKSPACE/$directory"
             npm ci
-            npm run lint
-            npm test
+
+            if npm run | grep -q "lint"; then
+              echo "Running lint..."
+              npm run lint
+            else
+              echo "Skipping lint (script not found)"
+            fi
+
+            if npm run | grep -q "test"; then
+              echo "Running tests..."
+              npm test
+            else
+              echo "Skipping tests (script not found)"
+            fi
           done
