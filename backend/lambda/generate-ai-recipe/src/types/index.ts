@@ -2,6 +2,7 @@ export interface RequestBody {
   context: string;
   user_id?: string;
   user_name?: string;
+  image_s3_key?: string;
 }
 
 export interface SecretValue {
