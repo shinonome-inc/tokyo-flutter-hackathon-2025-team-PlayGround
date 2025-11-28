@@ -38,8 +38,16 @@ jobs:
           mkdir -p backend/lambda/dist
           cd backend/lambda
           npm ci
-          cd generate-ai-recipe && npm run build && zip -r ../dist/recipe_ai_generator.zip .
-          cd ../presigned-url && npm run build && zip -r ../dist/presigned_url.zip .
+
+          cd generate-ai-recipe
+          npm run build
+          zip -r ../dist/recipe_ai_generator.zip .
+          cd ..
+
+          cd presigned-url
+          npm run build
+          zip -r ../dist/presigned_url.zip .
+          cd ..
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
