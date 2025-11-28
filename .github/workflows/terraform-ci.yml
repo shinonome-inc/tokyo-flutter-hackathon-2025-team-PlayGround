@@ -36,7 +36,7 @@ jobs:
         if: matrix.provider == 'aws'
         run: |
           set -e
-          cd ../..  # リポジトリのルートディレクトリに移動
+          cd ../../..  # リポジトリのルートディレクトリに移動 (infra/aws/prod -> ルート)
 
           echo "Current working directory: $PWD"
           echo "Backend Lambda directory contents:"
