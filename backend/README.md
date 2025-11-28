@@ -30,6 +30,12 @@ backend/
 
 `backend/lambda/` にて実行してください。
 
+### 依存関係のインストール
+
+```bash
+npm install
+```
+
 ### 特定の Lambda 関数をビルド & ZIP パッケージを作成
 
 ```bash
