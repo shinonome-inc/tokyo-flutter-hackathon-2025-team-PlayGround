@@ -10,7 +10,7 @@ resource "aws_lambda_function" "recipe_ai_generator" {
 
   environment {
     variables = {
-      GEMINI_API_KEY_ARN         = aws_secretsmanager_secret.gemini_api_key.arn
+      GEMINI_API_KEY_ARN          = aws_secretsmanager_secret.gemini_api_key.arn
       GCP_SERVICE_ACCOUNT_KEY_ARN = aws_secretsmanager_secret.gcp_service_account_key.arn
       S3_BUCKET_NAME              = aws_s3_bucket.recipe_images.bucket
       ENVIRONMENT                 = "prod"
