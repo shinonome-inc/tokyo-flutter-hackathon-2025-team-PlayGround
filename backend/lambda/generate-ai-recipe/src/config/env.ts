@@ -19,4 +19,5 @@ export const AWS_CONFIG = {
   GEMINI_API_KEY_ARN: () => getEnv("GEMINI_API_KEY_ARN"),
   S3_BUCKET_NAME: () => getEnv("S3_BUCKET_NAME"),
   ENVIRONMENT: process.env.ENVIRONMENT || "dev",
+  GCP_SERVICE_ACCOUNT_KEY_ARN: () => getEnv("GCP_SERVICE_ACCOUNT_KEY_ARN"),
 };
