@@ -4,49 +4,64 @@ import { RequestBody, RecipeResponse, Ingredient, Step } from "./types/index";
 import { getGeminiApiKey } from "./services/secretsManagerService";
 import { generateRecipeText } from "./services/geminiService";
 import { generateRecipeImage } from "./services/imagenService";
-import { uploadImageToS3 } from "./services/s3Service";
+import { uploadImageToS3, downloadImageFromS3 } from "./services/s3Service";
+import { enrichRecipeContextWithImageIngredients } from "./services/ingredientDetectionService";
 
 export const handler = async (
-  event: APIGatewayProxyEvent
+  event: APIGatewayProxyEvent | RequestBody
 ): Promise<APIGatewayProxyResult> => {
-  try {
-    console.log("Received event:", JSON.stringify(event));
+  console.log("Received event:", JSON.stringify(event, null, 2));
 
-    if (!event.body) {
-      return {
-        statusCode: 400,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ error: "Request body is required" }),
-      };
-    }
+  let requestBody: RequestBody;
 
+  if ("body" in event && event.body) {
     console.log("Event body:", event.body);
-    console.log("Event body type:", typeof event.body);
-    console.log("Event body length:", event.body.length);
-
-    const requestBody: RequestBody =
+    requestBody =
       typeof event.body === "string" ? JSON.parse(event.body) : event.body;
+  } else if ("context" in event) {
+    console.log("Direct Lambda invocation");
+    requestBody = event as RequestBody;
+  } else {
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Request body is required" }),
+    };
+  }
 
-    if (!requestBody.context || typeof requestBody.context !== "string") {
-      return {
-        statusCode: 400,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          error: "context is required and must be a string",
-        }),
-      };
+  if (!requestBody.context || typeof requestBody.context !== "string") {
+    return {
+      statusCode: 400,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "context is required and must be a string",
+      }),
+    };
+  }
+
+  try {
+    let recipeContext = requestBody.context;
+
+    if (requestBody.image_s3_key) {
+      const imageBuffer = await downloadImageFromS3(requestBody.image_s3_key);
+      recipeContext = await enrichRecipeContextWithImageIngredients(
+        imageBuffer,
+        recipeContext
+      );
     }
 
     const recipe = await generateRecipeText(
       await getGeminiApiKey(),
-      requestBody.context
+      recipeContext
     );
 
     const recipeId = uuidv4();
-    const imageUrl = await uploadImageToS3(
-      await generateRecipeImage(recipe.title, recipe.ingredients, recipe.overview),
-      `${recipeId}.png`
+    const generatedImage = await generateRecipeImage(
+      recipe.title,
+      recipe.ingredients,
+      recipe.overview
     );
+    const imageUrl = await uploadImageToS3(generatedImage, `${recipeId}.png`);
 
     const ingredients: Ingredient[] = recipe.ingredients.map((ing) => ({
       id: uuidv4(),
