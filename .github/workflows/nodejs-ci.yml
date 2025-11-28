@@ -1,0 +1,30 @@
+name: Node.js CI
+
+on:
+  push:
+    paths:
+      - "backend/lambda/**"
+
+jobs:
+  discover-and-test-lambdas:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Find and test Lambda functions
+        run: |
+          DIRECTORIES=$(find backend/lambda -maxdepth 2 -type f -name "package.json" -exec dirname {} \;)
+
+          for directory in $DIRECTORIES; do
+            echo "Processing directory: $directory"
+            cd "$GITHUB_WORKSPACE/$directory"
+            npm ci
+            npm run lint
+            npm test
+          done
