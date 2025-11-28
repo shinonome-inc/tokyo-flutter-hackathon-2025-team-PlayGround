@@ -6,7 +6,7 @@ resource "aws_secretsmanager_secret" "gemini_api_key" {
 }
 
 resource "aws_secretsmanager_secret_version" "gemini_api_key" {
-  secret_id     = aws_secretsmanager_secret.gemini_api_key.id
+  secret_id = aws_secretsmanager_secret.gemini_api_key.id
   secret_string = jsonencode({
     gemini_api_key = var.gemini_api_key
   })
