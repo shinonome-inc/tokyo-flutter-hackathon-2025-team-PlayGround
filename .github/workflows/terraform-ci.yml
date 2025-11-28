@@ -5,10 +5,6 @@ on:
     paths:
       - "infra/**"
       - ".github/workflows/terraform-ci.yml"
-  pull_request:
-    paths:
-      - "infra/**"
-      - ".github/workflows/terraform-ci.yml"
 
 env:
   TF_VERSION: "1.5.0"
@@ -30,6 +26,43 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build Lambda functions
+        if: matrix.provider == 'aws'
+        run: |
+          set -e
+          cd ../../..  # リポジトリのルートディレクトリに移動 (infra/aws/prod -> ルート)
+
+          echo "Current working directory: $PWD"
+          echo "Backend Lambda directory contents:"
+          ls -la backend/lambda
+
+          cd backend/lambda
+          npm ci
+
+          # dist ディレクトリを作成
+          mkdir -p dist
+
+          # generate-ai-recipe のビルド
+          echo "Building generate-ai-recipe"
+          cd generate-ai-recipe
+          npm ci
+          npm run build
+          zip -r ../dist/recipe_ai_generator.zip .
+          cd ..
+
+          # presigned-url のビルド
+          echo "Building presigned-url"
+          cd presigned-url
+          npm ci
+          npm run build
+          zip -r ../dist/presigned_url.zip .
+          cd ..
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -82,4 +115,11 @@ jobs:
 
       - name: Fail if errors
         if: steps.fmt.outcome == 'failure' || steps.init.outcome == 'failure' || steps.validate.outcome == 'failure' || steps.plan.outcome == 'failure'
-        run: exit 1
+        run: |
+          echo "Format check status: ${{ steps.fmt.outcome }}"
+          echo "Init status: ${{ steps.init.outcome }}"
+          echo "Validate status: ${{ steps.validate.outcome }}"
+          echo "Plan status: ${{ steps.plan.outcome }}"
+          echo "Current working directory: $(pwd)"
+          ls -la
+          exit 1

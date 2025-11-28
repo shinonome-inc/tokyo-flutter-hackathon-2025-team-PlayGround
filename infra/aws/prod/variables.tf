@@ -45,3 +45,27 @@ variable "cognito_logout_urls" {
   type        = list(string)
   default     = ["myapp://logout"]
 }
+
+variable "gemini_api_key" {
+  description = "Gemini APIキー"
+  type        = string
+  sensitive   = true
+}
+
+variable "gcp_project_id" {
+  description = "GCPプロジェクトID"
+  type        = string
+  default     = "genkaimeshi-recipe"
+}
+
+variable "gcp_service_account_key" {
+  description = "GCP Vertex AI用のサービスアカウントキー（JSON文字列）"
+  type        = string
+  sensitive   = true
+}
+
+variable "vision_service_account_key" {
+  description = "Cloud Vision用のサービスアカウントキー（JSON文字列）"
+  type        = string
+  sensitive   = true
+}

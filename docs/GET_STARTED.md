@@ -243,4 +243,15 @@ fvm flutter test
 
 ## 3. バックエンド環境のセットアップ
 
-(TODO: 追加予定)
+### 3-1. 前提条件
+
+- Node.js 20.x 以上がインストールされていること
+- npm (Node Package Manager) がインストールされていること
+
+### 3-2. プロジェクト依存関係のインストール
+
+**注意**: 以下のコマンドは `backend/lambda/` ディレクトリで実行します。
+
+```bash
+npm install
+```

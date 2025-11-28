@@ -1,0 +1,43 @@
+name: Node.js CI
+
+on:
+  push:
+    paths:
+      - "backend/lambda/**"
+      - ".github/workflows/nodejs-ci.yml"
+
+jobs:
+  discover-and-test-lambdas:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Find and test Lambda functions
+        run: |
+          DIRECTORIES=$(find backend/lambda -maxdepth 2 -type f -name "package.json" -exec dirname {} \;)
+
+          for directory in $DIRECTORIES; do
+            echo "Processing directory: $directory"
+            cd "$GITHUB_WORKSPACE/$directory"
+            npm ci
+
+            if npm run | grep -q "lint"; then
+              echo "Running lint..."
+              npm run lint
+            else
+              echo "Skipping lint (script not found)"
+            fi
+
+            if npm run | grep -q "test"; then
+              echo "Running tests..."
+              npm test
+            else
+              echo "Skipping tests (script not found)"
+            fi
+          done
