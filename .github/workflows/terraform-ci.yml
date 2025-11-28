@@ -35,16 +35,26 @@ jobs:
       - name: Build Lambda functions
         if: matrix.provider == 'aws'
         run: |
-          mkdir -p backend/lambda/dist
+          set -e
+          echo "Current working directory: $PWD"
+          echo "Backend Lambda directory contents:"
+          ls -la backend/lambda
+
           cd backend/lambda
           npm ci
 
+          # generate-ai-recipe のビルド
+          echo "Building generate-ai-recipe"
           cd generate-ai-recipe
+          npm ci
           npm run build
           zip -r ../dist/recipe_ai_generator.zip .
           cd ..
 
+          # presigned-url のビルド
+          echo "Building presigned-url"
           cd presigned-url
+          npm ci
           npm run build
           zip -r ../dist/presigned_url.zip .
           cd ..
