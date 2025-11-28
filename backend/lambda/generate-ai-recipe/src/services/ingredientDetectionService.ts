@@ -6,19 +6,19 @@ import { INGREDIENT_LABEL_KEYWORDS } from "../constants/ingredientKeywords";
 
 /**
  * 画像から食材情報を抽出してテキスト情報として返す
- * @param imageBase64 Base64エンコードされた画像データ
+ * @param imageBuffer 画像データのBuffer
  * @param originalContext 元のレシピ生成コンテキスト
  * @returns 画像から抽出した食材情報を追加したコンテキスト
  */
 export async function enrichRecipeContextWithImageIngredients(
-  imageBase64: string,
+  imageBuffer: Buffer,
   originalContext: string
 ): Promise<string> {
   const labeledObjectTexts = await detectLabeledObjectTextsFromImage(
-    imageBase64,
+    imageBuffer,
     INGREDIENT_LABEL_KEYWORDS
   );
-  const detectedTexts = await detectTextsFromImage(imageBase64);
+  const detectedTexts = await detectTextsFromImage(imageBuffer);
   const detectedIngredientsText = [
     ...new Set([...labeledObjectTexts, ...detectedTexts]),
   ];
