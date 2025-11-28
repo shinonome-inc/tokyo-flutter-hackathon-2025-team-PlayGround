@@ -1,3 +1,13 @@
+locals {
+  recipe_ai_generator_zip = fileexists("../../../backend/lambda/dist/recipe_ai_generator.zip") ?
+    "../../../backend/lambda/dist/recipe_ai_generator.zip" :
+    "/home/runner/work/tokyo-flutter-hackathon-2025-team-PlayGround/tokyo-flutter-hackathon-2025-team-PlayGround/backend/lambda/dist/recipe_ai_generator.zip"
+
+  presigned_url_zip = fileexists("../../../backend/lambda/dist/presigned_url.zip") ?
+    "../../../backend/lambda/dist/presigned_url.zip" :
+    "/home/runner/work/tokyo-flutter-hackathon-2025-team-PlayGround/tokyo-flutter-hackathon-2025-team-PlayGround/backend/lambda/dist/presigned_url.zip"
+}
+
 resource "aws_lambda_function" "recipe_ai_generator" {
   function_name = "${var.project_name}-recipe-ai-generator"
   role          = aws_iam_role.lambda_execution_role.arn
@@ -5,8 +15,8 @@ resource "aws_lambda_function" "recipe_ai_generator" {
   runtime = "nodejs20.x"
   handler = "index.handler"
 
-  filename         = "../../../backend/lambda/dist/recipe_ai_generator.zip"
-  source_code_hash = filebase64sha256("../../../backend/lambda/dist/recipe_ai_generator.zip")
+  filename         = local.recipe_ai_generator_zip
+  source_code_hash = filebase64sha256(local.recipe_ai_generator_zip)
 
   environment {
     variables = {
@@ -40,8 +50,8 @@ resource "aws_lambda_function" "presigned_url_generator" {
   runtime = "nodejs20.x"
   handler = "index.handler"
 
-  filename         = "../../../backend/lambda/dist/presigned_url.zip"
-  source_code_hash = filebase64sha256("../../../backend/lambda/dist/presigned_url.zip")
+  filename         = local.presigned_url_zip
+  source_code_hash = filebase64sha256(local.presigned_url_zip)
 
   environment {
     variables = {
