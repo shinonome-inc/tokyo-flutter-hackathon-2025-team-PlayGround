@@ -1,5 +1,7 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:app/enums/app_page.dart';
+import 'package:app/screens/sign_up/confirmation_code_form.dart';
+import 'package:app/screens/sign_up/email_sign_up_form.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -161,86 +163,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
       appBar: AppBar(
         title: const Text('新規登録'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (!_isConfirmationStep) ...[
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'メールアドレス',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
+            if (!_isConfirmationStep)
+              EmailSignUpForm(
+                emailController: _emailController,
+                passwordController: _passwordController,
+                isLoading: _isLoading,
+                onSignUpWithEmail: _signUpWithEmail,
+                onSignUpWithGoogle: _signUpWithGoogle,
+                onSignUpWithLine: _signUpWithLine,
+              )
+            else
+              ConfirmationCodeForm(
+                confirmationCodeController: _confirmationCodeController,
+                isLoading: _isLoading,
+                onConfirmSignUp: _confirmSignUp,
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'パスワード',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _signUpWithEmail,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('メールアドレスで登録'),
-                ),
-              ),
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 16),
-              const Text(
-                'または',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: _isLoading ? null : _signUpWithGoogle,
-                child: const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Googleで登録'),
-                ),
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: _isLoading ? null : _signUpWithLine,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF00B900),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('LINEで登録'),
-                ),
-              ),
-            ] else ...[
-              TextField(
-                controller: _confirmationCodeController,
-                decoration: const InputDecoration(
-                  labelText: '確認コード',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _confirmSignUp,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('確認'),
-                ),
-              ),
-            ],
             if (_message.isNotEmpty) ...[
               const SizedBox(height: 24),
               Text(
