@@ -1,6 +1,6 @@
 import 'package:app/models/comment.dart';
+import 'package:app/models/cooking_step.dart';
 import 'package:app/models/ingredient.dart';
-import 'package:app/models/step.dart';
 import 'package:app/models/user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -19,7 +19,7 @@ abstract class RecipeDetail with _$RecipeDetail {
     User? user,
     String? notes,
     List<Ingredient>? ingredients,
-    List<Step>? steps,
+    List<CookingStep>? steps,
     List<Comment>? comments,
     bool? isLikedByMe,
     int? likeCount,
