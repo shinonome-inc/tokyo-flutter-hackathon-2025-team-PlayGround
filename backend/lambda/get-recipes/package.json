@@ -1,0 +1,17 @@
+{
+  "name": "@genkaimeshi/get-recipes",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "package": "npm run build && mkdir -p ../dist dist/node_modules && rm -rf ../dist/get_recipes.zip && cp -rL ../../../node_modules/@aws-sdk dist/node_modules/ 2>/dev/null || true && find dist/node_modules -type d \\( -name 'test*' -o -name 'dist-es' -o -name 'dist-types' \\) -exec rm -rf {} + 2>/dev/null || true && find dist/node_modules -type f \\( -name '*.md' -o -name '*.ts' -o -name '*.map' -o -name 'LICENSE*' -o -name '*.d.ts' \\) -delete 2>/dev/null || true && cd dist && zip -r ../../dist/get_recipes.zip . -x '*.map' -x 'get_recipes.zip'",
+    "build:package": "npm run package"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.705.0",
+    "@aws-sdk/lib-dynamodb": "^3.705.0"
+  }
+}
