@@ -64,6 +64,14 @@ jobs:
           zip -r ../dist/presigned_url.zip .
           cd ..
 
+          # post-recipe のビルド
+          echo "Building post-recipe"
+          cd post_recipe
+          npm ci
+          npm run build
+          zip -r ../dist/post_recipe.zip .
+          cd ..
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
