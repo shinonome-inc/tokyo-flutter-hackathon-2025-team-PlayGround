@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { verifyAndGetUserId } from "./utils/authUtils";
 
 const client = new DynamoDBClient();
 const ddbDocClient = DynamoDBDocumentClient.from(client);
@@ -28,27 +29,6 @@ interface User {
   emailAddress: string;
 }
 
-/**
- * AuthorizationヘッダーからユーザーIDを取得する
- * JWTトークンをデコードしてsubクレームを抽出
- */
-function getUserIdFromAuthHeader(event: APIGatewayProxyEvent): string | null {
-  const authHeader = event.headers?.Authorization || event.headers?.authorization;
-  if (!authHeader) {
-    return null;
-  }
-
-  const token = authHeader.replace(/^Bearer\s+/i, "");
-  try {
-    // JWTのペイロード部分（2番目の部分）をデコード
-    const payload = token.split(".")[1];
-    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
-    return decoded.sub || null;
-  } catch {
-    return null;
-  }
-}
-
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -62,17 +42,19 @@ export const handler = async (
   }
 
   try {
-    // AuthorizationヘッダーからユーザーIDを取得
-    const userId = getUserIdFromAuthHeader(event);
-    if (!userId) {
+    // AuthorizationヘッダーからユーザーIDを取得（JWT検証付き）
+    const authResult = await verifyAndGetUserId(event);
+    if (!authResult.isValid || !authResult.userId) {
       return {
         statusCode: 401,
         headers: corsHeaders,
         body: JSON.stringify({
           message: "認証が必要です",
+          error: authResult.error,
         }),
       };
     }
+    const userId = authResult.userId;
 
     // リクエストボディのパース
     if (!event.body) {

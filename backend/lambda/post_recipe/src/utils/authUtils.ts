@@ -79,32 +79,3 @@ export async function verifyAndGetUserId(
     };
   }
 }
-
-/**
- * AuthorizationヘッダーからユーザーIDを取得する（検証なし - 後方互換性のため維持）
- * 注意: この関数はJWTトークンの署名を検証しません。
- * セキュリティが重要な場合は verifyAndGetUserId を使用してください。
- * @deprecated verifyAndGetUserId を使用してください
- */
-export function getUserIdFromAuthHeader(
-  event: APIGatewayProxyEvent
-): string | null {
-  const authHeader =
-    event.headers?.Authorization || event.headers?.authorization;
-  if (!authHeader) {
-    return null;
-  }
-
-  const token = authHeader.replace(/^Bearer\s+/i, "");
-  try {
-    // JWTのペイロード部分（2番目の部分）をデコード
-    const payload = token.split(".")[1];
-    if (!payload) {
-      return null;
-    }
-    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
-    return decoded.sub || null;
-  } catch {
-    return null;
-  }
-}

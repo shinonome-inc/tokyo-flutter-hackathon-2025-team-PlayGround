@@ -22,7 +22,7 @@ import {
   generatePresignedUrl,
 } from "./services/s3Service";
 import { enrichRecipeContextWithImageIngredients } from "./services/ingredientDetectionService";
-import { getUserIdFromAuthHeader } from "./utils/authUtils";
+import { verifyAndGetUserId } from "./utils/authUtils";
 
 const client = new DynamoDBClient();
 const ddbDocClient = DynamoDBDocumentClient.from(client);
@@ -50,17 +50,19 @@ export const handler = async (
     };
   }
 
-  // AuthorizationヘッダーからユーザーIDを取得
-  const userId = getUserIdFromAuthHeader(event);
-  if (!userId) {
+  // AuthorizationヘッダーからユーザーIDを取得（JWT検証付き）
+  const authResult = await verifyAndGetUserId(event);
+  if (!authResult.isValid || !authResult.userId) {
     return {
       statusCode: 401,
       headers: corsHeaders,
       body: JSON.stringify({
         error: "認証が必要です",
+        message: authResult.error,
       }),
     };
   }
+  const userId = authResult.userId;
 
   let requestBody: RequestBody;
 

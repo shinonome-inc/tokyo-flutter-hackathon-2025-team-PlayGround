@@ -5,6 +5,7 @@ import {
   QueryCommand,
   GetCommand,
 } from "@aws-sdk/lib-dynamodb";
+import { verifyAndGetUserIdOptional } from "./utils/authUtils";
 
 let docClient: DynamoDBDocumentClient | null = null;
 
@@ -64,26 +65,6 @@ interface RecipeDetail {
   likeCount: number;
 }
 
-/**
- * AuthorizationヘッダーからユーザーIDを取得する
- * JWTトークンをデコードしてsubクレームを抽出
- */
-function getUserIdFromAuthHeader(event: APIGatewayProxyEvent): string | null {
-  const authHeader = event.headers?.Authorization || event.headers?.authorization;
-  if (!authHeader) {
-    return null;
-  }
-
-  const token = authHeader.replace(/^Bearer\s+/i, "");
-  try {
-    // JWTのペイロード部分（2番目の部分）をデコード
-    const payload = token.split(".")[1];
-    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
-    return decoded.sub || null;
-  } catch {
-    return null;
-  }
-}
 
 /**
  * レシピIDに紐づく全アイテム（レシピ本体、材料、手順）を取得する
@@ -239,8 +220,8 @@ export const handler = async (
   }
 
   try {
-    // AuthorizationヘッダーからユーザーIDを取得（オプション）
-    const currentUserId = getUserIdFromAuthHeader(event);
+    // AuthorizationヘッダーからユーザーIDを取得（オプション、JWT検証付き）
+    const currentUserId = await verifyAndGetUserIdOptional(event);
 
     const items = await getRecipeItems(recipeId);
 
