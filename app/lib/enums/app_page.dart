@@ -2,7 +2,6 @@ import 'package:app/screens/confirm_code/confirm_code_screen.dart';
 import 'package:app/screens/current_user/current_user_screen.dart';
 import 'package:app/screens/licenses/licenses_screen.dart';
 import 'package:app/screens/recipe_ai_generation/recipe_ai_generation_screen.dart';
-import 'package:app/screens/recipe_ai_loading/recipe_ai_loading_screen.dart';
 import 'package:app/screens/recipe_create/recipe_create_screen.dart';
 import 'package:app/screens/recipe_detail/recipe_detail_screen.dart';
 import 'package:app/screens/recipe_edit/recipe_edit_screen.dart';
@@ -28,7 +27,6 @@ enum AppPage {
   recipeCreate,
   recipeEdit,
   recipeAiGeneration,
-  recipeAiLoading,
   userList,
   userDetail,
   userCreate,
@@ -60,8 +58,6 @@ enum AppPage {
         return const RecipeEditScreen();
       case AppPage.recipeAiGeneration:
         return const RecipeAiGenerationScreen();
-      case AppPage.recipeAiLoading:
-        return const RecipeAiLoadingScreen();
       case AppPage.userList:
         return const UserListScreen();
       case AppPage.userDetail:
