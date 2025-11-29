@@ -152,101 +152,103 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('ログイン'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (!_isMfaStep) ...[
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'メールアドレス',
-                  border: OutlineInputBorder(),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('ログイン'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (!_isMfaStep) ...[
+                TextField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'メールアドレス',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
                 ),
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'パスワード',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(
+                    labelText: 'パスワード',
+                    border: OutlineInputBorder(),
+                  ),
+                  obscureText: true,
                 ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _signInWithEmail,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('メールアドレスでログイン'),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _signInWithEmail,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _isLoading
+                        ? const CircularProgressIndicator()
+                        : const Text('メールアドレスでログイン'),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 32),
-              const Divider(),
-              const SizedBox(height: 16),
-              const Text(
-                'または',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: _isLoading ? null : _signInWithGoogle,
-                child: const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Googleでログイン'),
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: 16),
+                const Text(
+                  'または',
+                  textAlign: TextAlign.center,
                 ),
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton(
-                onPressed: _isLoading ? null : _signInWithLine,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFF00B900),
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: _isLoading ? null : _signInWithGoogle,
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('Googleでログイン'),
+                  ),
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('LINEでログイン'),
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: _isLoading ? null : _signInWithLine,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF00B900),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text('LINEでログイン'),
+                  ),
                 ),
-              ),
-            ] else ...[
-              TextField(
-                controller: _mfaCodeController,
-                decoration: const InputDecoration(
-                  labelText: '認証コード',
-                  border: OutlineInputBorder(),
+              ] else ...[
+                TextField(
+                  controller: _mfaCodeController,
+                  decoration: const InputDecoration(
+                    labelText: '認証コード',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
                 ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _confirmMfa,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text('確認'),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _isLoading ? null : _confirmMfa,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _isLoading
+                        ? const CircularProgressIndicator()
+                        : const Text('確認'),
+                  ),
                 ),
-              ),
+              ],
+              if (_message.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                Text(
+                  _message,
+                  style: TextStyle(
+                    color: _message.startsWith('エラー') ? Colors.red : Colors.green,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
-            if (_message.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              Text(
-                _message,
-                style: TextStyle(
-                  color: _message.startsWith('エラー') ? Colors.red : Colors.green,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );
