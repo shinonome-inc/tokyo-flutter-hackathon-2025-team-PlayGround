@@ -43,7 +43,7 @@ jobs:
 
       - name: Build Flutter Web
         working-directory: app
-        run: flutter build web --release
+        run: flutter build web --release --base-href /
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
