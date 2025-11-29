@@ -5,7 +5,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'auth_user_provider.g.dart';
 
 /// 認証中のユーザー情報を扱うプロバイダー
-@riverpod
+@Riverpod(keepAlive: true)
 Future<AuthUser?> authUser(Ref ref) async {
   final amplifyService = AmplifyService.instance;
 
@@ -14,7 +14,10 @@ Future<AuthUser?> authUser(Ref ref) async {
     return null;
   }
 
-  final authUser = await amplifyService.getCurrentUser();
-
-  return authUser;
+  try {
+    final authUser = await amplifyService.getCurrentUser();
+    return authUser;
+  } on Exception {
+    return null;
+  }
 }
