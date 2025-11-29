@@ -18,6 +18,8 @@ backend/lambda/{function-name}/
 └── tsconfig.json       # TypeScript設定
 ```
 
+**注意**: `jest.config.js` は各Lambda関数ディレクトリには作成しないこと。テスト設定は `backend/lambda/jest.config.js` で一元管理されている。
+
 #### package.json の例
 
 ```json
@@ -282,6 +284,7 @@ backend/lambda/
 6. **prod環境の設定忘れ** - dev環境のみ設定してprod環境を忘れる
 7. **CloudWatch Log Groupの追加忘れ** - Lambda関数の起動時にエラーが発生する
 8. **API Gatewayの再デプロイ忘れ** - Terraform apply後、変更が反映されない場合は手動で再デプロイが必要な場合がある
+9. **個別Lambda関数へのjest.config.js追加** - 各Lambda関数ディレクトリには`jest.config.js`を作成しないこと。テスト設定は`backend/lambda/jest.config.js`で一元管理されており、個別に作成すると不整合が発生する
 
 ### API Gateway再デプロイ方法
 

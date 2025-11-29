@@ -156,3 +156,234 @@ resource "aws_lambda_permission" "api_gateway_get_recipe_by_id_lambda" {
 
   source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
 }
+
+# コメント投稿Lambda
+resource "aws_lambda_function" "post_comment" {
+  function_name = "${var.project_name}-post-comment"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  runtime = "nodejs20.x"
+  handler = "index.handler"
+
+  filename         = "../../../backend/lambda/dist/post_comment.zip"
+  source_code_hash = filebase64sha256("../../../backend/lambda/dist/post_comment.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
+      ENVIRONMENT         = "prod"
+    }
+  }
+
+  timeout     = 10
+  memory_size = 128
+
+  depends_on = [aws_cloudwatch_log_group.post_comment_lambda_log_group]
+}
+
+resource "aws_lambda_permission" "api_gateway_post_comment_lambda" {
+  statement_id  = "AllowAPIGatewayInvokePostComment"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.post_comment.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
+}
+
+# いいね投稿Lambda
+resource "aws_lambda_function" "post_like" {
+  function_name = "${var.project_name}-post-like"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  runtime = "nodejs20.x"
+  handler = "index.handler"
+
+  filename         = "../../../backend/lambda/dist/post_like.zip"
+  source_code_hash = filebase64sha256("../../../backend/lambda/dist/post_like.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
+      ENVIRONMENT         = "prod"
+    }
+  }
+
+  timeout     = 10
+  memory_size = 128
+
+  depends_on = [aws_cloudwatch_log_group.post_like_lambda_log_group]
+}
+
+resource "aws_lambda_permission" "api_gateway_post_like_lambda" {
+  statement_id  = "AllowAPIGatewayInvokePostLike"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.post_like.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
+}
+
+# ユーザー作成Lambda
+resource "aws_lambda_function" "post_user" {
+  function_name = "${var.project_name}-post-user"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  runtime = "nodejs20.x"
+  handler = "index.handler"
+
+  filename         = "../../../backend/lambda/dist/post_user.zip"
+  source_code_hash = filebase64sha256("../../../backend/lambda/dist/post_user.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
+      ENVIRONMENT         = "prod"
+    }
+  }
+
+  timeout     = 10
+  memory_size = 128
+
+  depends_on = [aws_cloudwatch_log_group.post_user_lambda_log_group]
+}
+
+resource "aws_lambda_permission" "api_gateway_post_user_lambda" {
+  statement_id  = "AllowAPIGatewayInvokePostUser"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.post_user.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
+}
+
+# ユーザー一覧取得Lambda
+resource "aws_lambda_function" "get_users" {
+  function_name = "${var.project_name}-get-users"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  runtime = "nodejs20.x"
+  handler = "index.handler"
+
+  filename         = "../../../backend/lambda/dist/get_users.zip"
+  source_code_hash = filebase64sha256("../../../backend/lambda/dist/get_users.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
+      ENVIRONMENT         = "prod"
+    }
+  }
+
+  timeout     = 10
+  memory_size = 128
+
+  depends_on = [aws_cloudwatch_log_group.get_users_lambda_log_group]
+}
+
+resource "aws_lambda_permission" "api_gateway_get_users_lambda" {
+  statement_id  = "AllowAPIGatewayInvokeGetUsers"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_users.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
+}
+
+# ユーザー詳細取得Lambda
+resource "aws_lambda_function" "get_user_by_id" {
+  function_name = "${var.project_name}-get-user-by-id"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  runtime = "nodejs20.x"
+  handler = "index.handler"
+
+  filename         = "../../../backend/lambda/dist/get_user_by_id.zip"
+  source_code_hash = filebase64sha256("../../../backend/lambda/dist/get_user_by_id.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
+      ENVIRONMENT         = "prod"
+    }
+  }
+
+  timeout     = 10
+  memory_size = 128
+
+  depends_on = [aws_cloudwatch_log_group.get_user_by_id_lambda_log_group]
+}
+
+resource "aws_lambda_permission" "api_gateway_get_user_by_id_lambda" {
+  statement_id  = "AllowAPIGatewayInvokeGetUserById"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_user_by_id.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
+}
+
+# ユーザーのレシピ一覧取得Lambda
+resource "aws_lambda_function" "get_user_recipes" {
+  function_name = "${var.project_name}-get-user-recipes"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  runtime = "nodejs20.x"
+  handler = "index.handler"
+
+  filename         = "../../../backend/lambda/dist/get_user_recipes.zip"
+  source_code_hash = filebase64sha256("../../../backend/lambda/dist/get_user_recipes.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
+      ENVIRONMENT         = "prod"
+    }
+  }
+
+  timeout     = 10
+  memory_size = 128
+
+  depends_on = [aws_cloudwatch_log_group.get_user_recipes_lambda_log_group]
+}
+
+resource "aws_lambda_permission" "api_gateway_get_user_recipes_lambda" {
+  statement_id  = "AllowAPIGatewayInvokeGetUserRecipes"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_user_recipes.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
+}
+
+# ユーザーのいいね一覧取得Lambda
+resource "aws_lambda_function" "get_user_likes" {
+  function_name = "${var.project_name}-get-user-likes"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  runtime = "nodejs20.x"
+  handler = "index.handler"
+
+  filename         = "../../../backend/lambda/dist/get_user_likes.zip"
+  source_code_hash = filebase64sha256("../../../backend/lambda/dist/get_user_likes.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
+      ENVIRONMENT         = "prod"
+    }
+  }
+
+  timeout     = 10
+  memory_size = 128
+
+  depends_on = [aws_cloudwatch_log_group.get_user_likes_lambda_log_group]
+}
+
+resource "aws_lambda_permission" "api_gateway_get_user_likes_lambda" {
+  statement_id  = "AllowAPIGatewayInvokeGetUserLikes"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_user_likes.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
+}
