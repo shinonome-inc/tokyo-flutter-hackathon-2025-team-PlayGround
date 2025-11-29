@@ -49,7 +49,7 @@ class GenkaimeshiRepository {
   }
 
   /// レシピを新規作成する。
-  Future<Recipe> createRecipe({
+  Future<Map<String, dynamic>> createRecipe({
     required String title,
     required String overview,
     String? imageUrl,
@@ -85,7 +85,7 @@ class GenkaimeshiRepository {
       );
 
       if (response.statusCode == 201 && response.data != null) {
-        return Recipe.fromJson(response.data!);
+        return response.data!;
       } else {
         throw Exception('レシピの作成に失敗しました');
       }

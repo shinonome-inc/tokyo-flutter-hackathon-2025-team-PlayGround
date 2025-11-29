@@ -48,6 +48,13 @@ class RecipeCreateNotifier extends _$RecipeCreateNotifier {
     state = state.copyWith(errorMessage: errorMessage);
   }
 
+  void _setSuccessMessage({required String successMessage}) {
+    if (!ref.mounted) {
+      return;
+    }
+    state = state.copyWith(successMessage: successMessage);
+  }
+
   Future<void> createRecipe({
     required String title,
     required String overview,
@@ -96,7 +103,7 @@ class RecipeCreateNotifier extends _$RecipeCreateNotifier {
           )
           .toList();
 
-      await GenkaimeshiRepository.instance.createRecipe(
+      final result = await GenkaimeshiRepository.instance.createRecipe(
         title: title,
         overview: overview,
         imageUrl: imageUrl,
@@ -106,6 +113,8 @@ class RecipeCreateNotifier extends _$RecipeCreateNotifier {
         steps: stepsList,
       );
 
+      final message = result['message'] ?? 'レシピを投稿しました';
+      _setSuccessMessage(successMessage: message);
       _setIsSuccess(isSuccess: true);
     } on Exception catch (e) {
       _setHasNetworkError(hasNetworkError: true);

@@ -1,5 +1,6 @@
 import 'package:app/providers/auth_user_provider.dart';
 import 'package:app/screens/recipe_create/recipe_create_notifier.dart';
+import 'package:app/screens/recipe_create/recipe_create_state.dart';
 import 'package:app/utils/date_format_util.dart';
 import 'package:app/widgets/loading_view.dart';
 import 'package:app/widgets/network_error_view.dart';
@@ -82,14 +83,6 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
       instructions: _instructionsController.text.trim(),
       ingredients: _ingredients,
     );
-
-    final state = ref.read(recipeCreateProvider);
-    if (state.isSuccess) {
-      _showSnackBar('レシピを投稿しました');
-      context.pop();
-    } else if (state.hasNetworkError) {
-      _showSnackBar('投稿に失敗しました。再度お試しください。');
-    }
   }
 
   void _showSnackBar(String message) {
@@ -106,6 +99,16 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   Widget build(BuildContext context) {
     final currentDate = DateFormatUtil.formatNow();
     final authUserAsync = ref.watch(authUserProvider);
+    
+    // レシピ作成状態を監視
+    ref.listen<RecipeCreateState>(recipeCreateProvider, (previous, next) {
+      if (next.isSuccess && (previous?.isSuccess != true)) {
+        _showSnackBar(next.successMessage.isNotEmpty ? next.successMessage : 'レシピを投稿しました');
+      } else if (next.hasNetworkError && (previous?.hasNetworkError != true)) {
+        _showSnackBar('投稿に失敗しました。再度お試しください。');
+      }
+    });
+    
     return Scaffold(
       backgroundColor: const Color(0xFFE0E0E0),
       body: authUserAsync.when(

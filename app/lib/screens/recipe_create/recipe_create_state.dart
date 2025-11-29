@@ -10,5 +10,6 @@ abstract class RecipeCreateState with _$RecipeCreateState {
     @Default(false) bool hasNetworkError,
     @Default(false) bool isSuccess,
     @Default('') String errorMessage,
+    @Default('') String successMessage,
   }) = _RecipeCreateState;
 }
