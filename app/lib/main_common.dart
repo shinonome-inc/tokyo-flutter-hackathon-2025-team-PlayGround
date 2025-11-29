@@ -1,7 +1,7 @@
 import 'package:app/config/amplify_initializer.dart';
 import 'package:app/config/env_config.dart';
 import 'package:app/providers/env_config_provider.dart';
-import 'package:app/screens/sample_screen/sample_screen.dart';
+import 'package:app/router/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,13 +24,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Genkaimeshi Recipe',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SampleScreen(),
+      routerConfig: router,
     );
   }
 }
