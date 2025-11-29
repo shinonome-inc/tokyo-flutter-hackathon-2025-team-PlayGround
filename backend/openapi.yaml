@@ -468,6 +468,14 @@ components:
           format: date-time
         user:
           $ref: "#/components/schemas/User"
+        ingredients:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ingredient"
+          description: レシピの材料一覧
+        likeCount:
+          type: integer
+          description: いいね数
 
     # --- Recipe (Full Detail) ---
     RecipeDetail:
@@ -477,10 +485,6 @@ components:
           properties:
             notes:
               type: string
-            ingredients:
-              type: array
-              items:
-                $ref: "#/components/schemas/Ingredient"
             steps:
               type: array
               items:
@@ -492,9 +496,6 @@ components:
             isLikedByMe:
               type: boolean
               description: リクエストしたユーザーが既にいいねしているか
-            likeCount:
-              type: integer
-              description: いいね数
 
     RecipeCreateInput:
       type: object
