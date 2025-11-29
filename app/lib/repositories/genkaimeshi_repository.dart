@@ -9,6 +9,8 @@ class GenkaimeshiRepository {
     _dio.options.baseUrl = _getBaseUrl(environment);
   }
 
+  static final GenkaimeshiRepository instance = GenkaimeshiRepository();
+
   final Dio _dio;
 
   static const Map<AppEnv, String> _baseUrls = {
