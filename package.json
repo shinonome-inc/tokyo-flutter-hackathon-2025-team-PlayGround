@@ -1,10 +1,11 @@
 {
-  "name": "tokyo-flutter-hackathon-2025-team-PlayGround",
+  "name": "tokyo-flutter-hackathon-2025-team-playground",
   "private": true,
   "workspaces": [
     "backend/lambda",
     "backend/lambda/generate-ai-recipe",
-    "backend/lambda/presigned-url"
+    "backend/lambda/presigned-url",
+    "backend/lambda/get-recipes"
   ],
   "scripts": {
     "lambda:package": "npm run package -w @genkaimeshi/generate-ai-recipe -w @genkaimeshi/presigned-url",
