@@ -42,8 +42,8 @@ jobs:
           echo "Backend Lambda directory contents:"
           ls -la backend/lambda
 
-          cd backend/lambda
           npm ci
+          cd backend/lambda
 
           # dist ディレクトリを作成
           mkdir -p dist
