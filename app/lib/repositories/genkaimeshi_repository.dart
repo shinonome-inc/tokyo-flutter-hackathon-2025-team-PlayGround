@@ -168,27 +168,3 @@ class _AuthInterceptor extends Interceptor {
     handler.next(options);
   }
 }
-
-/// Cognitoアクセストークンを自動的にリクエストヘッダーに付与するインターセプター
-class _AuthInterceptor extends Interceptor {
-  @override
-  Future<void> onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
-    try {
-      final session = await Amplify.Auth.fetchAuthSession();
-      if (session.isSignedIn) {
-        final cognitoSession = session as CognitoAuthSession;
-        final accessToken =
-            cognitoSession.userPoolTokensResult.value.accessToken.raw;
-
-        options.headers['Authorization'] = 'Bearer $accessToken';
-            }
-    } on AuthException catch (e) {
-      safePrint('Auth error in interceptor: ${e.message}');
-    }
-
-    handler.next(options);
-  }
-}
