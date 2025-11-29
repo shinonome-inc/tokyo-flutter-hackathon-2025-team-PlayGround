@@ -124,9 +124,13 @@ class GenkaimeshiRepository {
       if (response.statusCode == 200 && response.data != null) {
         return Recipe.fromJson(response.data!);
       } else {
+        print('response.statusCode: ${response.statusCode}');
+        print('response.data: ${response.data}');
+
         throw Exception('AIレシピの生成に失敗しました');
       }
     } catch (e) {
+      print('Error in generateAIRecipe: $e');
       throw Exception('予期しないエラーが発生しました: $e');
     }
   }
@@ -141,6 +145,8 @@ class _AuthInterceptor extends Interceptor {
   ) async {
     try {
       final session = await Amplify.Auth.fetchAuthSession();
+      safePrint('Is user signed in: ${session.isSignedIn}');
+
       if (session.isSignedIn) {
         final cognitoSession = session as CognitoAuthSession;
         final accessToken =
@@ -148,7 +154,12 @@ class _AuthInterceptor extends Interceptor {
 
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';
+          safePrint('Authorization header added successfully');
+        } else {
+          safePrint('Access token is null!');
         }
+      } else {
+        safePrint('User is not signed in! 403 error is expected!');
       }
     } on AuthException catch (e) {
       safePrint('Auth error in interceptor: ${e.message}');
