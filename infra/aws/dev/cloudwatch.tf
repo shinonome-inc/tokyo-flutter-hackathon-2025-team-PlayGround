@@ -52,3 +52,8 @@ resource "aws_cloudwatch_log_group" "get_user_recipes_lambda_log_group" {
   name              = "/aws/lambda/${var.project_name}-get-user-recipes"
   retention_in_days = 14
 }
+
+resource "aws_cloudwatch_log_group" "get_user_likes_lambda_log_group" {
+  name              = "/aws/lambda/${var.project_name}-get-user-likes"
+  retention_in_days = 14
+}

@@ -13,7 +13,8 @@
     "backend/lambda/post-user",
     "backend/lambda/get-users",
     "backend/lambda/get-user-by-id",
-    "backend/lambda/get-user-recipes"
+    "backend/lambda/get-user-recipes",
+    "backend/lambda/get-user-likes"
   ],
   "scripts": {
     "lambda:package": "npm run package --workspaces --if-present",
