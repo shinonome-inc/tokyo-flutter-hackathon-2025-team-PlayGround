@@ -44,6 +44,35 @@ class GenkaimeshiRepository {
       throw Exception('予期しないエラーが発生しました: $e');
     }
   }
+
+  /// Presigned URLを生成する。
+  ///
+  /// [prompt] AIへのプロンプト（例: 簡単に作れるレシピを提案して）
+  /// [requiresImageUpload] 画像アップロードが必要かどうか
+  Future<PresignedUrlResponse> generatePresignedUrl({
+    required String prompt,
+    bool requiresImageUpload = true,
+  }) async {
+    try {
+      final requestBody = <String, dynamic>{
+        'prompt': prompt,
+        'requiresImageUpload': requiresImageUpload,
+      };
+
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/recipes/ai-generate',
+        data: requestBody,
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        return PresignedUrlResponse.fromJson(response.data!);
+      } else {
+        throw Exception('Presigned URLの生成に失敗しました');
+      }
+    } catch (e) {
+      throw Exception('予期しないエラーが発生しました: $e');
+    }
+  }
 }
 
 /// Cognitoアクセストークンを自動的にリクエストヘッダーに付与するインターセプター
