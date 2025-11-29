@@ -29,27 +29,41 @@ app/
 
 ### アプリケーションの実行
 
-| コマンド | 説明 |
-|---------|------|
-| `fvm flutter run` | dev 環境でアプリを実行（デフォルト） |
-| `fvm flutter run --dart-define=ENV=prod` | prod 環境でアプリを実行 |
+| コマンド                                | 説明                    |
+| --------------------------------------- | ----------------------- |
+| `fvm flutter run -t lib/main_dev.dart`  | dev 環境でアプリを実行  |
+| `fvm flutter run -t lib/main_prod.dart` | prod 環境でアプリを実行 |
+
+**注意**: 環境を切り替えるには、アプリを停止（Ctrl+C）してから、別のコマンドで再起動してください。
 
 ### 環境切り替えについて
 
-環境は `--dart-define=ENV=<env>` で切り替えます。
+環境は `-t` オプションでエントリーポイントを指定して切り替えます。有効な環境は `dev` または `prod` です。
 
 ```bash
 # dev 環境（デフォルト）
 fvm flutter run
 
+# または明示的に指定
+fvm flutter run -t lib/main_dev.dart
+
 # prod 環境
-fvm flutter run --dart-define=ENV=prod
+fvm flutter run -t lib/main_prod.dart
 ```
 
 ビルド時も同様に指定できます：
 
 ```bash
+# dev 環境でビルド（デフォルト）
+fvm flutter build apk
+fvm flutter build ios
+
+# または明示的に指定
+fvm flutter build apk -t lib/main_dev.dart
+fvm flutter build ios -t lib/main_dev.dart
+
 # prod 環境でビルド
-fvm flutter build apk --dart-define=ENV=prod
-fvm flutter build ios --dart-define=ENV=prod
+fvm flutter build apk -t lib/main_prod.dart
+fvm flutter build ios -t lib/main_prod.dart
+fvm flutter build web -t lib/main_prod.dart
 ```

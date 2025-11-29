@@ -1,0 +1,152 @@
+name: Flutter Web CD
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+      - feature/**
+    paths:
+      - "app/**"
+      - ".github/workflows/flutter-web-cd.yml"
+
+env:
+  FLUTTER_VERSION: "3.38.1"
+  AWS_REGION: "ap-northeast-1"
+
+jobs:
+  deploy:
+    name: Deploy Flutter Web to AWS (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        environment: [dev, prod]
+
+    environment:
+      name: aws-${{ matrix.environment }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        working-directory: app
+        run: flutter build web --release --base-href / -t lib/main_${{ matrix.environment }}.dart
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get deployment info from Terraform state
+        run: |
+          # TerraformのリモートステートからS3バケット名とCloudFront Distribution IDを取得
+          STATE_FILE="s3://genkaimeshi-recipe-terraform-state/aws/${{ matrix.environment }}/terraform.tfstate"
+
+          # tfstateをダウンロードして解析
+          if ! aws s3 cp "$STATE_FILE" /tmp/terraform.tfstate; then
+            echo "❌ Failed to download Terraform state file from $STATE_FILE"
+            exit 1
+          fi
+
+          S3_BUCKET_NAME=$(cat /tmp/terraform.tfstate | jq -r '.outputs.flutter_web_bucket_name.value')
+          CLOUDFRONT_DISTRIBUTION_ID=$(cat /tmp/terraform.tfstate | jq -r '.outputs.flutter_web_cloudfront_distribution_id.value')
+
+          # 値が取得できたか確認
+          if [ -z "$S3_BUCKET_NAME" ] || [ "$S3_BUCKET_NAME" = "null" ]; then
+            echo "❌ Failed to get S3_BUCKET_NAME from Terraform outputs"
+            cat /tmp/terraform.tfstate | jq '.outputs'
+            exit 1
+          fi
+
+          if [ -z "$CLOUDFRONT_DISTRIBUTION_ID" ] || [ "$CLOUDFRONT_DISTRIBUTION_ID" = "null" ]; then
+            echo "❌ Failed to get CLOUDFRONT_DISTRIBUTION_ID from Terraform outputs"
+            cat /tmp/terraform.tfstate | jq '.outputs'
+            exit 1
+          fi
+
+          echo "S3_BUCKET_NAME=$S3_BUCKET_NAME" >> $GITHUB_ENV
+          echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID" >> $GITHUB_ENV
+
+          echo "✓ Deployment info loaded successfully"
+          echo "  S3 Bucket: $S3_BUCKET_NAME"
+          echo "  CloudFront Distribution: $CLOUDFRONT_DISTRIBUTION_ID"
+
+          # セキュリティのため一時ファイルを削除
+          rm -f /tmp/terraform.tfstate
+
+      - name: Deploy to S3 (dev)
+        if: matrix.environment == 'dev' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/'))
+        working-directory: app/build/web
+        run: |
+          aws s3 sync . s3://${{ env.S3_BUCKET_NAME }}/ \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "index.html" \
+            --exclude "flutter_service_worker.js"
+
+          # index.html と flutter_service_worker.js は no-cache でアップロード
+          aws s3 cp index.html s3://${{ env.S3_BUCKET_NAME }}/index.html \
+            --cache-control "no-cache, no-store, must-revalidate"
+
+          aws s3 cp flutter_service_worker.js s3://${{ env.S3_BUCKET_NAME }}/flutter_service_worker.js \
+            --cache-control "no-cache, no-store, must-revalidate"
+
+      - name: Deploy to S3 (prod)
+        if: matrix.environment == 'prod' && github.ref == 'refs/heads/main'
+        working-directory: app/build/web
+        run: |
+          aws s3 sync . s3://${{ env.S3_BUCKET_NAME }}/ \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "index.html" \
+            --exclude "flutter_service_worker.js"
+
+          # index.html と flutter_service_worker.js は no-cache でアップロード
+          aws s3 cp index.html s3://${{ env.S3_BUCKET_NAME }}/index.html \
+            --cache-control "no-cache, no-store, must-revalidate"
+
+          aws s3 cp flutter_service_worker.js s3://${{ env.S3_BUCKET_NAME }}/flutter_service_worker.js \
+            --cache-control "no-cache, no-store, must-revalidate"
+
+      - name: Invalidate CloudFront Cache (dev)
+        if: matrix.environment == 'dev' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/'))
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+      - name: Invalidate CloudFront Cache (prod)
+        if: matrix.environment == 'prod' && github.ref == 'refs/heads/main'
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+      - name: Output deployment info (dev)
+        if: matrix.environment == 'dev' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/'))
+        run: |
+          echo "✅ Dev deployment completed successfully!"
+          echo "S3 Bucket: ${{ env.S3_BUCKET_NAME }}"
+          echo "CloudFront URL: https://${{ env.CLOUDFRONT_DISTRIBUTION_ID }}.cloudfront.net"
+
+      - name: Output deployment info (prod)
+        if: matrix.environment == 'prod' && github.ref == 'refs/heads/main'
+        run: |
+          echo "✅ Prod deployment completed successfully!"
+          echo "S3 Bucket: ${{ env.S3_BUCKET_NAME }}"
+          echo "CloudFront URL: https://${{ env.CLOUDFRONT_DISTRIBUTION_ID }}.cloudfront.net"
