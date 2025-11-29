@@ -5,7 +5,8 @@
     "backend/lambda",
     "backend/lambda/generate-ai-recipe",
     "backend/lambda/presigned-url",
-    "backend/lambda/get-recipes"
+    "backend/lambda/get-recipes",
+    "backend/lambda/post_recipe"
   ],
   "scripts": {
     "lambda:package": "npm run package --workspaces --if-present",
