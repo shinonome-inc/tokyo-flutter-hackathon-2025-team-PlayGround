@@ -1,0 +1,32 @@
+name: Setup Flutter
+description: Setup Flutter, install dependencies, and run build_runner
+
+inputs:
+  flutter-version:
+    description: 'Flutter version to use'
+    required: false
+    default: '3.38.1'
+  working-directory:
+    description: 'Working directory for Flutter commands'
+    required: false
+    default: 'app'
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: "stable"
+        flutter-version: ${{ inputs.flutter-version }}
+        cache: true
+
+    - name: Install dependencies
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: flutter pub get
+
+    - name: Run Build Runner
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: dart run build_runner build
