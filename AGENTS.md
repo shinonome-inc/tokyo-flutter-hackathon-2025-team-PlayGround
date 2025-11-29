@@ -10,6 +10,7 @@
 
 `docs/CORDING_RULE.md` - コーディングの際に確認すること
 `docs/GIT_RULE.md` - Git 操作の際に必ず確認すること
+`docs/LAMBDA_DEVELOPMENT_GUIDE.md` - Lambda関数を追加・修正する際に必ず確認すること
 
 ## コマンドライン
 
