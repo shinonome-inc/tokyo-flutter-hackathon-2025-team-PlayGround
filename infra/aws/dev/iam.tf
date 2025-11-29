@@ -87,7 +87,10 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
           "dynamodb:GetItem",
           "dynamodb:Query",
           "dynamodb:Scan",
-          "dynamodb:BatchGetItem"
+          "dynamodb:BatchGetItem",
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem"
         ]
         Resource = [
           aws_dynamodb_table.main_table.arn,
