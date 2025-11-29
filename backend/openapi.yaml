@@ -4,6 +4,11 @@ info:
   description: |
     画面遷移図およびDynamoDB設計に基づいたAPI定義。
     アクセスパターン（No.1〜11）をカバーするように設計されています。
+
+    ## 認証について
+    - GET系エンドポイント: 認証不要（未ログインユーザーも利用可能）
+    - POST/PUT/DELETE系エンドポイント: Bearer Token認証が必要
+    - 認証が必要なエンドポイントには `security` が設定されています
   version: 1.0.0
 
 servers:
@@ -49,6 +54,8 @@ paths:
         - User
       summary: ユーザー作成 (サインアップ時)
       description: 認証後にDB上のユーザーデータを作成する
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -95,6 +102,8 @@ paths:
         - User
       summary: ユーザープロフィール編集
       description: ユーザー編集画面での保存
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: userId
@@ -180,6 +189,8 @@ paths:
       tags:
         - Recipe
       summary: レシピ新規作成（手動投稿 / AI生成結果の保存）
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
@@ -202,6 +213,8 @@ paths:
         画面遷移図の「レシピAI生成画面」に対応。
         材料やキーワードを入力し、AI生成を実行する。
         レスポンスとして生成されたレシピ案を返す（クライアントで確認後、POST /recipes で保存するフローを想定）。
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
@@ -232,6 +245,11 @@ paths:
         DynamoDBの PK=RECIPE#{id} に対する Query を実行し、
         META(基本情報), INGREDIENT(材料), STEP(手順), COMMENT(コメント), LIKE(自身のいいね)
         を結合して返す。
+
+        認証はオプショナル。認証ありの場合は isLikedByMe に自身のいいね状態が反映される。
+      security:
+        - BearerAuth: []
+        - {}
       parameters:
         - in: path
           name: recipeId
@@ -285,6 +303,8 @@ paths:
       tags:
         - Recipe
       summary: レシピ編集
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -303,6 +323,8 @@ paths:
       tags:
         - Recipe
       summary: レシピ削除
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -322,6 +344,8 @@ paths:
         - Recipe
       summary: コメント投稿
       description: DynamoDBの SK=COMMENT#{created_at}#{id} を作成
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -351,6 +375,8 @@ paths:
         - Recipe
       summary: いいねを実行
       description: DynamoDBの SK=LIKE#{user_id} を作成
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -373,6 +399,8 @@ paths:
       tags:
         - Recipe
       summary: いいねを取り消し
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -387,6 +415,13 @@ paths:
 # Components / Schemas
 # ------------------------------------------------------------------------------
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Cognito認証トークン（Authorization: Bearer {token}）"
+
   schemas:
     # --- User ---
     User:
