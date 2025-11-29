@@ -28,7 +28,7 @@ final router = GoRouter(
               GoRoute(
                 path: branch.path,
                 pageBuilder: (context, state) =>
-                    MaterialPage(key: state.pageKey, child: branch.child!),
+                    MaterialPage(key: state.pageKey, child: branch.child),
               ),
             ],
           ),
