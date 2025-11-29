@@ -1,0 +1,257 @@
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBDocumentClient,
+  QueryCommand,
+  GetCommand,
+} from "@aws-sdk/lib-dynamodb";
+
+let docClient: DynamoDBDocumentClient | null = null;
+
+/**
+ * DynamoDB Document Clientを取得する（遅延初期化）
+ */
+function getDocClient(): DynamoDBDocumentClient {
+  if (!docClient) {
+    const client = new DynamoDBClient({});
+    docClient = DynamoDBDocumentClient.from(client);
+  }
+  return docClient;
+}
+
+const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
+
+interface User {
+  id: string;
+  name: string;
+  image_url: string;
+  description: string;
+  email_address: string;
+}
+
+interface Ingredient {
+  id: string;
+  name: string;
+  amount: string;
+  order_index: number;
+}
+
+interface Step {
+  id: string;
+  order_number: number;
+  description: string;
+}
+
+interface RecipeDetail {
+  id: string;
+  title: string;
+  overview: string;
+  notes: string;
+  image_url: string;
+  is_ai_generated: boolean;
+  created_at: string;
+  updated_at: string;
+  user: User;
+  ingredients: Ingredient[];
+  steps: Step[];
+}
+
+/**
+ * レシピIDに紐づく全アイテム（レシピ本体、材料、手順）を取得する
+ */
+async function getRecipeItems(
+  recipeId: string
+): Promise<Record<string, unknown>[]> {
+  const command = new QueryCommand({
+    TableName: TABLE_NAME,
+    KeyConditionExpression: "PK = :pk",
+    ExpressionAttributeValues: {
+      ":pk": `RECIPE#${recipeId}`,
+    },
+  });
+
+  const result = await getDocClient().send(command);
+  return result.Items || [];
+}
+
+/**
+ * ユーザー情報を取得する
+ */
+async function getUser(userId: string): Promise<User | null> {
+  const command = new GetCommand({
+    TableName: TABLE_NAME,
+    Key: {
+      PK: `USER#${userId}`,
+      SK: "PROFILE",
+    },
+  });
+
+  const result = await getDocClient().send(command);
+
+  if (!result.Item) {
+    return null;
+  }
+
+  return {
+    id: userId,
+    name: result.Item.name || "",
+    image_url: result.Item.image_url || "",
+    description: result.Item.description || "",
+    email_address: result.Item.email_address || "",
+  };
+}
+
+/**
+ * レシピ詳細を組み立てる
+ */
+function buildRecipeDetail(
+  recipeId: string,
+  items: Record<string, unknown>[],
+  user: User
+): RecipeDetail | null {
+  const recipeItem = items.find(
+    (item) => item.SK === `RECIPE#${recipeId}`
+  );
+
+  if (!recipeItem) {
+    return null;
+  }
+
+  const ingredients: Ingredient[] = items
+    .filter((item) => (item.SK as string).startsWith("INGREDIENT#"))
+    .map((item) => ({
+      id: item.IngredientId as string,
+      name: item.Name as string,
+      amount: item.Amount as string,
+      order_index: item.OrderIndex as number,
+    }))
+    .sort((a, b) => a.order_index - b.order_index);
+
+  const steps: Step[] = items
+    .filter((item) => (item.SK as string).startsWith("STEP#"))
+    .map((item) => ({
+      id: item.StepId as string,
+      order_number: item.OrderNumber as number,
+      description: item.Description as string,
+    }))
+    .sort((a, b) => a.order_number - b.order_number);
+
+  return {
+    id: recipeId,
+    title: recipeItem.Title as string,
+    overview: recipeItem.Overview as string,
+    notes: (recipeItem.Notes as string) || "",
+    image_url: (recipeItem.ImageUrl as string) || "",
+    is_ai_generated: (recipeItem.IsAiGenerated as boolean) || false,
+    created_at: recipeItem.CreatedAt as string,
+    updated_at: (recipeItem.UpdatedAt as string) || "",
+    user,
+    ingredients,
+    steps,
+  };
+}
+
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+/**
+ * Lambda ハンドラー
+ */
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
+  console.log("Received event:", JSON.stringify(event, null, 2));
+
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: "",
+    };
+  }
+
+  const recipeId = event.pathParameters?.recipeId;
+
+  if (!recipeId) {
+    return {
+      statusCode: 400,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "Bad Request",
+        message: "recipeId is required",
+      }),
+    };
+  }
+
+  try {
+    const items = await getRecipeItems(recipeId);
+
+    if (items.length === 0) {
+      return {
+        statusCode: 404,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          error: "Not Found",
+          message: "Recipe not found",
+        }),
+      };
+    }
+
+    const recipeItem = items.find(
+      (item) => item.SK === `RECIPE#${recipeId}`
+    );
+
+    if (!recipeItem) {
+      return {
+        statusCode: 404,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          error: "Not Found",
+          message: "Recipe not found",
+        }),
+      };
+    }
+
+    const userId = recipeItem.UserId as string;
+    const user = await getUser(userId);
+
+    const recipeDetail = buildRecipeDetail(recipeId, items, user || {
+      id: userId,
+      name: "Unknown",
+      image_url: "",
+      description: "",
+      email_address: "",
+    });
+
+    if (!recipeDetail) {
+      return {
+        statusCode: 404,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          error: "Not Found",
+          message: "Recipe not found",
+        }),
+      };
+    }
+
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: JSON.stringify(recipeDetail),
+    };
+  } catch (error) {
+    console.error("Error:", error);
+    return {
+      statusCode: 500,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "Internal server error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      }),
+    };
+  }
+};
