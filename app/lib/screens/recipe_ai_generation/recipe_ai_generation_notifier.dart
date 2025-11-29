@@ -30,12 +30,13 @@ class RecipeAiGenerationNotifier extends _$RecipeAiGenerationNotifier {
     state = state.copyWith(hasNetworkError: hasNetworkError);
   }
 
-  Future<Recipe?> generateAIRecipe({
-    required String prompt,
-    XFile? image,
-  }) async {
+  void _setGeneratedRecipe({required Recipe? generatedRecipe}) {
+    state = state.copyWith(generateRecipe: generatedRecipe);
+  }
+
+  Future<void> generateAIRecipe({required String prompt, XFile? image}) async {
     if (state.isLoading) {
-      return null;
+      return;
     }
 
     _reset();
@@ -61,27 +62,11 @@ class RecipeAiGenerationNotifier extends _$RecipeAiGenerationNotifier {
         prompt: prompt,
         imageS3Key: presignedUrlResponse?.imageS3Key,
       );
-      return recipe;
+      _setGeneratedRecipe(generatedRecipe: recipe);
     } on Exception {
       _setHasNetworkError(hasNetworkError: true);
     } finally {
       _setIsLoading(isLoading: false);
     }
   }
-
-  // Future<void> fetchRecipes() async {
-  //   if (state.isLoading) {
-  //     return;
-  //   }
-  //   _reset();
-  //   _setIsLoading(isLoading: true);
-  //   try {
-  //     final recipes = await GenkaimeshiRepository.instance.fetchRecipes();
-  //     _setRecipes(recipes: recipes);
-  //   } on Exception {
-  //     _setHasNetworkError(hasNetworkError: true);
-  //   } finally {
-  //     _setIsLoading(isLoading: false);
-  //   }
-  // }
 }
