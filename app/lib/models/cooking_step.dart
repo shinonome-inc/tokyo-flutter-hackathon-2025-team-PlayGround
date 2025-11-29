@@ -10,5 +10,6 @@ abstract class CookingStep with _$CookingStep {
     String? description,
   }) = _CookingStep;
 
-  factory CookingStep.fromJson(Map<String, Object?> json) => _$CookingStepFromJson(json);
+  factory CookingStep.fromJson(Map<String, Object?> json) 
+    => _$CookingStepFromJson(json);
 }
