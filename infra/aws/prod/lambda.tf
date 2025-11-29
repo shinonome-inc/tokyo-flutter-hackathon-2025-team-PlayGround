@@ -65,3 +65,35 @@ resource "aws_lambda_permission" "api_gateway_presigned_url_lambda" {
 
   source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
 }
+
+resource "aws_lambda_function" "get_recipes" {
+  function_name = "${var.project_name}-get-recipes"
+  role          = aws_iam_role.lambda_execution_role.arn
+
+  runtime = "nodejs20.x"
+  handler = "index.handler"
+
+  filename         = "../../../backend/lambda/dist/get_recipes.zip"
+  source_code_hash = filebase64sha256("../../../backend/lambda/dist/get_recipes.zip")
+
+  environment {
+    variables = {
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
+      ENVIRONMENT         = "prod"
+    }
+  }
+
+  timeout     = 10
+  memory_size = 128
+
+  depends_on = [aws_cloudwatch_log_group.get_recipes_lambda_log_group]
+}
+
+resource "aws_lambda_permission" "api_gateway_get_recipes_lambda" {
+  statement_id  = "AllowAPIGatewayInvokeGetRecipes"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.get_recipes.function_name
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
+}
