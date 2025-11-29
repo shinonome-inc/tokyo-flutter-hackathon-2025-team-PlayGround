@@ -1,4 +1,5 @@
 import 'package:app/enums/app_page.dart';
+import 'package:app/screens/recipe_list/recipe_list_item.dart';
 import 'package:app/screens/recipe_list/recipe_list_notifier.dart';
 import 'package:app/screens/recipe_list/recipe_list_state.dart';
 import 'package:app/widgets/loading_view.dart';
@@ -27,6 +28,10 @@ class _RecipeListScreenState extends ConsumerState<RecipeListScreen> {
     await ref.read(recipeListProvider.notifier).fetchRecipes();
   }
 
+  Future<void> _onRefresh() async {
+    await ref.read(recipeListProvider.notifier).fetchRecipes();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(recipeListProvider);
@@ -38,13 +43,16 @@ class _RecipeListScreenState extends ConsumerState<RecipeListScreen> {
             const LoadingView(),
           RecipeListState(:final hasNetworkError) when hasNetworkError =>
             NetworkErrorView(onTapReload: _onTapReload),
-          _ => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ...state.recipes.map(
-                (recipe) => ListTile(title: Text(recipe.id)),
-              ),
-            ],
+          _ => RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: ListView(
+              children: [
+                ...state.recipes.map(
+                  (recipe) =>
+                      RecipeListItem(recipe: recipe, onTap: _onTapRecipeItem),
+                ),
+              ],
+            ),
           ),
         },
       ),

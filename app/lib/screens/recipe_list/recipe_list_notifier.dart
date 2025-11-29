@@ -16,15 +16,19 @@ class RecipeListNotifier extends _$RecipeListNotifier {
     return const RecipeListState();
   }
 
-  void setIsLoading({required bool isLoading}) {
+  void _reset() {
+    state = const RecipeListState();
+  }
+
+  void _setIsLoading({required bool isLoading}) {
     state = state.copyWith(isLoading: isLoading);
   }
 
-  void setHasNetworkError({required bool hasNetworkError}) {
+  void _setHasNetworkError({required bool hasNetworkError}) {
     state = state.copyWith(hasNetworkError: hasNetworkError);
   }
 
-  void setRecipes({required List<Recipe> recipes}) {
+  void _setRecipes({required List<Recipe> recipes}) {
     state = state.copyWith(recipes: recipes);
   }
 
@@ -32,14 +36,15 @@ class RecipeListNotifier extends _$RecipeListNotifier {
     if (state.isLoading) {
       return;
     }
-    setIsLoading(isLoading: true);
+    _reset();
+    _setIsLoading(isLoading: true);
     try {
       final recipes = await GenkaimeshiRepository.instance.fetchRecipes();
-      setRecipes(recipes: recipes);
+      _setRecipes(recipes: recipes);
     } on Exception {
-      setHasNetworkError(hasNetworkError: true);
+      _setHasNetworkError(hasNetworkError: true);
     } finally {
-      setIsLoading(isLoading: false);
+      _setIsLoading(isLoading: false);
     }
   }
 }
