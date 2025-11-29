@@ -32,7 +32,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     _titleController.dispose();
     _descriptionController.dispose();
     _instructionsController.dispose();
-    for (var ingredient in _ingredients) {
+    for (final ingredient in _ingredients) {
       ingredient['name']?.dispose();
       ingredient['amount']?.dispose();
     }
@@ -66,15 +66,6 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     final authUserAsync = ref.watch(authUserProvider);
     return Scaffold(
       backgroundColor: const Color(0xFFE0E0E0),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFE0E0E0),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text('レシピ投稿画面', style: TextStyle(color: Colors.black)),
-      ),
       body: authUserAsync.when(
         data: (authUser) {
           if (authUser == null) {
