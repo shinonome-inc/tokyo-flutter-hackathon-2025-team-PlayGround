@@ -1,4 +1,4 @@
-import 'package:app/widgets/recipe_ingredient_row.dart';
+import 'package:app/widgets/recipe_form/recipe_ingredient_row.dart';
 import 'package:flutter/material.dart';
 
 class RecipeIngredientsSection extends StatelessWidget {
