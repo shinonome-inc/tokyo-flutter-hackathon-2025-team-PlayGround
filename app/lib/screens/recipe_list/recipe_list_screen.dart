@@ -20,10 +20,6 @@ class _RecipeListScreenState extends ConsumerState<RecipeListScreen> {
     context.go(AppPage.recipeDetail.path);
   }
 
-  void _onTapUser() {
-    context.go(AppPage.userDetail.path);
-  }
-
   Future<void> _onTapReload() async {
     await ref.read(recipeListProvider.notifier).fetchRecipes();
   }

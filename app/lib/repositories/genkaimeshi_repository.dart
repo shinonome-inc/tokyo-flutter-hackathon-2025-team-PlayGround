@@ -29,7 +29,6 @@ class GenkaimeshiRepository {
     try {
       final response = await _dio.get<List<dynamic>>('/recipes');
       if (response.statusCode == 200 && response.data != null) {
-        print(response.data);
         final recipes = response.data!
             .map((json) => Recipe.fromJson(json as Map<String, dynamic>))
             .toList();
@@ -38,10 +37,8 @@ class GenkaimeshiRepository {
         throw Exception('レシピの取得に失敗しました');
       }
     } on DioException catch (e) {
-      print(e);
       throw Exception('ネットワークエラー: ${e.message}');
     } catch (e) {
-      print(e);
       throw Exception('予期しないエラーが発生しました: $e');
     }
   }
