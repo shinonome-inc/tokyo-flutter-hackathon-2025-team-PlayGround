@@ -18,18 +18,16 @@ interface Ingredient {
 }
 
 interface Step {
-  order_number: number;
+  orderNumber: number;
   description: string;
 }
 
 interface RecipeRequestBody {
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-  image_url: string;
+  userId: string;
+  imageUrl: string;
   title: string;
   notes: string;
-  is_ai_generated: boolean;
+  isAiGenerated: boolean;
   overview: string;
   ingredients: Ingredient[];
   steps: Step[];
@@ -41,7 +39,7 @@ export const handler = async (
   try {
     const body: RecipeRequestBody = JSON.parse(event.body!);
     const recipeId = uuidv4();
-    const createdAt = body.created_at || new Date().toISOString();
+    const createdAt = new Date().toISOString();
 
     // トランザクションでレシピ、材料、手順を一括登録
     const transactItems: TransactWriteCommandInput["TransactItems"] = [];
@@ -54,17 +52,16 @@ export const handler = async (
           PK: `RECIPE#${recipeId}`,
           SK: `RECIPE#${recipeId}`,
           RecipeId: recipeId,
-          UserId: body.user_id,
+          UserId: body.userId,
           CreatedAt: createdAt,
-          UpdatedAt: body.updated_at,
-          ImageUrl: body.image_url,
+          ImageUrl: body.imageUrl,
           Title: body.title,
           Notes: body.notes,
-          IsAiGenerated: body.is_ai_generated,
+          IsAiGenerated: body.isAiGenerated,
           Overview: body.overview,
           EntityType: "RECIPE",
           // GSI1: ユーザーのレシピ一覧取得用
-          GSI1PK: `USER#${body.user_id}`,
+          GSI1PK: `USER#${body.userId}`,
           GSI1SK: `RECIPE#${createdAt}`,
           // GSI2: タイムライン用（公開レシピ）
           GSI2PK: "RECIPE_STATUS#PUB",
@@ -103,10 +100,10 @@ export const handler = async (
           TableName: TABLE_NAME,
           Item: {
             PK: `RECIPE#${recipeId}`,
-            SK: `STEP#${String(step.order_number).padStart(3, "0")}#${stepId}`,
+            SK: `STEP#${String(step.orderNumber).padStart(3, "0")}#${stepId}`,
             StepId: stepId,
             RecipeId: recipeId,
-            OrderNumber: step.order_number,
+            OrderNumber: step.orderNumber,
             Description: step.description,
             EntityType: "STEP",
           },

@@ -8,7 +8,7 @@ const ddbDocClient = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 
 interface LikeRequestBody {
-  user_id: string;
+  userId: string;
 }
 
 export const handler = async (
@@ -61,7 +61,7 @@ export const handler = async (
     const body: LikeRequestBody = JSON.parse(event.body);
 
     // バリデーション
-    if (!body.user_id) {
+    if (!body.userId) {
       return {
         statusCode: 400,
         headers: {
@@ -69,7 +69,7 @@ export const handler = async (
           "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
-          message: "user_idは必須です",
+          message: "userIdは必須です",
         }),
       };
     }
@@ -83,13 +83,13 @@ export const handler = async (
         TableName: TABLE_NAME,
         Item: {
           PK: `RECIPE#${recipeId}`,
-          SK: `LIKE#${body.user_id}`,
+          SK: `LIKE#${body.userId}`,
           RecipeId: recipeId,
-          UserId: body.user_id,
+          UserId: body.userId,
           CreatedAt: createdAt,
           EntityType: "LIKE",
           // GSI1: ユーザーのいいね一覧取得用
-          GSI1PK: `USER#${body.user_id}`,
+          GSI1PK: `USER#${body.userId}`,
           GSI1SK: `LIKE#${createdAt}`,
         },
       })
@@ -102,7 +102,7 @@ export const handler = async (
         "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({
-        is_liked: true,
+        isLiked: true,
       }),
     };
   } catch (error) {

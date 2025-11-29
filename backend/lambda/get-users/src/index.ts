@@ -10,9 +10,9 @@ const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 interface User {
   id: string;
   name: string;
-  image_url: string;
+  imageUrl: string;
   description: string;
-  email_address: string;
+  emailAddress: string;
 }
 
 export const handler = async (
@@ -54,9 +54,9 @@ export const handler = async (
         users = result.Items.map((item) => ({
           id: item.UserId,
           name: item.UserName || "",
-          image_url: item.ImageUrl || "",
+          imageUrl: item.ImageUrl || "",
           description: item.Description || "",
-          email_address: item.EmailAddress || "",
+          emailAddress: item.EmailAddress || "",
         }));
       }
     } else {
@@ -77,9 +77,9 @@ export const handler = async (
         users = result.Items.map((item) => ({
           id: item.UserId,
           name: item.UserName || "",
-          image_url: item.ImageUrl || "",
+          imageUrl: item.ImageUrl || "",
           description: item.Description || "",
-          email_address: item.EmailAddress || "",
+          emailAddress: item.EmailAddress || "",
         }));
       }
     }

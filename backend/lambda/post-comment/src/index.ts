@@ -13,16 +13,16 @@ const ddbDocClient = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 
 interface CommentRequestBody {
-  user_id: string;
+  userId: string;
   description: string;
 }
 
 interface Comment {
   id: string;
-  user_id: string;
-  user_name: string;
+  userId: string;
+  userName: string;
   description: string;
-  created_at: string;
+  createdAt: string;
 }
 
 export const handler = async (
@@ -88,7 +88,7 @@ export const handler = async (
       };
     }
 
-    if (!body.user_id) {
+    if (!body.userId) {
       return {
         statusCode: 400,
         headers: {
@@ -96,17 +96,17 @@ export const handler = async (
           "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
-          message: "user_idは必須です",
+          message: "userIdは必須です",
         }),
       };
     }
 
-    // ユーザー情報を取得してuser_nameを取得
+    // ユーザー情報を取得してuserNameを取得
     const userResult = await ddbDocClient.send(
       new GetCommand({
         TableName: TABLE_NAME,
         Key: {
-          PK: `USER#${body.user_id}`,
+          PK: `USER#${body.userId}`,
           SK: "PROFILE",
         },
       })
@@ -128,7 +128,7 @@ export const handler = async (
           SK: `COMMENT#${createdAt}#${commentId}`,
           CommentId: commentId,
           RecipeId: recipeId,
-          UserId: body.user_id,
+          UserId: body.userId,
           UserName: userName,
           Description: body.description,
           CreatedAt: createdAt,
@@ -140,10 +140,10 @@ export const handler = async (
     // レスポンス用のコメントオブジェクト
     const comment: Comment = {
       id: commentId,
-      user_id: body.user_id,
-      user_name: userName,
+      userId: body.userId,
+      userName: userName,
       description: body.description,
-      created_at: createdAt,
+      createdAt: createdAt,
     };
 
     return {

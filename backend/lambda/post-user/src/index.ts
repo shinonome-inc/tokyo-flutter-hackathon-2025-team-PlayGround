@@ -10,16 +10,16 @@ const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 
 interface UserRequestBody {
   name?: string;
-  email_address: string;
-  image_url?: string;
+  emailAddress: string;
+  imageUrl?: string;
 }
 
 interface User {
   id: string;
   name: string;
-  image_url: string;
+  imageUrl: string;
   description: string;
-  email_address: string;
+  emailAddress: string;
 }
 
 export const handler = async (
@@ -56,7 +56,7 @@ export const handler = async (
     const body: UserRequestBody = JSON.parse(event.body);
 
     // バリデーション
-    if (!body.email_address) {
+    if (!body.emailAddress) {
       return {
         statusCode: 400,
         headers: {
@@ -64,7 +64,7 @@ export const handler = async (
           "Access-Control-Allow-Origin": "*",
         },
         body: JSON.stringify({
-          message: "email_addressは必須です",
+          message: "emailAddressは必須です",
         }),
       };
     }
@@ -72,7 +72,7 @@ export const handler = async (
     const userId = uuidv4();
     const createdAt = new Date().toISOString();
     const userName = body.name || "";
-    const imageUrl = body.image_url || "";
+    const imageUrl = body.imageUrl || "";
 
     // DynamoDBにユーザーを保存
     await ddbDocClient.send(
@@ -85,7 +85,7 @@ export const handler = async (
           UserName: userName,
           ImageUrl: imageUrl,
           Description: "",
-          EmailAddress: body.email_address,
+          EmailAddress: body.emailAddress,
           CreatedAt: createdAt,
           UpdatedAt: createdAt,
           EntityType: "USER",
@@ -93,7 +93,7 @@ export const handler = async (
           GSI2PK: "USER_STATUS#ACTIVE",
           GSI2SK: createdAt,
           // GSI3: メールアドレスからユーザー検索用
-          GSI3PK: `EMAIL#${body.email_address}`,
+          GSI3PK: `EMAIL#${body.emailAddress}`,
           GSI3SK: "PROFILE",
         },
       })
@@ -103,9 +103,9 @@ export const handler = async (
     const user: User = {
       id: userId,
       name: userName,
-      image_url: imageUrl,
+      imageUrl: imageUrl,
       description: "",
-      email_address: body.email_address,
+      emailAddress: body.emailAddress,
     };
 
     return {

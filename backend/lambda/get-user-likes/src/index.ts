@@ -21,19 +21,18 @@ const corsHeaders = {
 interface User {
   id: string;
   name: string;
-  image_url: string;
+  imageUrl: string;
   description: string;
-  email_address: string;
+  emailAddress: string;
 }
 
 interface LikedRecipe {
   id: string;
   title: string;
   overview: string;
-  image_url: string;
-  is_ai_generated: boolean;
-  created_at: string;
-  liked_at: string;
+  imageUrl: string;
+  isAiGenerated: boolean;
+  createdAt: string;
   user: User;
 }
 
@@ -58,9 +57,9 @@ async function getUser(userId: string): Promise<User | null> {
   return {
     id: result.Item.UserId || userId,
     name: result.Item.UserName || "",
-    image_url: result.Item.ImageUrl || "",
+    imageUrl: result.Item.ImageUrl || "",
     description: result.Item.Description || "",
-    email_address: result.Item.EmailAddress || "",
+    emailAddress: result.Item.EmailAddress || "",
   };
 }
 
@@ -133,9 +132,9 @@ async function getUserLikes(userId: string): Promise<LikedRecipe[]> {
     usersMap.set(uid, {
       id: uid,
       name: (item.UserName as string) || "",
-      image_url: (item.ImageUrl as string) || "",
+      imageUrl: (item.ImageUrl as string) || "",
       description: (item.Description as string) || "",
-      email_address: (item.EmailAddress as string) || "",
+      emailAddress: (item.EmailAddress as string) || "",
     });
   });
 
@@ -151,19 +150,18 @@ async function getUserLikes(userId: string): Promise<LikedRecipe[]> {
       const user = usersMap.get(recipeUserId) || {
         id: recipeUserId,
         name: "",
-        image_url: "",
+        imageUrl: "",
         description: "",
-        email_address: "",
+        emailAddress: "",
       };
 
       return {
         id: recipeId,
         title: (recipe.Title as string) || "",
         overview: (recipe.Overview as string) || "",
-        image_url: (recipe.ImageUrl as string) || "",
-        is_ai_generated: (recipe.IsAiGenerated as boolean) || false,
-        created_at: (recipe.CreatedAt as string) || "",
-        liked_at: likedAtMap.get(recipeId) || "",
+        imageUrl: (recipe.ImageUrl as string) || "",
+        isAiGenerated: (recipe.IsAiGenerated as boolean) || false,
+        createdAt: (recipe.CreatedAt as string) || "",
         user,
       };
     })

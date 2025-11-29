@@ -24,18 +24,18 @@ const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 interface User {
   id: string;
   name: string;
-  image_url: string;
+  imageUrl: string;
   description: string;
-  email_address: string;
+  emailAddress: string;
 }
 
 interface RecipeOverview {
   id: string;
   title: string;
   overview: string;
-  image_url: string;
-  is_ai_generated: boolean;
-  created_at: string;
+  imageUrl: string;
+  isAiGenerated: boolean;
+  createdAt: string;
   user: User;
 }
 
@@ -68,15 +68,15 @@ async function getRecipesFromTimeline(): Promise<RecipeOverview[]> {
     id: (item.PK as string).replace("RECIPE#", ""),
     title: item.title as string,
     overview: item.overview as string,
-    image_url: (item.image_url as string) || "",
-    is_ai_generated: (item.is_ai_generated as boolean) || false,
-    created_at: item.created_at as string,
+    imageUrl: (item.image_url as string) || "",
+    isAiGenerated: (item.is_ai_generated as boolean) || false,
+    createdAt: item.created_at as string,
     user: users[item.user_id as string] || {
       id: item.user_id as string,
       name: "Unknown",
-      image_url: "",
+      imageUrl: "",
       description: "",
-      email_address: "",
+      emailAddress: "",
     },
   }));
 }
@@ -113,9 +113,9 @@ async function batchGetUsers(
       users[userId] = {
         id: userId,
         name: item.name || "",
-        image_url: item.image_url || "",
+        imageUrl: item.image_url || "",
         description: item.description || "",
-        email_address: item.email_address || "",
+        emailAddress: item.email_address || "",
       };
     }
   }

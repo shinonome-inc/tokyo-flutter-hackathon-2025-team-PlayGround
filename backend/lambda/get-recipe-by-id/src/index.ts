@@ -24,21 +24,19 @@ const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 interface User {
   id: string;
   name: string;
-  image_url: string;
+  imageUrl: string;
   description: string;
-  email_address: string;
+  emailAddress: string;
 }
 
 interface Ingredient {
   id: string;
   name: string;
   amount: string;
-  order_index: number;
 }
 
 interface Step {
-  id: string;
-  order_number: number;
+  orderNumber: number;
   description: string;
 }
 
@@ -47,10 +45,9 @@ interface RecipeDetail {
   title: string;
   overview: string;
   notes: string;
-  image_url: string;
-  is_ai_generated: boolean;
-  created_at: string;
-  updated_at: string;
+  imageUrl: string;
+  isAiGenerated: boolean;
+  createdAt: string;
   user: User;
   ingredients: Ingredient[];
   steps: Step[];
@@ -95,9 +92,9 @@ async function getUser(userId: string): Promise<User | null> {
   return {
     id: userId,
     name: result.Item.name || "",
-    image_url: result.Item.image_url || "",
+    imageUrl: result.Item.image_url || "",
     description: result.Item.description || "",
-    email_address: result.Item.email_address || "",
+    emailAddress: result.Item.email_address || "",
   };
 }
 
@@ -123,28 +120,27 @@ function buildRecipeDetail(
       id: item.IngredientId as string,
       name: item.Name as string,
       amount: item.Amount as string,
-      order_index: item.OrderIndex as number,
+      orderIndex: item.OrderIndex as number,
     }))
-    .sort((a, b) => a.order_index - b.order_index);
+    .sort((a, b) => a.orderIndex - b.orderIndex)
+    .map(({ orderIndex, ...rest }) => rest);
 
   const steps: Step[] = items
     .filter((item) => (item.SK as string).startsWith("STEP#"))
     .map((item) => ({
-      id: item.StepId as string,
-      order_number: item.OrderNumber as number,
+      orderNumber: item.OrderNumber as number,
       description: item.Description as string,
     }))
-    .sort((a, b) => a.order_number - b.order_number);
+    .sort((a, b) => a.orderNumber - b.orderNumber);
 
   return {
     id: recipeId,
     title: recipeItem.Title as string,
     overview: recipeItem.Overview as string,
     notes: (recipeItem.Notes as string) || "",
-    image_url: (recipeItem.ImageUrl as string) || "",
-    is_ai_generated: (recipeItem.IsAiGenerated as boolean) || false,
-    created_at: recipeItem.CreatedAt as string,
-    updated_at: (recipeItem.UpdatedAt as string) || "",
+    imageUrl: (recipeItem.ImageUrl as string) || "",
+    isAiGenerated: (recipeItem.IsAiGenerated as boolean) || false,
+    createdAt: recipeItem.CreatedAt as string,
     user,
     ingredients,
     steps,
@@ -222,9 +218,9 @@ export const handler = async (
     const recipeDetail = buildRecipeDetail(recipeId, items, user || {
       id: userId,
       name: "Unknown",
-      image_url: "",
+      imageUrl: "",
       description: "",
-      email_address: "",
+      emailAddress: "",
     });
 
     if (!recipeDetail) {
