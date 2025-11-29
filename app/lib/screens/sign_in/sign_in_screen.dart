@@ -154,9 +154,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('ログイン'),
-        ),
+        appBar: AppBar(title: const Text('ログイン')),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -194,10 +192,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 const SizedBox(height: 32),
                 const Divider(),
                 const SizedBox(height: 16),
-                const Text(
-                  'または',
-                  textAlign: TextAlign.center,
-                ),
+                const Text('または', textAlign: TextAlign.center),
                 const SizedBox(height: 16),
                 OutlinedButton(
                   onPressed: _isLoading ? null : _signInWithGoogle,
@@ -242,7 +237,9 @@ class _SignInScreenState extends State<SignInScreen> {
                 Text(
                   _message,
                   style: TextStyle(
-                    color: _message.startsWith('エラー') ? Colors.red : Colors.green,
+                    color: _message.startsWith('エラー')
+                        ? Colors.red
+                        : Colors.green,
                   ),
                   textAlign: TextAlign.center,
                 ),
