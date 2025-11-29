@@ -159,42 +159,44 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('新規登録'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (!_isConfirmationStep)
-              EmailSignUpForm(
-                emailController: _emailController,
-                passwordController: _passwordController,
-                isLoading: _isLoading,
-                onSignUpWithEmail: _signUpWithEmail,
-                onSignUpWithGoogle: _signUpWithGoogle,
-                onSignUpWithLine: _signUpWithLine,
-              )
-            else
-              ConfirmationCodeForm(
-                confirmationCodeController: _confirmationCodeController,
-                isLoading: _isLoading,
-                onConfirmSignUp: _confirmSignUp,
-              ),
-            if (_message.isNotEmpty) ...[
-              const SizedBox(height: 24),
-              Text(
-                _message,
-                style: TextStyle(
-                  color: _message.startsWith('エラー') ? Colors.red : Colors.green,
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('新規登録'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (!_isConfirmationStep)
+                EmailSignUpForm(
+                  emailController: _emailController,
+                  passwordController: _passwordController,
+                  isLoading: _isLoading,
+                  onSignUpWithEmail: _signUpWithEmail,
+                  onSignUpWithGoogle: _signUpWithGoogle,
+                  onSignUpWithLine: _signUpWithLine,
+                )
+              else
+                ConfirmationCodeForm(
+                  confirmationCodeController: _confirmationCodeController,
+                  isLoading: _isLoading,
+                  onConfirmSignUp: _confirmSignUp,
                 ),
-                textAlign: TextAlign.center,
-              ),
+              if (_message.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                Text(
+                  _message,
+                  style: TextStyle(
+                    color: _message.startsWith('エラー') ? Colors.red : Colors.green,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
