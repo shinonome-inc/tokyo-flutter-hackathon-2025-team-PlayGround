@@ -26,6 +26,10 @@ jobs:
         working-directory: app
         run: flutter pub get
 
+      - name: Run Build Runner
+        working-directory: app
+        run: dart run build_runner build
+
       - name: Run Flutter Analyze
         working-directory: app
         run: flutter analyze
