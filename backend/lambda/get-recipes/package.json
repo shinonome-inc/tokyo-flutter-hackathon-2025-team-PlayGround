@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "package": "../scripts/package.sh get-recipes get_recipes.zip @aws-sdk @smithy",
+    "package": "../scripts/package.sh get-recipes get_recipes.zip",
     "build:package": "npm run package"
   },
   "dependencies": {

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "package": "../scripts/package.sh post_recipe post_recipe.zip @aws-sdk @smithy uuid tslib mnemonist",
+    "package": "../scripts/package.sh post_recipe post_recipe.zip",
     "build:package": "npm run package"
   },
   "dependencies": {

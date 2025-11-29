@@ -143,13 +143,68 @@ resource "aws_api_gateway_integration_response" "recipes_options_integration_res
   }
 }
 
+# GET メソッドレスポンス設定
+resource "aws_api_gateway_method_response" "recipes_get_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.post_recipe_resource.id
+  http_method = aws_api_gateway_method.recipes_get_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
+  }
+}
+
+# GET メソッド integration response
+resource "aws_api_gateway_integration_response" "recipes_get_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.post_recipe_resource.id
+  http_method = aws_api_gateway_method.recipes_get_method.http_method
+  status_code = aws_api_gateway_method_response.recipes_get_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
+  }
+
+  depends_on = [aws_api_gateway_integration.recipes_get_integration]
+}
+
+# POST メソッドレスポンス設定
+resource "aws_api_gateway_method_response" "post_recipe_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.post_recipe_resource.id
+  http_method = aws_api_gateway_method.post_recipe_method.http_method
+  status_code = "201"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
+  }
+}
+
+# POST メソッド integration response
+resource "aws_api_gateway_integration_response" "post_recipe_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.post_recipe_resource.id
+  http_method = aws_api_gateway_method.post_recipe_method.http_method
+  status_code = aws_api_gateway_method_response.post_recipe_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
+  }
+
+  depends_on = [aws_api_gateway_integration.post_recipe_integration]
+}
+
 resource "aws_api_gateway_deployment" "main_deployment" {
   depends_on = [
     aws_api_gateway_integration.recipe_ai_integration,
     aws_api_gateway_integration.presigned_url_integration,
     aws_api_gateway_integration.recipes_get_integration,
     aws_api_gateway_integration.post_recipe_integration,
-    aws_api_gateway_integration.recipes_options_integration
+    aws_api_gateway_integration.recipes_options_integration,
+    aws_api_gateway_integration_response.recipes_get_integration_response,
+    aws_api_gateway_integration_response.post_recipe_integration_response,
+    aws_api_gateway_integration_response.recipes_options_integration_response
   ]
 
   rest_api_id = aws_api_gateway_rest_api.main_api.id
