@@ -40,4 +40,18 @@ class GenkaimeshiRepository {
       throw Exception('予期しないエラーが発生しました: $e');
     }
   }
+
+  Future<Recipe> fetchRecipeByRecipeId(String recipeId) async {
+    try {
+      final response = await _dio.get<dynamic>('/recipes/$recipeId');
+      if (response.statusCode == 200 && response.data != null) {
+        final recipe = Recipe.fromJson(response.data! as Map<String, dynamic>);
+        return recipe;
+      } else {
+        throw Exception('レシピIDによってレシピを取得することができませんでした');
+      }
+    } on Exception catch (e) {
+      throw Exception('予期せぬエラーが発生しました: $e');
+    }
+  }
 }
