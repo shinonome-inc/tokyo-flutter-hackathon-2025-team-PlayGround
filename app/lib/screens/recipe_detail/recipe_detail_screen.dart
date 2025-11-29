@@ -1,6 +1,6 @@
 import 'package:app/models/cooking_step.dart';
 import 'package:app/models/ingredient.dart';
-import 'package:app/models/recipe_detail.dart';
+import 'package:app/models/recipe.dart';
 import 'package:app/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +13,8 @@ class RecipeDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
-  RecipeDetail recipeDetail = RecipeDetail(
+  Recipe recipeDetail = Recipe(
+    id: 'fefafe-feaefa-fsaefsaef',
     title: '焼きそば',
     overview: '概要概要概要',
     imageUrl: 'https://firebasestorage.googleapis.com/v0/b/test-152ff.firebasestorage.app/o/uploads%2F1763090655187.png?alt=media&token=be782b65-63ff-4981-a0d4-dfd18eea420b',
@@ -116,7 +117,9 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Container(
                   decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                     color: Color(0xFFFFFFFF),
                   ),
                   child: Column(
@@ -146,7 +149,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       Row(
                         children: [
                           const SizedBox(width: 10),
-                          const Icon(Icons.favorite_outline, size: 20, color: Color(0xFF1D1B20)),
+                          const Icon(
+                            Icons.favorite_outline, size: 20, 
+                            color: Color(0xFF1D1B20),
+                          ),
                           const SizedBox(width: 1),
                           Text(
                             '${recipeDetail.likeCount}',
@@ -171,7 +177,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                 ),
                               const SizedBox(height: 2),
                               Text(
-                                recipeDetail.user!.id,
+                                recipeDetail.user!.id!,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w300,
@@ -199,7 +205,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             children: [
                               ...recipeDetail.ingredients!.map(
                                 (ingredient) {
-                                  final index = recipeDetail.ingredients!.indexOf(ingredient);
+                                  final index = 
+                                    recipeDetail.ingredients!.indexOf(
+                                      ingredient,
+                                    );
                                   return Column(
                                     children: [
                                       Row(
@@ -223,7 +232,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                         ),
                                     ],
                                   ),
-                                  if (index != recipeDetail.ingredients!.length - 1) ...[
+                                  if (
+                                    index != 
+                                      recipeDetail.ingredients!.length - 1
+                                    ) ...[
                                     const SizedBox(height: 8),
                                   ],
                                     ],
