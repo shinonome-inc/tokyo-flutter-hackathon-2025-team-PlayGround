@@ -40,6 +40,14 @@ interface Step {
   description: string;
 }
 
+interface Comment {
+  id: string;
+  userId: string;
+  userName: string;
+  description: string;
+  createdAt: string;
+}
+
 interface RecipeDetail {
   id: string;
   title: string;
@@ -51,6 +59,30 @@ interface RecipeDetail {
   user: User;
   ingredients: Ingredient[];
   steps: Step[];
+  comments: Comment[];
+  isLikedByMe: boolean;
+  likeCount: number;
+}
+
+/**
+ * AuthorizationヘッダーからユーザーIDを取得する
+ * JWTトークンをデコードしてsubクレームを抽出
+ */
+function getUserIdFromAuthHeader(event: APIGatewayProxyEvent): string | null {
+  const authHeader = event.headers?.Authorization || event.headers?.authorization;
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  try {
+    // JWTのペイロード部分（2番目の部分）をデコード
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
+    return decoded.sub || null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -104,7 +136,8 @@ async function getUser(userId: string): Promise<User | null> {
 function buildRecipeDetail(
   recipeId: string,
   items: Record<string, unknown>[],
-  user: User
+  user: User,
+  currentUserId: string | null
 ): RecipeDetail | null {
   const recipeItem = items.find(
     (item) => item.SK === `RECIPE#${recipeId}`
@@ -133,6 +166,25 @@ function buildRecipeDetail(
     }))
     .sort((a, b) => a.orderNumber - b.orderNumber);
 
+  // コメントを抽出
+  const comments: Comment[] = items
+    .filter((item) => (item.SK as string).startsWith("COMMENT#"))
+    .map((item) => ({
+      id: item.CommentId as string,
+      userId: item.UserId as string,
+      userName: (item.UserName as string) || "",
+      description: item.Description as string,
+      createdAt: item.CreatedAt as string,
+    }))
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+  // いいねを抽出
+  const likes = items.filter((item) => (item.SK as string).startsWith("LIKE#"));
+  const likeCount = likes.length;
+  const isLikedByMe = currentUserId
+    ? likes.some((item) => item.SK === `LIKE#${currentUserId}`)
+    : false;
+
   return {
     id: recipeId,
     title: recipeItem.Title as string,
@@ -144,6 +196,9 @@ function buildRecipeDetail(
     user,
     ingredients,
     steps,
+    comments,
+    isLikedByMe,
+    likeCount,
   };
 }
 
@@ -184,6 +239,9 @@ export const handler = async (
   }
 
   try {
+    // AuthorizationヘッダーからユーザーIDを取得（オプション）
+    const currentUserId = getUserIdFromAuthHeader(event);
+
     const items = await getRecipeItems(recipeId);
 
     if (items.length === 0) {
@@ -221,7 +279,7 @@ export const handler = async (
       imageUrl: "",
       description: "",
       emailAddress: "",
-    });
+    }, currentUserId);
 
     if (!recipeDetail) {
       return {

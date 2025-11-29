@@ -1,12 +1,18 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
-import { v4 as uuidv4 } from "uuid";
 
 const client = new DynamoDBClient();
 const ddbDocClient = DynamoDBDocumentClient.from(client);
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
+
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+};
 
 interface UserRequestBody {
   name?: string;
@@ -22,6 +28,27 @@ interface User {
   emailAddress: string;
 }
 
+/**
+ * AuthorizationヘッダーからユーザーIDを取得する
+ * JWTトークンをデコードしてsubクレームを抽出
+ */
+function getUserIdFromAuthHeader(event: APIGatewayProxyEvent): string | null {
+  const authHeader = event.headers?.Authorization || event.headers?.authorization;
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  try {
+    // JWTのペイロード部分（2番目の部分）をデコード
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
+    return decoded.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
@@ -29,24 +56,29 @@ export const handler = async (
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-      },
+      headers: corsHeaders,
       body: "",
     };
   }
 
   try {
+    // AuthorizationヘッダーからユーザーIDを取得
+    const userId = getUserIdFromAuthHeader(event);
+    if (!userId) {
+      return {
+        statusCode: 401,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          message: "認証が必要です",
+        }),
+      };
+    }
+
     // リクエストボディのパース
     if (!event.body) {
       return {
         statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: corsHeaders,
         body: JSON.stringify({
           message: "リクエストボディが必要です",
         }),
@@ -59,17 +91,13 @@ export const handler = async (
     if (!body.emailAddress) {
       return {
         statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: corsHeaders,
         body: JSON.stringify({
           message: "emailAddressは必須です",
         }),
       };
     }
 
-    const userId = uuidv4();
     const createdAt = new Date().toISOString();
     const userName = body.name || "";
     const imageUrl = body.imageUrl || "";
@@ -110,20 +138,14 @@ export const handler = async (
 
     return {
       statusCode: 201,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: corsHeaders,
       body: JSON.stringify(user),
     };
   } catch (error) {
     console.error("Error creating user:", error);
     return {
       statusCode: 500,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         message: `サーバーエラーが発生しました: ${error}`,
       }),
