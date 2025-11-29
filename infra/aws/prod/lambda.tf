@@ -33,8 +33,8 @@ resource "aws_lambda_function" "post_recipe" {
   source_code_hash = filebase64sha256("../../../backend/lambda/dist/post_recipe.zip")
   environment {
     variables = {
-      ENVIRONMENT = "prod"
-      TABLE_NAME  = "${aws_dynamodb_table.recipes.name}"
+      ENVIRONMENT         = "prod"
+      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
     }
   }
 

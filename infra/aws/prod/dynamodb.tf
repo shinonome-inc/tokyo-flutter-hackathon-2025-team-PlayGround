@@ -1,3 +1,4 @@
+# シングルテーブル設計
 resource "aws_dynamodb_table" "main_table" {
   name         = "${var.project_name}-prod-table"
   billing_mode = "PAY_PER_REQUEST"
