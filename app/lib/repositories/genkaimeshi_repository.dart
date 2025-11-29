@@ -1,4 +1,7 @@
+import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:app/enums/app_env.dart';
+import 'package:app/models/presigned_url_response.dart';
 import 'package:app/models/recipe.dart';
 import 'package:dio/dio.dart';
 
@@ -7,6 +10,7 @@ class GenkaimeshiRepository {
   GenkaimeshiRepository({Dio? dio, AppEnv environment = AppEnv.dev})
     : _dio = dio ?? Dio() {
     _dio.options.baseUrl = _getBaseUrl(environment);
+    _dio.interceptors.add(_AuthInterceptor());
   }
 
   static final GenkaimeshiRepository instance = GenkaimeshiRepository();
@@ -39,5 +43,31 @@ class GenkaimeshiRepository {
     } catch (e) {
       throw Exception('予期しないエラーが発生しました: $e');
     }
+  }
+}
+
+/// Cognitoアクセストークンを自動的にリクエストヘッダーに付与するインターセプター
+class _AuthInterceptor extends Interceptor {
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    try {
+      final session = await Amplify.Auth.fetchAuthSession();
+      if (session.isSignedIn) {
+        final cognitoSession = session as CognitoAuthSession;
+        final accessToken =
+            cognitoSession.userPoolTokensResult.value?.accessToken.raw;
+
+        if (accessToken != null) {
+          options.headers['Authorization'] = 'Bearer $accessToken';
+        }
+      }
+    } on AuthException catch (e) {
+      safePrint('Auth error in interceptor: ${e.message}');
+    }
+
+    handler.next(options);
   }
 }
