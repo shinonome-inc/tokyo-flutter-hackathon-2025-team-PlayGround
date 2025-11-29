@@ -51,7 +51,24 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   }
 
   void _onTapDelete() {
-    // TODO: 削除処理
+    setState(() {
+      _titleController.clear();
+      _descriptionController.clear();
+      _instructionsController.clear();
+      
+      // 既存の材料コントローラーを破棄
+      for (final ingredient in _ingredients) {
+        ingredient['name']?.dispose();
+        ingredient['amount']?.dispose();
+      }
+      
+      // 材料リストを初期状態（1個）にリセット
+      _ingredients.clear();
+      _ingredients.add({
+        'name': TextEditingController(),
+        'amount': TextEditingController(),
+      });
+    });
   }
 
   Future<void> _onTapPost() async {
