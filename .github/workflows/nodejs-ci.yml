@@ -4,40 +4,31 @@ on:
   push:
     paths:
       - "backend/lambda/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/nodejs-ci.yml"
+  pull_request:
+    paths:
+      - "backend/lambda/**"
+      - "package.json"
+      - "package-lock.json"
       - ".github/workflows/nodejs-ci.yml"
 
 jobs:
-  discover-and-test-lambdas:
+  test-lambdas:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
-      - name: Find and test Lambda functions
-        run: |
-          DIRECTORIES=$(find backend/lambda -maxdepth 2 -type f -name "package.json" -exec dirname {} \;)
+      - name: Install dependencies
+        run: npm ci
 
-          for directory in $DIRECTORIES; do
-            echo "Processing directory: $directory"
-            cd "$GITHUB_WORKSPACE/$directory"
-            npm ci
-
-            if npm run | grep -q "lint"; then
-              echo "Running lint..."
-              npm run lint
-            else
-              echo "Skipping lint (script not found)"
-            fi
-
-            if npm run | grep -q "test"; then
-              echo "Running tests..."
-              npm test
-            else
-              echo "Skipping tests (script not found)"
-            fi
-          done
+      - name: Run tests
+        run: npm test -w @genkaimeshi/lambda-base
