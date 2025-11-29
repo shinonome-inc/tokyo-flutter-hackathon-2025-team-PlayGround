@@ -71,6 +71,19 @@ backend/lambda/{function-name}/
 }
 ```
 
+**重要**: workspace追加後、ルートディレクトリで `npm install` を実行して `package-lock.json` を更新すること。
+
+```bash
+cd /path/to/project-root
+npm install
+```
+
+これを忘れると `npm ci` 実行時に以下のエラーが発生する：
+```
+npm error `npm ci` can only install packages when your package.json and package-lock.json are in sync.
+npm error Missing: @genkaimeshi/{function-name}@1.0.0 from lock file
+```
+
 ### 3. Terraform設定の追加（dev環境）
 
 以下の3ファイルを編集する。
