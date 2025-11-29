@@ -5,7 +5,6 @@ on:
     branches:
       - develop
       - main
-      - feature/**
     paths:
       - "app/**"
       - ".github/workflows/flutter-web-cd.yml"
@@ -81,7 +80,7 @@ jobs:
           rm -f /tmp/terraform.tfstate
 
       - name: Deploy to S3 (dev)
-        if: matrix.environment == 'dev' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/'))
+        if: matrix.environment == 'dev' && github.ref == 'refs/heads/develop'
         working-directory: app/build/web
         run: |
           aws s3 sync . s3://${{ env.S3_BUCKET_NAME }}/ \
@@ -115,7 +114,7 @@ jobs:
             --cache-control "no-cache, no-store, must-revalidate"
 
       - name: Invalidate CloudFront Cache (dev)
-        if: matrix.environment == 'dev' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/'))
+        if: matrix.environment == 'dev' && github.ref == 'refs/heads/develop'
         run: |
           aws cloudfront create-invalidation \
             --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} \
@@ -129,7 +128,7 @@ jobs:
             --paths "/*"
 
       - name: Output deployment info (dev)
-        if: matrix.environment == 'dev' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/'))
+        if: matrix.environment == 'dev' && github.ref == 'refs/heads/develop'
         run: |
           echo "✅ Dev deployment completed successfully!"
           echo "S3 Bucket: ${{ env.S3_BUCKET_NAME }}"
