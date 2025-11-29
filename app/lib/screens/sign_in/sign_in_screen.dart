@@ -1,5 +1,4 @@
 import 'package:app/enums/app_page.dart';
-import 'package:app/providers/is_signed_in_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,9 +12,7 @@ class SignInScreen extends ConsumerStatefulWidget {
 
 class _SignInScreenState extends ConsumerState<SignInScreen> {
   Future<void> _onTapSignIn() async {
-    // サインイン処理
-    await ref.read(isSignedInProvider.notifier).signIn();
-
+    // TODO: サインイン処理
     // サインイン成功後にレシピ一覧画面へ遷移
     context.go(AppPage.recipeList.path);
   }
