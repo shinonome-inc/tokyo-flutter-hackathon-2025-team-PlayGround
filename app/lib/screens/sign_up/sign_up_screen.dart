@@ -161,9 +161,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('新規登録'),
-        ),
+        appBar: AppBar(title: const Text('新規登録')),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -190,7 +188,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Text(
                   _message,
                   style: TextStyle(
-                    color: _message.startsWith('エラー') ? Colors.red : Colors.green,
+                    color: _message.startsWith('エラー')
+                        ? Colors.red
+                        : Colors.green,
                   ),
                   textAlign: TextAlign.center,
                 ),
