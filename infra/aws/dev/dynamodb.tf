@@ -1,4 +1,4 @@
-# シングルテーブル設計
+# シングルテーブル設計 (Single Table Design)
 resource "aws_dynamodb_table" "main_table" {
   name         = "${var.project_name}-dev-table"
   billing_mode = "PAY_PER_REQUEST"
