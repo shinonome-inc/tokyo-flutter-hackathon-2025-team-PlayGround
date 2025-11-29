@@ -159,7 +159,7 @@ const corsHeaders = {
 };
 
 /**
- * Lambda ハンドラー
+ * レシピ詳細取得のLambdaハンドラー
  */
 export const handler = async (
   event: APIGatewayProxyEvent
