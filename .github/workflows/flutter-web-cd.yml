@@ -52,22 +52,42 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
-
-      - name: Get Terraform outputs
-        working-directory: infra/aws/${{ matrix.environment }}
+      - name: Get deployment info from Terraform state
         run: |
-          terraform init -backend-config="bucket=genkaimeshi-recipe-terraform-state" > /dev/null
-          S3_BUCKET_NAME=$(terraform output -raw flutter_web_bucket_name 2>/dev/null)
-          CLOUDFRONT_DISTRIBUTION_ID=$(terraform output -raw flutter_web_cloudfront_distribution_id 2>/dev/null)
+          # TerraformのリモートステートからS3バケット名とCloudFront Distribution IDを取得
+          STATE_FILE="s3://genkaimeshi-recipe-terraform-state/aws/${{ matrix.environment }}/terraform.tfstate"
+
+          # tfstateをダウンロードして解析
+          if ! aws s3 cp "$STATE_FILE" /tmp/terraform.tfstate; then
+            echo "❌ Failed to download Terraform state file from $STATE_FILE"
+            exit 1
+          fi
+
+          S3_BUCKET_NAME=$(cat /tmp/terraform.tfstate | jq -r '.outputs.flutter_web_bucket_name.value')
+          CLOUDFRONT_DISTRIBUTION_ID=$(cat /tmp/terraform.tfstate | jq -r '.outputs.flutter_web_cloudfront_distribution_id.value')
+
+          # 値が取得できたか確認
+          if [ -z "$S3_BUCKET_NAME" ] || [ "$S3_BUCKET_NAME" = "null" ]; then
+            echo "❌ Failed to get S3_BUCKET_NAME from Terraform outputs"
+            cat /tmp/terraform.tfstate | jq '.outputs'
+            exit 1
+          fi
+
+          if [ -z "$CLOUDFRONT_DISTRIBUTION_ID" ] || [ "$CLOUDFRONT_DISTRIBUTION_ID" = "null" ]; then
+            echo "❌ Failed to get CLOUDFRONT_DISTRIBUTION_ID from Terraform outputs"
+            cat /tmp/terraform.tfstate | jq '.outputs'
+            exit 1
+          fi
 
           echo "S3_BUCKET_NAME=$S3_BUCKET_NAME" >> $GITHUB_ENV
           echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID" >> $GITHUB_ENV
 
-          echo "✓ Terraform outputs loaded successfully"
+          echo "✓ Deployment info loaded successfully"
+          echo "  S3 Bucket: $S3_BUCKET_NAME"
+          echo "  CloudFront Distribution: $CLOUDFRONT_DISTRIBUTION_ID"
+
+          # セキュリティのため一時ファイルを削除
+          rm -f /tmp/terraform.tfstate
 
       - name: Deploy to S3 (dev)
         if: matrix.environment == 'dev' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/'))
