@@ -188,7 +188,7 @@ paths:
     post:
       tags:
         - Recipe
-      summary: レシピ新規作成（手動投稿 / AI生成結果の保存）
+      summary: レシピ新規作成（手動投稿）
       security:
         - BearerAuth: []
       requestBody:
