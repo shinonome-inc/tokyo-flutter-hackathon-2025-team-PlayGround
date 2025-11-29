@@ -534,6 +534,50 @@ resource "aws_api_gateway_integration_response" "users_post_integration_response
   depends_on = [aws_api_gateway_integration.users_post_integration]
 }
 
+# GET /users
+resource "aws_api_gateway_method" "users_get_method" {
+  rest_api_id   = aws_api_gateway_rest_api.main_api.id
+  resource_id   = aws_api_gateway_resource.users_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "users_get_integration" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.users_resource.id
+  http_method = aws_api_gateway_method.users_get_method.http_method
+
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.get_users.invoke_arn
+}
+
+# GET /users method response
+resource "aws_api_gateway_method_response" "users_get_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.users_resource.id
+  http_method = aws_api_gateway_method.users_get_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
+  }
+}
+
+# GET /users integration response
+resource "aws_api_gateway_integration_response" "users_get_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.users_resource.id
+  http_method = aws_api_gateway_method.users_get_method.http_method
+  status_code = aws_api_gateway_method_response.users_get_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
+  }
+
+  depends_on = [aws_api_gateway_integration.users_get_integration]
+}
+
 # OPTIONS /users (CORS)
 resource "aws_api_gateway_method" "users_options_method" {
   rest_api_id   = aws_api_gateway_rest_api.main_api.id
@@ -603,6 +647,8 @@ resource "aws_api_gateway_deployment" "main_deployment" {
     aws_api_gateway_integration_response.likes_options_integration_response,
     aws_api_gateway_integration.users_post_integration,
     aws_api_gateway_integration_response.users_post_integration_response,
+    aws_api_gateway_integration.users_get_integration,
+    aws_api_gateway_integration_response.users_get_integration_response,
     aws_api_gateway_integration.users_options_integration,
     aws_api_gateway_integration_response.users_options_integration_response
   ]
