@@ -28,24 +28,71 @@ const ddbDocClient = DynamoDBDocumentClient.from(client);
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+};
+
+/**
+ * AuthorizationヘッダーからユーザーIDを取得する
+ * JWTトークンをデコードしてsubクレームを抽出
+ */
+function getUserIdFromAuthHeader(event: APIGatewayProxyEvent): string | null {
+  const authHeader =
+    event.headers?.Authorization || event.headers?.authorization;
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  try {
+    // JWTのペイロード部分（2番目の部分）をデコード
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
+    return decoded.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 export const handler = async (
-  event: APIGatewayProxyEvent | RequestBody
+  event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
   console.log("Received event:", JSON.stringify(event, null, 2));
 
+  // CORS preflight対応
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: "",
+    };
+  }
+
+  // AuthorizationヘッダーからユーザーIDを取得
+  const userId = getUserIdFromAuthHeader(event);
+  if (!userId) {
+    return {
+      statusCode: 401,
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "認証が必要です",
+      }),
+    };
+  }
+
   let requestBody: RequestBody;
 
-  if ("body" in event && event.body) {
+  if (event.body) {
     console.log("Event body:", event.body);
     requestBody =
       typeof event.body === "string" ? JSON.parse(event.body) : event.body;
-  } else if ("prompt" in event) {
-    console.log("Direct Lambda invocation");
-    requestBody = event as RequestBody;
   } else {
     return {
       statusCode: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: corsHeaders,
       body: JSON.stringify({ error: "Request body is required" }),
     };
   }
@@ -53,19 +100,9 @@ export const handler = async (
   if (!requestBody.prompt || typeof requestBody.prompt !== "string") {
     return {
       statusCode: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: corsHeaders,
       body: JSON.stringify({
         error: "prompt is required and must be a string",
-      }),
-    };
-  }
-
-  if (!requestBody.userId || typeof requestBody.userId !== "string") {
-    return {
-      statusCode: 400,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        error: "userId is required and must be a string",
       }),
     };
   }
@@ -83,14 +120,14 @@ export const handler = async (
 
       return {
         statusCode: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: corsHeaders,
         body: JSON.stringify(response),
       };
     } catch (error) {
       console.error("Error generating presigned URL:", error);
       return {
         statusCode: 500,
-        headers: { "Content-Type": "application/json" },
+        headers: corsHeaders,
         body: JSON.stringify({
           error: "Failed to generate presigned URL",
           message: error instanceof Error ? error.message : "Unknown error",
@@ -135,7 +172,6 @@ export const handler = async (
     }));
 
     const createdAt = new Date().toISOString();
-    const userId = requestBody.userId;
 
     // DynamoDBにレシピを保存
     const transactItems: TransactWriteCommandInput["TransactItems"] = [];
@@ -221,9 +257,9 @@ export const handler = async (
       createdAt: createdAt,
       user: {
         id: userId,
-        name: requestBody.userName || "AI Recipe Generator",
+        name: "",
         imageUrl: "",
-        description: "AI generated recipe",
+        description: "",
         emailAddress: "",
       },
       notes: recipe.notes,
@@ -236,14 +272,14 @@ export const handler = async (
 
     return {
       statusCode: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: corsHeaders,
       body: JSON.stringify(response),
     };
   } catch (error) {
     console.error("Error:", error);
     return {
       statusCode: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: corsHeaders,
       body: JSON.stringify({
         error: "Internal server error",
         message: error instanceof Error ? error.message : "Unknown error",

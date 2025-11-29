@@ -1,7 +1,5 @@
 export interface RequestBody {
   prompt: string;
-  userId: string;
-  userName?: string;
   imageS3Key?: string;
   requiresImageUpload?: boolean;
 }

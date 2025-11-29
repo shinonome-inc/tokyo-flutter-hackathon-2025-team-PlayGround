@@ -16,6 +16,8 @@
 
 **エンドポイント:** `POST /v1/generate-recipe`
 
+**認証:** Authorization ヘッダーに Bearer トークンが必要です。ユーザー ID はトークンから自動的に取得されます。
+
 ### パターン A: 画像なしでレシピ生成（1 ステップ）
 
 画像を使わずにテキストプロンプトのみでレシピを生成する場合。
@@ -23,9 +25,9 @@
 ```bash
 curl -X POST https://{api-gateway-url}/dev/v1/generate-recipe \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {your-jwt-token}" \
   -d '{
-    "prompt": "カレーのレシピを提案して",
-    "userId": "user123"
+    "prompt": "カレーのレシピを提案して"
   }'
 ```
 
@@ -38,9 +40,9 @@ curl -X POST https://{api-gateway-url}/dev/v1/generate-recipe \
 ```bash
 curl -X POST https://{api-gateway-url}/dev/v1/generate-recipe \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {your-jwt-token}" \
   -d '{
     "prompt": "この食材で作れるレシピを提案して",
-    "userId": "user123",
     "requiresImageUpload": true
   }'
 ```
@@ -69,9 +71,9 @@ curl -X PUT "{uploadUrl}" \
 ```bash
 curl -X POST https://{api-gateway-url}/dev/v1/generate-recipe \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer {your-jwt-token}" \
   -d '{
     "prompt": "この食材で作れるレシピを提案して",
-    "userId": "user123",
     "imageS3Key": "abc-123.png"
   }'
 ```
@@ -81,7 +83,13 @@ curl -X POST https://{api-gateway-url}/dev/v1/generate-recipe \
 | パラメータ           | 必須 | 説明                                                                 |
 | -------------------- | ---- | -------------------------------------------------------------------- |
 | `prompt`             | ○    | AI へのプロンプト（例: "簡単に作れるレシピを提案して"）              |
-| `userId`             | ○    | レシピを作成するユーザーの ID                                        |
-| `userName`           | -    | ユーザー名（デフォルト: "AI Recipe Generator"）                      |
 | `imageS3Key`         | -    | S3 にアップロードした画像のキー                                      |
 | `requiresImageUpload`| -    | `true` を指定すると、presigned URL を返却するモードになる            |
+
+## 認証
+
+Authorization ヘッダーに JWT トークンを含める必要があります。ユーザー ID はトークンの `sub` クレームから自動的に取得されます。
+
+```
+Authorization: Bearer {your-jwt-token}
+```
