@@ -1,7 +1,7 @@
 resource "aws_dynamodb_table" "users" {
   name         = "users"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "Id"
+  hash_key     = "UserId"
   range_key    = "CreatedAt"
   attribute {
     name = "UserId"
@@ -19,7 +19,7 @@ resource "aws_dynamodb_table" "recipes" {
   hash_key     = "RecipeId"
   range_key    = "CreatedAt"
   attribute {
-    name = "Id"
+    name = "RecipeId"
     type = "S"
   }
   attribute {
