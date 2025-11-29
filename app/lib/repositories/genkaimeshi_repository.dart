@@ -73,6 +73,35 @@ class GenkaimeshiRepository {
       throw Exception('予期しないエラーが発生しました: $e');
     }
   }
+
+  /// AIレシピを生成する
+  ///
+  /// [prompt] AIへのプロンプト（例: 簡単に作れるレシピを提案して）
+  /// [imageS3Key] S3にアップロードした画像のキー（オプション）
+  Future<Recipe> generateAIRecipe({
+    required String prompt,
+    String? imageS3Key,
+  }) async {
+    try {
+      final requestBody = <String, dynamic>{
+        'prompt': prompt,
+        if (imageS3Key != null) 'imageS3Key': imageS3Key,
+      };
+      
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/recipes/ai-generate',
+        data: requestBody,
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        return Recipe.fromJson(response.data!);
+      } else {
+        throw Exception('AIレシピの生成に失敗しました');
+      }
+    } catch (e) {
+      throw Exception('予期しないエラーが発生しました: $e');
+    }
+  }
 }
 
 /// Cognitoアクセストークンを自動的にリクエストヘッダーに付与するインターセプター
