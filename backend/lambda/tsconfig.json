@@ -7,10 +7,12 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": "."
+    "rootDir": ".",
+    "types": ["node", "jest"]
   },
   "include": [
-    "generate-ai-recipe/src/**/*.ts"
+    "**/src/**/*.ts",
+    "**/__tests__/**/*.ts"
   ],
   "exclude": [
     "node_modules",
