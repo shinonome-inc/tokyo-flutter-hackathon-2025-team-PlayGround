@@ -11,7 +11,6 @@ on:
       - ".github/workflows/flutter-web-cd.yml"
 
 env:
-  FLUTTER_VERSION: "3.38.1"
   AWS_REGION: "ap-northeast-1"
 
 jobs:
@@ -30,20 +29,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: "stable"
-          flutter-version: ${{ env.FLUTTER_VERSION }}
-          cache: true
-
-      - name: Install dependencies
-        working-directory: app
-        run: flutter pub get
-
-      - name: Run Build Runner
-        working-directory: app
-        run: dart run build_runner build
+      - name: Setup Flutter and Dependencies
+        uses: ./.github/workflows/common/flutter-setup
 
       - name: Build Flutter Web
         working-directory: app
