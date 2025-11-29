@@ -1,0 +1,17 @@
+{
+  "name": "@genkaimeshi/post-like",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "package": "../scripts/package.sh post-like post_like.zip @aws-sdk @smithy",
+    "build:package": "npm run package"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.705.0",
+    "@aws-sdk/lib-dynamodb": "^3.705.0"
+  }
+}

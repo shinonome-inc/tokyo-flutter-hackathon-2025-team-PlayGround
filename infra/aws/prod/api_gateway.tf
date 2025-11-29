@@ -310,6 +310,102 @@ resource "aws_api_gateway_integration_response" "comments_options_integration_re
   }
 }
 
+# /recipes/{recipeId}/likes リソース
+resource "aws_api_gateway_resource" "likes_resource" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  parent_id   = aws_api_gateway_resource.recipe_by_id_resource.id
+  path_part   = "likes"
+}
+
+# POST /recipes/{recipeId}/likes
+resource "aws_api_gateway_method" "likes_post_method" {
+  rest_api_id   = aws_api_gateway_rest_api.main_api.id
+  resource_id   = aws_api_gateway_resource.likes_resource.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "likes_post_integration" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.likes_resource.id
+  http_method = aws_api_gateway_method.likes_post_method.http_method
+
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.post_like.invoke_arn
+}
+
+# POST /recipes/{recipeId}/likes method response
+resource "aws_api_gateway_method_response" "likes_post_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.likes_resource.id
+  http_method = aws_api_gateway_method.likes_post_method.http_method
+  status_code = "201"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
+  }
+}
+
+# POST /recipes/{recipeId}/likes integration response
+resource "aws_api_gateway_integration_response" "likes_post_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.likes_resource.id
+  http_method = aws_api_gateway_method.likes_post_method.http_method
+  status_code = aws_api_gateway_method_response.likes_post_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
+  }
+
+  depends_on = [aws_api_gateway_integration.likes_post_integration]
+}
+
+# OPTIONS /recipes/{recipeId}/likes (CORS)
+resource "aws_api_gateway_method" "likes_options_method" {
+  rest_api_id   = aws_api_gateway_rest_api.main_api.id
+  resource_id   = aws_api_gateway_resource.likes_resource.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "likes_options_integration" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.likes_resource.id
+  http_method = aws_api_gateway_method.likes_options_method.http_method
+
+  type = "MOCK"
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
+resource "aws_api_gateway_method_response" "likes_options_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.likes_resource.id
+  http_method = aws_api_gateway_method.likes_options_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "likes_options_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.likes_resource.id
+  http_method = aws_api_gateway_method.likes_options_method.http_method
+  status_code = aws_api_gateway_method_response.likes_options_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,Authorization'"
+    "method.response.header.Access-Control-Allow-Methods" = "'POST,DELETE,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+  }
+}
+
 resource "aws_api_gateway_deployment" "main_deployment" {
   depends_on = [
     aws_api_gateway_integration.recipe_ai_integration,
@@ -322,7 +418,11 @@ resource "aws_api_gateway_deployment" "main_deployment" {
     aws_api_gateway_integration.comments_post_integration,
     aws_api_gateway_integration_response.comments_post_integration_response,
     aws_api_gateway_integration.comments_options_integration,
-    aws_api_gateway_integration_response.comments_options_integration_response
+    aws_api_gateway_integration_response.comments_options_integration_response,
+    aws_api_gateway_integration.likes_post_integration,
+    aws_api_gateway_integration_response.likes_post_integration_response,
+    aws_api_gateway_integration.likes_options_integration,
+    aws_api_gateway_integration_response.likes_options_integration_response
   ]
 
   rest_api_id = aws_api_gateway_rest_api.main_api.id
