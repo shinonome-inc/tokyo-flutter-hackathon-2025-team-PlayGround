@@ -6,6 +6,7 @@
     "backend/lambda/generate-ai-recipe",
     "backend/lambda/presigned-url",
     "backend/lambda/get-recipes",
+    "backend/lambda/get-recipe-by-id",
     "backend/lambda/post_recipe"
   ],
   "scripts": {
