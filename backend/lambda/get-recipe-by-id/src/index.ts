@@ -123,10 +123,10 @@ async function getUser(userId: string): Promise<User | null> {
 
   return {
     id: userId,
-    name: result.Item.name || "",
-    imageUrl: result.Item.image_url || "",
-    description: result.Item.description || "",
-    emailAddress: result.Item.email_address || "",
+    name: result.Item.UserName || "",
+    imageUrl: result.Item.ImageUrl || "",
+    description: result.Item.Description || "",
+    emailAddress: result.Item.EmailAddress || "",
   };
 }
 

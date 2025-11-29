@@ -88,11 +88,11 @@ async function getUserRecipes(
 
   return result.Items.map((item: Record<string, unknown>) => ({
     id: (item.PK as string).replace("RECIPE#", ""),
-    title: (item.title as string) || "",
-    overview: (item.overview as string) || "",
-    imageUrl: (item.image_url as string) || "",
-    isAiGenerated: (item.is_ai_generated as boolean) || false,
-    createdAt: (item.created_at as string) || "",
+    title: (item.Title as string) || "",
+    overview: (item.Overview as string) || "",
+    imageUrl: (item.ImageUrl as string) || "",
+    isAiGenerated: (item.IsAiGenerated as boolean) || false,
+    createdAt: (item.CreatedAt as string) || "",
     user: user,
   }));
 }

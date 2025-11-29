@@ -142,10 +142,10 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
       const mockUser = {
         PK: `USER#${userId}`,
         SK: "PROFILE",
-        name: "テストユーザー",
-        image_url: "https://example.com/user.jpg",
-        description: "ユーザー説明",
-        email_address: "test@example.com",
+        UserName: "テストユーザー",
+        ImageUrl: "https://example.com/user.jpg",
+        Description: "ユーザー説明",
+        EmailAddress: "test@example.com",
       };
 
       mockSend
@@ -233,7 +233,7 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
       const mockUser = {
         PK: `USER#${userId}`,
         SK: "PROFILE",
-        name: "テストユーザー",
+        UserName: "テストユーザー",
       };
 
       mockSend
@@ -282,7 +282,7 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
       const mockUser = {
         PK: `USER#${userId}`,
         SK: "PROFILE",
-        name: "テストユーザー",
+        UserName: "テストユーザー",
       };
 
       mockSend
@@ -430,7 +430,7 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
 
       mockSend
         .mockResolvedValueOnce({ Items: mockRecipeItems })
-        .mockResolvedValueOnce({ Item: { name: "ユーザー" } });
+        .mockResolvedValueOnce({ Item: { UserName: "ユーザー" } });
 
       const event = createMockEvent();
       const result = await handler(event);
@@ -487,7 +487,7 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
 
       mockSend
         .mockResolvedValueOnce({ Items: mockRecipeItems })
-        .mockResolvedValueOnce({ Item: { name: "ユーザー" } });
+        .mockResolvedValueOnce({ Item: { UserName: "ユーザー" } });
 
       const event = createMockEvent();
       const result = await handler(event);

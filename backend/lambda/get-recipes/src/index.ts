@@ -68,7 +68,7 @@ async function getRecipesFromTimeline(): Promise<RecipeOverview[]> {
     return [];
   }
 
-  const userIds = [...new Set(result.Items.map((item) => item.user_id as string))];
+  const userIds = [...new Set(result.Items.map((item) => item.UserId as string))];
   const recipeIds = result.Items.map((item) => (item.PK as string).replace("RECIPE#", ""));
 
   // ユーザー情報と各レシピの詳細（材料、いいね）を並行で取得
@@ -83,13 +83,13 @@ async function getRecipesFromTimeline(): Promise<RecipeOverview[]> {
 
     return {
       id: recipeId,
-      title: item.title as string,
-      overview: item.overview as string,
-      imageUrl: (item.image_url as string) || "",
-      isAiGenerated: (item.is_ai_generated as boolean) || false,
-      createdAt: item.created_at as string,
-      user: users[item.user_id as string] || {
-        id: item.user_id as string,
+      title: item.Title as string,
+      overview: item.Overview as string,
+      imageUrl: (item.ImageUrl as string) || "",
+      isAiGenerated: (item.IsAiGenerated as boolean) || false,
+      createdAt: item.CreatedAt as string,
+      user: users[item.UserId as string] || {
+        id: item.UserId as string,
         name: "Unknown",
         imageUrl: "",
         description: "",
@@ -185,10 +185,10 @@ async function batchGetUsers(
       const userId = item.PK.replace("USER#", "");
       users[userId] = {
         id: userId,
-        name: item.name || "",
-        imageUrl: item.image_url || "",
-        description: item.description || "",
-        emailAddress: item.email_address || "",
+        name: item.UserName || "",
+        imageUrl: item.ImageUrl || "",
+        description: item.Description || "",
+        emailAddress: item.EmailAddress || "",
       };
     }
   }

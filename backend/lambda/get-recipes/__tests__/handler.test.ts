@@ -70,23 +70,23 @@ describe("GET /recipes ハンドラー", () => {
       const mockRecipes = [
         {
           PK: "RECIPE#recipe-1",
-          SK: "META",
-          title: "テストレシピ1",
-          overview: "テスト概要1",
-          image_url: "https://example.com/image1.jpg",
-          is_ai_generated: false,
-          created_at: "2025-01-01T00:00:00Z",
-          user_id: "user-1",
+          SK: "RECIPE#recipe-1",
+          Title: "テストレシピ1",
+          Overview: "テスト概要1",
+          ImageUrl: "https://example.com/image1.jpg",
+          IsAiGenerated: false,
+          CreatedAt: "2025-01-01T00:00:00Z",
+          UserId: "user-1",
         },
         {
           PK: "RECIPE#recipe-2",
-          SK: "META",
-          title: "テストレシピ2",
-          overview: "テスト概要2",
-          image_url: "https://example.com/image2.jpg",
-          is_ai_generated: true,
-          created_at: "2025-01-02T00:00:00Z",
-          user_id: "user-2",
+          SK: "RECIPE#recipe-2",
+          Title: "テストレシピ2",
+          Overview: "テスト概要2",
+          ImageUrl: "https://example.com/image2.jpg",
+          IsAiGenerated: true,
+          CreatedAt: "2025-01-02T00:00:00Z",
+          UserId: "user-2",
         },
       ];
 
@@ -94,18 +94,18 @@ describe("GET /recipes ハンドラー", () => {
         {
           PK: "USER#user-1",
           SK: "PROFILE",
-          name: "ユーザー1",
-          image_url: "https://example.com/user1.jpg",
-          description: "説明1",
-          email_address: "user1@example.com",
+          UserName: "ユーザー1",
+          ImageUrl: "https://example.com/user1.jpg",
+          Description: "説明1",
+          EmailAddress: "user1@example.com",
         },
         {
           PK: "USER#user-2",
           SK: "PROFILE",
-          name: "ユーザー2",
-          image_url: "https://example.com/user2.jpg",
-          description: "説明2",
-          email_address: "user2@example.com",
+          UserName: "ユーザー2",
+          ImageUrl: "https://example.com/user2.jpg",
+          Description: "説明2",
+          EmailAddress: "user2@example.com",
         },
       ];
 
@@ -232,11 +232,11 @@ describe("GET /recipes ハンドラー", () => {
       const mockRecipes = [
         {
           PK: "RECIPE#recipe-1",
-          SK: "META",
-          title: "テストレシピ",
-          overview: "テスト概要",
-          created_at: "2025-01-01T00:00:00Z",
-          user_id: "unknown-user",
+          SK: "RECIPE#recipe-1",
+          Title: "テストレシピ",
+          Overview: "テスト概要",
+          CreatedAt: "2025-01-01T00:00:00Z",
+          UserId: "unknown-user",
         },
       ];
 
