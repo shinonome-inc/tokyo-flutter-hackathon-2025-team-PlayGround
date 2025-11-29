@@ -21,7 +21,7 @@
     "@google/generative-ai": "^0.24.1",
     "@types/aws-lambda": "^8.10.130",
     "google-auth-library": "^9.15.1",
-    "uuid": "^11.0.3"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
