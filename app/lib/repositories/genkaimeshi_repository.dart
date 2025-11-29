@@ -74,6 +74,34 @@ class GenkaimeshiRepository {
     }
   }
 
+  /// Presigned URLを使ってS3に画像をアップロードする。
+  ///
+  /// [uploadUrl] Presigned URL
+  /// [imageBytes] アップロードする画像のバイトデータ
+  /// [contentType] 画像のMIMEタイプ（例: 'image/jpeg', 'image/png'）
+  Future<void> uploadImageToS3({
+    required String uploadUrl,
+    required List<int> imageBytes,
+    Dio? dio,
+    String contentType = 'image/jpeg',
+  }) async {
+    try {
+      // S3へのアップロード用に新しいDioインスタンスを使用（認証ヘッダーが不要なため）
+      final uploadDio = dio ?? Dio();
+      final response = await uploadDio.put<void>(
+        uploadUrl,
+        data: imageBytes,
+        options: Options(headers: {'Content-Type': contentType}),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('画像のアップロードに失敗しました');
+      }
+    } catch (e) {
+      throw Exception('予期しないエラーが発生しました: $e');
+    }
+  }
+
   /// AIレシピを生成する
   ///
   /// [prompt] AIへのプロンプト（例: 簡単に作れるレシピを提案して）
@@ -87,7 +115,7 @@ class GenkaimeshiRepository {
         'prompt': prompt,
         if (imageS3Key != null) 'imageS3Key': imageS3Key,
       };
-      
+
       final response = await _dio.post<Map<String, dynamic>>(
         '/recipes/ai-generate',
         data: requestBody,
