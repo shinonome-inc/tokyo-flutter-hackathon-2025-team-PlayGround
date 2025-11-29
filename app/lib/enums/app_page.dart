@@ -27,7 +27,6 @@ enum AppPage {
   recipeCreate,
   recipeEdit,
   recipeAiGeneration,
-  recipeAiLoading,
   userList,
   userDetail,
   userCreate,
