@@ -38,35 +38,8 @@ jobs:
           set -e
           cd ../../..  # リポジトリのルートディレクトリに移動 (infra/aws/prod -> ルート)
 
-          echo "Current working directory: $PWD"
-          echo "Backend Lambda directory contents:"
-          ls -la backend/lambda
-
           npm ci
-
-          # dist ディレクトリを作成
-          mkdir -p backend/lambda/dist
-
-          # generate-ai-recipe のビルド
-          echo "Building generate-ai-recipe"
-          cd backend/lambda/generate-ai-recipe
-          npm run build
-          zip -r ../dist/recipe_ai_generator.zip .
-          cd ../../../
-
-          # presigned-url のビルド
-          echo "Building presigned-url"
-          cd backend/lambda/presigned-url
-          npm run build
-          zip -r ../dist/presigned_url.zip .
-          cd ../../../
-
-          # post-recipe のビルド
-          echo "Building post-recipe"
-          cd backend/lambda/post_recipe
-          npm run build
-          zip -r ../dist/post_recipe.zip .
-          cd ../../../
+          npm run lambda:package
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3

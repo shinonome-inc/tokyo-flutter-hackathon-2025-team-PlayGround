@@ -28,7 +28,7 @@ backend/
 
 ## コマンド
 
-`backend/lambda/` にて実行してください。
+**注意**: 全てのコマンドはプロジェクトルートから実行してください。
 
 ### 依存関係のインストール
 
@@ -39,11 +39,11 @@ npm install
 ### 特定の Lambda 関数をビルド & ZIP パッケージを作成
 
 ```bash
-npm run build:package -w @genkaimeshi/generate-ai-recipe
+npm run package -w @genkaimeshi/generate-ai-recipe
 ```
 
 ### 全ての Lambda 関数をビルド & ZIP パッケージを作成
 
 ```bash
-npm run build:package --workspaces
+npm run lambda:package
 ```

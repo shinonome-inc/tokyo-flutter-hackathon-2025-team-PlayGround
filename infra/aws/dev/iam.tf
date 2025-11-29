@@ -74,3 +74,31 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_policy_attach" {
   role       = aws_iam_role.lambda_execution_role.name
   policy_arn = aws_iam_policy.lambda_s3_policy.arn
 }
+
+resource "aws_iam_policy" "lambda_dynamodb_policy" {
+  name = "${var.project_name}-lambda-dynamodb-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "dynamodb:BatchGetItem"
+        ]
+        Resource = [
+          aws_dynamodb_table.main_table.arn,
+          "${aws_dynamodb_table.main_table.arn}/index/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_dynamodb_policy_attach" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_dynamodb_policy.arn
+}

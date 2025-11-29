@@ -7,9 +7,8 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "test": "jest",
     "test:local": "npm run build && ts-node test-local.ts",
-    "package": "npm run build && mkdir -p ../dist dist/node_modules && rm -rf ../dist/recipe_ai_generator.zip && cp -rL ../../../node_modules/@aws-sdk ../../../node_modules/@smithy ../../../node_modules/@google ../../../node_modules/@google-cloud ../../../node_modules/google-auth-library ../../../node_modules/gaxios ../../../node_modules/gcp-metadata ../../../node_modules/gtoken ../../../node_modules/uuid ../../../node_modules/ws ../../../node_modules/tslib ../../../node_modules/fast-xml-parser ../../../node_modules/google-gax ../../../node_modules/protobufjs ../../../node_modules/retry-request ../../../node_modules/@grpc ../../../node_modules/@protobufjs ../../../node_modules/long dist/node_modules/ 2>/dev/null || true && find dist/node_modules -type d \\( -name 'test*' -o -name 'dist-es' -o -name 'dist-types' \\) -exec rm -rf {} + 2>/dev/null || true && find dist/node_modules -type f \\( -name '*.md' -o -name '*.ts' -o -name '*.map' -o -name 'LICENSE*' -o -name '*.d.ts' \\) -delete 2>/dev/null || true && cd dist && zip -r ../../dist/recipe_ai_generator.zip . -x '*.map' -x 'recipe_ai_generator.zip'",
+    "package": "../scripts/package.sh generate-ai-recipe recipe_ai_generator.zip @aws-sdk @smithy @google @google-cloud google-auth-library gaxios gcp-metadata gtoken uuid ws tslib fast-xml-parser google-gax protobufjs retry-request @grpc @protobufjs long",
     "build:package": "npm run package"
   },
   "dependencies": {
@@ -19,14 +18,7 @@
     "@google-cloud/vision": "^5.3.4",
     "@google/genai": "^0.9.0",
     "@google/generative-ai": "^0.24.1",
-    "@types/aws-lambda": "^8.10.130",
-    "google-auth-library": "^9.15.1"
-  },
-  "devDependencies": {
-    "@types/jest": "^30.0.0",
-    "@types/uuid": "^11.0.0",
-    "jest": "^30.2.0",
-    "ts-jest": "^29.4.5",
-    "typescript": "^5.9.3"
+    "google-auth-library": "^9.15.1",
+    "uuid": "^11.0.3"
   }
 }
