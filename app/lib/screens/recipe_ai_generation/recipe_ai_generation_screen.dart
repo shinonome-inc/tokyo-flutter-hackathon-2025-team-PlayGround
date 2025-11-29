@@ -42,14 +42,14 @@ class _RecipeAiGenerationScreenState
     final state = ref.watch(recipeAiGenerationProvider);
     return Scaffold(
       body: SafeArea(
-        child: switch (state) {
-          RecipeAiGenerationState(:final isLoading) when isLoading =>
-            const LoadingView(),
-          RecipeAiGenerationState(:final hasNetworkError)
-              when hasNetworkError =>
-            NetworkErrorView(onTapReload: _onTapReload),
-          _ => Center(
-            child: Column(
+        child: Center(
+          child: switch (state) {
+            RecipeAiGenerationState(:final isLoading) when isLoading =>
+              const LoadingView(),
+            RecipeAiGenerationState(:final hasNetworkError)
+                when hasNetworkError =>
+              NetworkErrorView(onTapReload: _onTapReload),
+            _ => Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Spacer(),
@@ -113,8 +113,8 @@ class _RecipeAiGenerationScreenState
                 const SizedBox(height: 32),
               ],
             ),
-          ),
-        },
+          },
+        ),
       ),
     );
   }
