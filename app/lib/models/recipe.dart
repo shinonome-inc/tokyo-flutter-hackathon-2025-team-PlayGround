@@ -4,13 +4,13 @@ import 'package:app/models/step.dart';
 import 'package:app/models/user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'recipe_detail.freezed.dart';
-part 'recipe_detail.g.dart';
+part 'recipe.freezed.dart';
+part 'recipe.g.dart';
 
 @freezed
-abstract class RecipeDetail with _$RecipeDetail {
-  const factory RecipeDetail({
-    String? id,
+abstract class Recipe with _$Recipe {
+  const factory Recipe({
+    required String id,
     String? title,
     String? overview,
     String? imageUrl,
@@ -23,8 +23,7 @@ abstract class RecipeDetail with _$RecipeDetail {
     List<Comment>? comments,
     bool? isLikedByMe,
     int? likeCount,
-  }) = _RecipeDetail;
+  }) = _Recipe;
 
-  factory RecipeDetail.fromJson(Map<String, Object?> json) =>
-      _$RecipeDetailFromJson(json);
+  factory Recipe.fromJson(Map<String, Object?> json) => _$RecipeFromJson(json);
 }
