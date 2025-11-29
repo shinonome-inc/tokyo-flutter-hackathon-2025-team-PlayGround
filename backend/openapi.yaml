@@ -55,13 +55,13 @@ paths:
           application/json:
             schema:
               type: object
-              required: [email_address]
+              required: [emailAddress]
               properties:
                 name:
                   type: string
-                email_address:
+                emailAddress:
                   type: string
-                image_url:
+                imageUrl:
                   type: string
       responses:
         "201":
@@ -249,13 +249,13 @@ paths:
                 id: "RECIPE#12345678"
                 title: "レンジで3分！虚無うどん"
                 overview: "洗い物を出したくない日の救世主。冷凍うどんをそのままチンするだけ。"
-                image_url: "https://api.genkaimeshi.com/images/udon.jpg"
-                is_ai_generated: false
-                created_at: "2025-11-20T19:00:00Z"
+                imageUrl: "https://api.genkaimeshi.com/images/udon.jpg"
+                isAiGenerated: false
+                createdAt: "2025-11-20T19:00:00Z"
                 user:
                   id: "USER#98765432"
                   name: "限界社会人A"
-                  image_url: "https://api.genkaimeshi.com/users/icon_a.jpg"
+                  imageUrl: "https://api.genkaimeshi.com/users/icon_a.jpg"
                 notes: "ネギはキッチンバサミで切れば包丁要らず。卵を入れると豪華になります。"
                 ingredients:
                   - id: "INGREDIENT#01"
@@ -268,18 +268,18 @@ paths:
                     name: "ごま油"
                     amount: "ひとまわし"
                 steps:
-                  - order_number: 1
+                  - orderNumber: 1
                     description: "耐熱皿に冷凍うどんを乗せ、ラップをして600Wで3分加熱。"
-                  - order_number: 2
+                  - orderNumber: 2
                     description: "めんつゆとごま油をかけて混ぜる。完成。"
                 comments:
                   - id: "COMMENT#202511211000#abc"
-                    user_id: "USER#11111"
-                    user_name: "通りすがり"
+                    userId: "USER#11111"
+                    userName: "通りすがり"
                     description: "本当に楽でした！神レシピ。"
-                    created_at: "2025-11-21T10:00:00Z"
-                is_liked_by_me: true
-                like_count: 108
+                    createdAt: "2025-11-21T10:00:00Z"
+                isLikedByMe: true
+                likeCount: 108
 
     put:
       tags:
@@ -365,7 +365,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  is_liked:
+                  isLiked:
                     type: boolean
                     example: true
 
@@ -397,11 +397,11 @@ components:
           description: User ID (UUID)
         name:
           type: string
-        image_url:
+        imageUrl:
           type: string
         description:
           type: string
-        email_address:
+        emailAddress:
           type: string
 
     UserUpdateInput:
@@ -409,7 +409,7 @@ components:
       properties:
         name:
           type: string
-        image_url:
+        imageUrl:
           type: string
         description:
           type: string
@@ -424,11 +424,11 @@ components:
           type: string
         overview:
           type: string
-        image_url:
+        imageUrl:
           type: string
-        is_ai_generated:
+        isAiGenerated:
           type: boolean
-        created_at:
+        createdAt:
           type: string
           format: date-time
         user:
@@ -454,12 +454,12 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Comment"
-            is_liked_by_me:
+            isLikedByMe:
               type: boolean
               description: リクエストしたユーザーが既にいいねしているか
-            like_count:
+            likeCount:
               type: integer
-              description: (Optional) サーバー側で集計する場合
+              description: いいね数
 
     RecipeCreateInput:
       type: object
@@ -469,11 +469,11 @@ components:
           type: string
         overview:
           type: string
-        image_url:
+        imageUrl:
           type: string
         notes:
           type: string
-        is_ai_generated:
+        isAiGenerated:
           type: boolean
         ingredients:
           type: array
@@ -498,7 +498,7 @@ components:
     Step:
       type: object
       properties:
-        order_number:
+        orderNumber:
           type: integer
         description:
           type: string
@@ -508,12 +508,12 @@ components:
       properties:
         id:
           type: string
-        user_id:
+        userId:
           type: string
-        user_name:
+        userName:
           type: string
         description:
           type: string
-        created_at:
+        createdAt:
           type: string
           format: date-time
