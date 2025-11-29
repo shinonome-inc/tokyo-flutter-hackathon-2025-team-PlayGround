@@ -1,6 +1,7 @@
 import 'package:app/providers/auth_user_provider.dart';
 import 'package:app/screens/recipe_create/recipe_create_notifier.dart';
 import 'package:app/screens/recipe_create/recipe_create_state.dart';
+import 'package:app/services/image_upload_service.dart';
 import 'package:app/utils/date_format_util.dart';
 import 'package:app/widgets/loading_view.dart';
 import 'package:app/widgets/network_error_view.dart';
@@ -9,6 +10,7 @@ import 'package:app/widgets/recipe_form/recipe_create_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RecipeCreateScreen extends ConsumerStatefulWidget {
   const RecipeCreateScreen({super.key});
@@ -22,6 +24,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   final _descriptionController = TextEditingController();
   final _instructionsController = TextEditingController();
   final List<Map<String, TextEditingController>> _ingredients = [];
+  String? _imageUrl;
 
   @override
   void initState() {
@@ -68,6 +71,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
         'name': TextEditingController(),
         'amount': TextEditingController(),
       });
+      _imageUrl = null;
     });
   }
 
@@ -99,6 +103,7 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
       overview: _descriptionController.text.trim(),
       instructions: _instructionsController.text.trim(),
       ingredients: _ingredients,
+      imageUrl: _imageUrl,
     );
   }
 
@@ -108,9 +113,24 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     );
   }
 
-  void _onTapImageArea() {
-    // TODO: 画像選択処理
+  Future<void> _onTapImageArea() async {
+    final picker = ImagePicker();
+    final image = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (image != null) {
+      try {
+        final imageBytes = await image.readAsBytes();
+        final imageUrl = await ImageUploadService.instance.uploadImage(imageBytes);
+        setState(() {
+          _imageUrl = imageUrl;
+        });
+        _showSnackBar('画像をアップロードしました');
+      } catch (e) {
+        _showSnackBar('画像のアップロードに失敗しました');
+      }
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -147,17 +167,20 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
   }
 
   Widget _buildRecipeCreateForm(String currentDate, String userId) {
-    return RecipeCreateForm(
-      currentDate: currentDate,
-      userId: userId,
-      titleController: _titleController,
-      descriptionController: _descriptionController,
-      instructionsController: _instructionsController,
-      ingredients: _ingredients,
-      onTapImageArea: _onTapImageArea,
-      onAddIngredient: _addIngredient,
-      onTapDelete: _onTapDelete,
-      onTapPost: _onTapPost,
+    return Scaffold(
+      body: RecipeCreateForm(
+        currentDate: currentDate,
+        userId: userId,
+        titleController: _titleController,
+        descriptionController: _descriptionController,
+        instructionsController: _instructionsController,
+        ingredients: _ingredients,
+        imageUrl: _imageUrl,
+        onTapImageArea: _onTapImageArea,
+        onAddIngredient: _addIngredient,
+        onTapDelete: _onTapDelete,
+        onTapPost: _onTapPost,
+      ),
     );
   }
 }
