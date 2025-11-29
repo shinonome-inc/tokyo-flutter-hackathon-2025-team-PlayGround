@@ -3,6 +3,7 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:app/enums/app_env.dart';
 import 'package:app/models/recipe.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 /// 限界飯APIのリポジトリクラス。
 class GenkaimeshiRepository {
@@ -10,7 +11,9 @@ class GenkaimeshiRepository {
     : _dio = dio ?? Dio() {
     _dio.options.baseUrl = _getBaseUrl(environment);
     _dio.interceptors.add(_AuthInterceptor());
-    _dio.interceptors.add(_LogInterceptor());
+    if (kDebugMode) {
+      _dio.interceptors.add(_LogInterceptor());
+    }
   }
 
   static final GenkaimeshiRepository instance = GenkaimeshiRepository();
