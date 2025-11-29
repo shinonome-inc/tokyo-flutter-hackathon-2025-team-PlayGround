@@ -69,3 +69,9 @@ variable "vision_service_account_key" {
   type        = string
   sensitive   = true
 }
+
+variable "flutter_web_bucket_name" {
+  description = "Flutter Web用のS3バケット名"
+  type        = string
+  default     = "genkaimeshi-recipe-web-prod"
+}

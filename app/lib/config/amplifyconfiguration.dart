@@ -1,4 +1,4 @@
-import 'package:app/config/env.dart';
+import 'package:app/config/amplify_initializer.dart';
 
 /// 環境に応じたAmplifyの設定を生成する。
 String get amplifyconfig =>
