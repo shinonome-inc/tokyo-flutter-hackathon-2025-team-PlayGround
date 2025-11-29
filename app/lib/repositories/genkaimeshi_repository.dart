@@ -36,8 +36,6 @@ class GenkaimeshiRepository {
       } else {
         throw Exception('レシピの取得に失敗しました');
       }
-    } on DioException catch (e) {
-      throw Exception('ネットワークエラー: ${e.message}');
     } catch (e) {
       throw Exception('予期しないエラーが発生しました: $e');
     }
