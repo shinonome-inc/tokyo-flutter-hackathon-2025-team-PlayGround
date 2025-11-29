@@ -43,7 +43,7 @@ jobs:
 
       - name: Build Flutter Web
         working-directory: app
-        run: flutter build web --release --base-href /
+        run: flutter build web --release --base-href / --dart-define=ENV=${{ matrix.environment }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
