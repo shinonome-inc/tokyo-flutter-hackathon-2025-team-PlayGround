@@ -9,15 +9,13 @@ class NetworkErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('ネットワークエラーが発生しました。'),
-          const SizedBox(height: 120),
-          ElevatedButton(onPressed: onTapReload, child: const Text('トップに戻る')),
-        ],
-      ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Text('ネットワークエラーが発生しました。'),
+        const SizedBox(height: 120),
+        ElevatedButton(onPressed: onTapReload, child: const Text('トップに戻る')),
+      ],
     );
   }
 }
