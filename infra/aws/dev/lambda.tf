@@ -124,6 +124,7 @@ resource "aws_lambda_permission" "api_gateway_get_recipes_lambda" {
   source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
 }
 
+# レシピ詳細取得Lambda
 resource "aws_lambda_function" "get_recipe_by_id" {
   function_name = "${var.project_name}-get-recipe-by-id"
   role          = aws_iam_role.lambda_execution_role.arn
