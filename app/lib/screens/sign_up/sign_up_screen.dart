@@ -1,5 +1,4 @@
 import 'package:app/enums/app_page.dart';
-import 'package:app/providers/is_signed_in_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
