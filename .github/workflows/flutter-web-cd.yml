@@ -52,23 +52,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Load deployment variables
-        env:
-          TF_VARS_DEV: ${{ secrets.TF_VARS_AWS_DEV }}
-          TF_VARS_PROD: ${{ secrets.TF_VARS_AWS_PROD }}
-        run: |
-          if [ "${{ matrix.environment }}" == "dev" ]; then
-            echo "$TF_VARS_DEV" > /tmp/deploy.tfvars
-          elif [ "${{ matrix.environment }}" == "prod" ]; then
-            echo "$TF_VARS_PROD" > /tmp/deploy.tfvars
-          fi
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
-          # tfvarsからS3バケット名とCloudFront Distribution IDを抽出
-          S3_BUCKET_NAME=$(grep 's3_bucket_name' /tmp/deploy.tfvars | cut -d'=' -f2 | tr -d ' "')
-          CLOUDFRONT_DISTRIBUTION_ID=$(grep 'cloudfront_distribution_id' /tmp/deploy.tfvars | cut -d'=' -f2 | tr -d ' "')
+      - name: Get Terraform outputs
+        working-directory: infra/aws/${{ matrix.environment }}
+        run: |
+          terraform init -backend-config="bucket=genkaimeshi-recipe-terraform-state" > /dev/null
+          S3_BUCKET_NAME=$(terraform output -raw flutter_web_bucket_name 2>/dev/null)
+          CLOUDFRONT_DISTRIBUTION_ID=$(terraform output -raw flutter_web_cloudfront_distribution_id 2>/dev/null)
 
           echo "S3_BUCKET_NAME=$S3_BUCKET_NAME" >> $GITHUB_ENV
           echo "CLOUDFRONT_DISTRIBUTION_ID=$CLOUDFRONT_DISTRIBUTION_ID" >> $GITHUB_ENV
+
+          echo "✓ Terraform outputs loaded successfully"
 
       - name: Deploy to S3 (dev)
         if: matrix.environment == 'dev' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/'))
@@ -119,13 +118,15 @@ jobs:
             --paths "/*"
 
       - name: Output deployment info (dev)
-        if: matrix.environment == 'dev' && github.ref == 'refs/heads/develop'
+        if: matrix.environment == 'dev' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/feature/'))
         run: |
           echo "✅ Dev deployment completed successfully!"
+          echo "S3 Bucket: ${{ env.S3_BUCKET_NAME }}"
           echo "CloudFront URL: https://${{ env.CLOUDFRONT_DISTRIBUTION_ID }}.cloudfront.net"
 
       - name: Output deployment info (prod)
         if: matrix.environment == 'prod' && github.ref == 'refs/heads/main'
         run: |
           echo "✅ Prod deployment completed successfully!"
+          echo "S3 Bucket: ${{ env.S3_BUCKET_NAME }}"
           echo "CloudFront URL: https://${{ env.CLOUDFRONT_DISTRIBUTION_ID }}.cloudfront.net"
