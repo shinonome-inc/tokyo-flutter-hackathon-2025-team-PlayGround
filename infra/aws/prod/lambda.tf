@@ -25,30 +25,30 @@ resource "aws_lambda_function" "recipe_ai_generator" {
 }
 
 resource "aws_lambda_function" "post_recipe" {
-  function_name = "${var.project_name}-post-recipe"
-  role = aws_iam_role.lambda_execution_role.arn
-  runtime = "nodejs20.x"
-  handler = "index.handler"
-  filename = "../../../backend/lambda/dist/post_recipe.zip"
+  function_name    = "${var.project_name}-post-recipe"
+  role             = aws_iam_role.lambda_execution_role.arn
+  runtime          = "nodejs20.x"
+  handler          = "index.handler"
+  filename         = "../../../backend/lambda/dist/post_recipe.zip"
   source_code_hash = filebase64sha256("../../../backend/lambda/dist/post_recipe.zip")
   environment {
     variables = {
       ENVIRONMENT = "prod"
-      TABLE_NAME = "${aws_dynamodb_table.recipes.name}"
+      TABLE_NAME  = "${aws_dynamodb_table.recipes.name}"
     }
   }
 
-  timeout = 30
+  timeout     = 30
   memory_size = 256
-  depends_on = [aws_cloudwatch_log_group.post_recipe_log_group]
+  depends_on  = [aws_cloudwatch_log_group.post_recipe_log_group]
 }
 
 resource "aws_lambda_permission" "post_recipe_function" {
-  statement_id = "AllowAPIGatewayInvokePostRecipe"
-  action = "lambda:InvokeFunction"
+  statement_id  = "AllowAPIGatewayInvokePostRecipe"
+  action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.post_recipe.function_name
-  principal = "apigateway.amazonaws.com"
-  source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
 }
 
 resource "aws_lambda_permission" "api_gateway_lambda" {

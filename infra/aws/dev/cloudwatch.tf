@@ -9,6 +9,6 @@ resource "aws_cloudwatch_log_group" "presigned_url_lambda_log_group" {
 }
 
 resource "aws_cloudwatch_log_group" "post_recipe_log_group" {
-  name = "/aws/lambda/${var.project_name}-post-recipe"
+  name              = "/aws/lambda/${var.project_name}-post-recipe"
   retention_in_days = 14
 }
