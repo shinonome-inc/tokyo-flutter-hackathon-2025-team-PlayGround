@@ -10,9 +10,9 @@ part 'recipe_list_notifier.g.dart';
 /// 状態を保持し、状態を更新するためのメソッドを提供する。
 @riverpod
 class RecipeListNotifier extends _$RecipeListNotifier {
-  /// 初期状態を構築する。
   @override
   RecipeListState build() {
+    Future.microtask(fetchRecipes);
     return const RecipeListState();
   }
 
