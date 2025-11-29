@@ -220,6 +220,32 @@ resource "aws_api_gateway_integration" "recipe_by_id_get_integration" {
   uri                     = aws_lambda_function.get_recipe_by_id.invoke_arn
 }
 
+# GET /recipes/{recipeId} method response
+resource "aws_api_gateway_method_response" "recipe_by_id_get_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_by_id_resource.id
+  http_method = aws_api_gateway_method.recipe_by_id_get_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
+  }
+}
+
+# GET /recipes/{recipeId} integration response
+resource "aws_api_gateway_integration_response" "recipe_by_id_get_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_by_id_resource.id
+  http_method = aws_api_gateway_method.recipe_by_id_get_method.http_method
+  status_code = aws_api_gateway_method_response.recipe_by_id_get_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
+  }
+
+  depends_on = [aws_api_gateway_integration.recipe_by_id_get_integration]
+}
+
 # OPTIONS /recipes/{recipeId} (CORS)
 resource "aws_api_gateway_method" "recipe_by_id_options_method" {
   rest_api_id   = aws_api_gateway_rest_api.main_api.id
@@ -276,7 +302,9 @@ resource "aws_api_gateway_deployment" "main_deployment" {
     aws_api_gateway_integration_response.post_recipe_integration_response,
     aws_api_gateway_integration_response.recipes_options_integration_response,
     aws_api_gateway_integration.recipe_by_id_get_integration,
-    aws_api_gateway_integration.recipe_by_id_options_integration
+    aws_api_gateway_integration_response.recipe_by_id_get_integration_response,
+    aws_api_gateway_integration.recipe_by_id_options_integration,
+    aws_api_gateway_integration_response.recipe_by_id_options_integration_response
   ]
 
   rest_api_id = aws_api_gateway_rest_api.main_api.id
