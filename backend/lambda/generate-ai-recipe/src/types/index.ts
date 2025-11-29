@@ -3,6 +3,12 @@ export interface RequestBody {
   userId: string;
   userName?: string;
   imageS3Key?: string;
+  requiresImageUpload?: boolean;
+}
+
+export interface PresignedUrlResponse {
+  uploadUrl: string;
+  imageS3Key: string;
 }
 
 // AWS Secrets Managerに保存されている実際のJSONキー名に合わせる

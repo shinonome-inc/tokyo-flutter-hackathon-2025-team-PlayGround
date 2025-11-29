@@ -6,11 +6,21 @@ import {
   TransactWriteCommandInput,
 } from "@aws-sdk/lib-dynamodb";
 import { v4 as uuidv4 } from "uuid";
-import { RequestBody, RecipeResponse, Ingredient, Step } from "./types/index";
+import {
+  RequestBody,
+  RecipeResponse,
+  Ingredient,
+  Step,
+  PresignedUrlResponse,
+} from "./types/index";
 import { getGeminiApiKey } from "./services/secretsManagerService";
 import { generateRecipeText } from "./services/geminiService";
 import { generateRecipeImage } from "./services/imagenService";
-import { uploadImageToS3, downloadImageFromS3 } from "./services/s3Service";
+import {
+  uploadImageToS3,
+  downloadImageFromS3,
+  generatePresignedUrl,
+} from "./services/s3Service";
 import { enrichRecipeContextWithImageIngredients } from "./services/ingredientDetectionService";
 
 const client = new DynamoDBClient();
@@ -58,6 +68,35 @@ export const handler = async (
         error: "userId is required and must be a string",
       }),
     };
+  }
+
+  // 画像アップロード用のpresigned URLを要求している場合
+  if (requestBody.requiresImageUpload) {
+    try {
+      const imageS3Key = `${uuidv4()}.png`;
+      const uploadUrl = await generatePresignedUrl(imageS3Key);
+
+      const response: PresignedUrlResponse = {
+        uploadUrl,
+        imageS3Key,
+      };
+
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(response),
+      };
+    } catch (error) {
+      console.error("Error generating presigned URL:", error);
+      return {
+        statusCode: 500,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          error: "Failed to generate presigned URL",
+          message: error instanceof Error ? error.message : "Unknown error",
+        }),
+      };
+    }
   }
 
   try {
