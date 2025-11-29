@@ -42,3 +42,8 @@ resource "aws_cloudwatch_log_group" "get_users_lambda_log_group" {
   name              = "/aws/lambda/${var.project_name}-get-users"
   retention_in_days = 14
 }
+
+resource "aws_cloudwatch_log_group" "get_user_by_id_lambda_log_group" {
+  name              = "/aws/lambda/${var.project_name}-get-user-by-id"
+  retention_in_days = 14
+}
