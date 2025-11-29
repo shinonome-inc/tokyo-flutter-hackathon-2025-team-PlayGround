@@ -22,3 +22,8 @@ resource "aws_cloudwatch_log_group" "get_recipe_by_id_lambda_log_group" {
   name              = "/aws/lambda/${var.project_name}-get-recipe-by-id"
   retention_in_days = 14
 }
+
+resource "aws_cloudwatch_log_group" "post_comment_lambda_log_group" {
+  name              = "/aws/lambda/${var.project_name}-post-comment"
+  retention_in_days = 14
+}
