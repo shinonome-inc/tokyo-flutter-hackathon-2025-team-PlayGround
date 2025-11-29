@@ -95,7 +95,7 @@ describe("GET /users ハンドラー", () => {
       expect(body[0]).toMatchObject({
         id: "user-1",
         name: "ユーザー1",
-        email_address: "user1@example.com",
+        emailAddress: "user1@example.com",
       });
 
       // GSI2を使用していることを確認
@@ -124,7 +124,7 @@ describe("GET /users ハンドラー", () => {
 
       const body = JSON.parse(result.body);
       expect(body).toHaveLength(1);
-      expect(body[0].email_address).toBe("test@example.com");
+      expect(body[0].emailAddress).toBe("test@example.com");
 
       // GSI3を使用していることを確認
       const queryCommand = mockSend.mock.calls[0][0];
@@ -178,9 +178,9 @@ describe("GET /users ハンドラー", () => {
       expect(body[0]).toMatchObject({
         id: "user-1",
         name: "",
-        image_url: "",
+        imageUrl: "",
         description: "",
-        email_address: "test@example.com",
+        emailAddress: "test@example.com",
       });
     });
   });

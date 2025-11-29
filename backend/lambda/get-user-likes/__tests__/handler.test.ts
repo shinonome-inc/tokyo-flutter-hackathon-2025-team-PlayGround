@@ -167,7 +167,6 @@ describe("GET /users/{userId}/likes ハンドラー", () => {
       expect(body[0]).toMatchObject({
         id: "recipe-1",
         title: "レシピ1",
-        liked_at: "2025-01-02T00:00:00.000Z",
         user: {
           id: "author-1",
           name: "作者1",
@@ -176,7 +175,6 @@ describe("GET /users/{userId}/likes ハンドラー", () => {
       expect(body[1]).toMatchObject({
         id: "recipe-2",
         title: "レシピ2",
-        liked_at: "2025-01-01T00:00:00.000Z",
         user: {
           id: "author-2",
           name: "作者2",

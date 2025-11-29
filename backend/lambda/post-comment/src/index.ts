@@ -12,17 +12,44 @@ const ddbDocClient = DynamoDBDocumentClient.from(client);
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+};
+
 interface CommentRequestBody {
-  user_id: string;
   description: string;
 }
 
 interface Comment {
   id: string;
-  user_id: string;
-  user_name: string;
+  userId: string;
+  userName: string;
   description: string;
-  created_at: string;
+  createdAt: string;
+}
+
+/**
+ * AuthorizationヘッダーからユーザーIDを取得する
+ * JWTトークンをデコードしてsubクレームを抽出
+ */
+function getUserIdFromAuthHeader(event: APIGatewayProxyEvent): string | null {
+  const authHeader = event.headers?.Authorization || event.headers?.authorization;
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  try {
+    // JWTのペイロード部分（2番目の部分）をデコード
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
+    return decoded.sub || null;
+  } catch {
+    return null;
+  }
 }
 
 export const handler = async (
@@ -32,26 +59,31 @@ export const handler = async (
   if (event.httpMethod === "OPTIONS") {
     return {
       statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-      },
+      headers: corsHeaders,
       body: "",
     };
   }
 
   try {
+    // AuthorizationヘッダーからユーザーIDを取得
+    const userId = getUserIdFromAuthHeader(event);
+    if (!userId) {
+      return {
+        statusCode: 401,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          message: "認証が必要です",
+        }),
+      };
+    }
+
     // パスパラメータからrecipeIdを取得
     const recipeId = event.pathParameters?.recipeId;
 
     if (!recipeId) {
       return {
         statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: corsHeaders,
         body: JSON.stringify({
           message: "recipeIdが指定されていません",
         }),
@@ -62,10 +94,7 @@ export const handler = async (
     if (!event.body) {
       return {
         statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: corsHeaders,
         body: JSON.stringify({
           message: "リクエストボディが必要です",
         }),
@@ -78,35 +107,19 @@ export const handler = async (
     if (!body.description) {
       return {
         statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
+        headers: corsHeaders,
         body: JSON.stringify({
           message: "descriptionは必須です",
         }),
       };
     }
 
-    if (!body.user_id) {
-      return {
-        statusCode: 400,
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({
-          message: "user_idは必須です",
-        }),
-      };
-    }
-
-    // ユーザー情報を取得してuser_nameを取得
+    // ユーザー情報を取得してuserNameを取得
     const userResult = await ddbDocClient.send(
       new GetCommand({
         TableName: TABLE_NAME,
         Key: {
-          PK: `USER#${body.user_id}`,
+          PK: `USER#${userId}`,
           SK: "PROFILE",
         },
       })
@@ -128,7 +141,7 @@ export const handler = async (
           SK: `COMMENT#${createdAt}#${commentId}`,
           CommentId: commentId,
           RecipeId: recipeId,
-          UserId: body.user_id,
+          UserId: userId,
           UserName: userName,
           Description: body.description,
           CreatedAt: createdAt,
@@ -140,28 +153,22 @@ export const handler = async (
     // レスポンス用のコメントオブジェクト
     const comment: Comment = {
       id: commentId,
-      user_id: body.user_id,
-      user_name: userName,
+      userId: userId,
+      userName: userName,
       description: body.description,
-      created_at: createdAt,
+      createdAt: createdAt,
     };
 
     return {
       statusCode: 201,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: corsHeaders,
       body: JSON.stringify(comment),
     };
   } catch (error) {
     console.error("Error creating comment:", error);
     return {
       statusCode: 500,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         message: `サーバーエラーが発生しました: ${error}`,
       }),
