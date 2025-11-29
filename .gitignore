@@ -228,3 +228,7 @@ generated-pull-request-content
 
 # Lambda deployment packages
 backend/lambda/dist/*.zip
+
+#  Dart自動生成ファイル
+app/lib/models/*.freezed.dart
+app/lib/models/*.g.dart
