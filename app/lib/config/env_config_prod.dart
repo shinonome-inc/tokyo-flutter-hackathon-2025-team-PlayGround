@@ -16,4 +16,10 @@ class EnvConfigProd extends EnvConfig {
 
   @override
   String get cognitoDomain => 'genkaimeshi-recipe-prod-auth';
+
+  @override
+  String get cognitoIdentityPoolId => 'ap-northeast-1:38e8ebff-3cb2-4edf-a3b1-76567758d941';
+
+  @override
+  String get s3BucketName => 'genkaimeshi-recipe-prod-recipe-images';
 }
