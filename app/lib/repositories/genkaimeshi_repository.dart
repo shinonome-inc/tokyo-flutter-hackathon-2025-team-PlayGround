@@ -1,5 +1,5 @@
 import 'package:app/enums/app_env.dart';
-import 'package:app/models/recipe_detail.dart';
+import 'package:app/models/recipe.dart';
 import 'package:dio/dio.dart';
 
 /// 限界飯APIのリポジトリクラス。
@@ -22,12 +22,12 @@ class GenkaimeshiRepository {
   }
 
   /// レシピ一覧を取得する。
-  Future<List<RecipeDetail>> fetchRecipes() async {
+  Future<List<Recipe>> fetchRecipes() async {
     try {
       final response = await _dio.get<List<dynamic>>('/recipes');
       if (response.statusCode == 200 && response.data != null) {
         final recipes = response.data!
-            .map((json) => RecipeDetail.fromJson(json as Map<String, dynamic>))
+            .map((json) => Recipe.fromJson(json as Map<String, dynamic>))
             .toList();
         return recipes;
       } else {
