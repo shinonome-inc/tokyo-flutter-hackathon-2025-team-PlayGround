@@ -1,4 +1,5 @@
 import 'package:app/providers/auth_user_provider.dart';
+import 'package:app/screens/recipe_create/recipe_create_notifier.dart';
 import 'package:app/utils/date_format_util.dart';
 import 'package:app/widgets/loading_view.dart';
 import 'package:app/widgets/network_error_view.dart';
@@ -52,8 +53,49 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
     // TODO: 削除処理
   }
 
-  void _onTapPost() {
-    // TODO: レシピ投稿処理
+  Future<void> _onTapPost() async {
+    if (_titleController.text.trim().isEmpty) {
+      _showSnackBar('タイトルを入力してください');
+      return;
+    }
+    if (_descriptionController.text.trim().isEmpty) {
+      _showSnackBar('概要を入力してください');
+      return;
+    }
+    if (_instructionsController.text.trim().isEmpty) {
+      _showSnackBar('作り方を入力してください');
+      return;
+    }
+
+    final hasValidIngredient = _ingredients.any((ingredient) =>
+        (ingredient['name']?.text.trim().isNotEmpty ?? false) &&
+        (ingredient['amount']?.text.trim().isNotEmpty ?? false));
+
+    if (!hasValidIngredient) {
+      _showSnackBar('材料を1つ以上入力してください');
+      return;
+    }
+
+    await ref.read(recipeCreateProvider.notifier).createRecipe(
+      title: _titleController.text.trim(),
+      overview: _descriptionController.text.trim(),
+      instructions: _instructionsController.text.trim(),
+      ingredients: _ingredients,
+    );
+
+    final state = ref.read(recipeCreateProvider);
+    if (state.isSuccess) {
+      _showSnackBar('レシピを投稿しました');
+      context.pop();
+    } else if (state.hasNetworkError) {
+      _showSnackBar('投稿に失敗しました。再度お試しください。');
+    }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   void _onTapImageArea() {
