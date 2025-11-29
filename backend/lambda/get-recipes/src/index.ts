@@ -47,6 +47,13 @@ interface RecipeOverview {
   likeCount: number;
 }
 
+function convertStrToBoolean(booleanStr: string): boolean {
+  if (booleanStr === "true") {
+    return true;
+  }
+  return false;
+}
+
 /**
  * GSI2を使用してタイムライン（全レシピ）を新着順で取得する
  */
@@ -79,14 +86,15 @@ async function getRecipesFromTimeline(): Promise<RecipeOverview[]> {
 
   return result.Items.map((item: Record<string, unknown>) => {
     const recipeId = (item.PK as string).replace("RECIPE#", "");
-    const details = recipeDetails[recipeId] || { ingredients: [], likeCount: 0 };
+    const details = recipeDetails[recipeId] || { ingredients: [], likeCount: 0 }; 
+    const isAiGenerated = convertStrToBoolean(item.IsAiGenerated as string);
 
     return {
       id: recipeId,
       title: item.Title as string,
       overview: item.Overview as string,
       imageUrl: (item.ImageUrl as string) || "",
-      isAiGenerated: (item.IsAiGenerated as boolean) || false,
+      isAiGenerated: isAiGenerated,
       createdAt: item.CreatedAt as string,
       user: users[item.UserId as string] || {
         id: item.UserId as string,
