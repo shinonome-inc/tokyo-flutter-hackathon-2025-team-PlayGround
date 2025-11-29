@@ -63,19 +63,19 @@ curl -X PUT "{upload_url}" \
 
 ```json
 {
-  "context": "この食材で作れるレシピを提案して。",
-  "image_s3_key": "abc-123.png",
-  "user_id": "user123",
-  "user_name": "山田太郎"
+  "prompt": "この食材で作れるレシピを提案して。",
+  "userId": "user123",
+  "imageS3Key": "abc-123.png",
+  "userName": "山田太郎"
 }
 ```
 
 **パラメータ:**
 
-- `context` (必須): レシピ生成のコンテキスト（例: "簡単に作れるレシピを提案して"）
-- `image_s3_key` (オプション): 手順 1 で取得した`file_name`
-- `user_id` (オプション): ユーザー ID（デフォルト: "ai-system"）
-- `user_name` (オプション): ユーザー名（デフォルト: "AI Recipe Generator"）
+- `prompt` (必須): AIへのプロンプト（例: "簡単に作れるレシピを提案して"）
+- `userId` (必須): レシピを作成するユーザーの ID
+- `imageS3Key` (オプション): 手順 1 で取得した`file_name`
+- `userName` (オプション): ユーザー名（デフォルト: "AI Recipe Generator"）
 
 **cURL の例:**
 
@@ -83,7 +83,8 @@ curl -X PUT "{upload_url}" \
 curl -X POST https://{api-gateway-url}/dev/v1/generate-recipe \
   -H "Content-Type: application/json" \
   -d '{
-    "context": "この食材で作れるレシピを提案して。",
-    "image_s3_key": "abc-123.png"
+    "prompt": "この食材で作れるレシピを提案して。",
+    "userId": "user123",
+    "imageS3Key": "abc-123.png"
   }'
 ```
