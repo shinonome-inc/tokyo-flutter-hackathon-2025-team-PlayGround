@@ -46,11 +46,15 @@ backend/lambda/{function-name}/
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "rootDir": "./src"
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
 ```
+
+**重要**: `rootDir` を必ず `"./src"` に設定すること。これがないと、ビルド時に `dist/src/index.js` のようなネストした構造になり、Lambdaが `Cannot find module 'index'` エラーで起動しなくなる。
 
 ### 2. ルートの package.json に workspace を追加
 
@@ -136,7 +140,64 @@ resource "aws_cloudwatch_log_group" "{function_name}_lambda_log_group" {
 #### infra/aws/dev/api_gateway.tf
 
 API Gatewayのリソース、メソッド、統合、CORS設定を追加する。
-また、`aws_api_gateway_deployment` の `depends_on` に新しいintegrationを追加する。
+
+**重要**: 各HTTPメソッド（GET/POST/OPTIONS）に対して、以下の4つのリソースが必要：
+
+1. `aws_api_gateway_method` - メソッド定義
+2. `aws_api_gateway_integration` - Lambda統合
+3. `aws_api_gateway_method_response` - レスポンス定義（CORSヘッダー許可）
+4. `aws_api_gateway_integration_response` - レスポンス値設定（CORSヘッダー値）
+
+```hcl
+# 例: GET /recipes/{recipeId} の場合
+
+# 1. メソッド
+resource "aws_api_gateway_method" "recipe_by_id_get_method" {
+  rest_api_id   = aws_api_gateway_rest_api.main_api.id
+  resource_id   = aws_api_gateway_resource.recipe_by_id_resource.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+
+# 2. Lambda統合
+resource "aws_api_gateway_integration" "recipe_by_id_get_integration" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_by_id_resource.id
+  http_method = aws_api_gateway_method.recipe_by_id_get_method.http_method
+
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.get_recipe_by_id.invoke_arn
+}
+
+# 3. メソッドレスポンス（CORSヘッダーを許可）
+resource "aws_api_gateway_method_response" "recipe_by_id_get_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_by_id_resource.id
+  http_method = aws_api_gateway_method.recipe_by_id_get_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
+  }
+}
+
+# 4. 統合レスポンス（CORSヘッダー値を設定）
+resource "aws_api_gateway_integration_response" "recipe_by_id_get_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_by_id_resource.id
+  http_method = aws_api_gateway_method.recipe_by_id_get_method.http_method
+  status_code = aws_api_gateway_method_response.recipe_by_id_get_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
+  }
+
+  depends_on = [aws_api_gateway_integration.recipe_by_id_get_integration]
+}
+```
+
+また、`aws_api_gateway_deployment` の `depends_on` に新しいintegrationとintegration_responseを追加する。
 
 ### 4. Terraform設定の追加（prod環境）
 
@@ -214,6 +275,20 @@ backend/lambda/
 ## よくあるミス
 
 1. **workspaceの追加忘れ** - CIでzipファイルが生成されずTerraform validateが失敗する
-2. **depends_onの追加忘れ** - API Gatewayのデプロイで依存関係エラーが発生する
-3. **prod環境の設定忘れ** - dev環境のみ設定してprod環境を忘れる
-4. **CloudWatch Log Groupの追加忘れ** - Lambda関数の起動時にエラーが発生する
+2. **package-lock.jsonの更新忘れ** - workspace追加後に`npm install`を実行しないと`npm ci`が失敗する
+3. **tsconfig.jsonのrootDir設定忘れ** - `rootDir: "./src"`がないとLambdaが`Cannot find module 'index'`で起動しない
+4. **method_response/integration_responseの追加忘れ** - CORSエラーが発生する（OPTIONSだけでなく本リクエスト用も必要）
+5. **depends_onの追加忘れ** - API Gatewayのデプロイで依存関係エラーが発生する
+6. **prod環境の設定忘れ** - dev環境のみ設定してprod環境を忘れる
+7. **CloudWatch Log Groupの追加忘れ** - Lambda関数の起動時にエラーが発生する
+8. **API Gatewayの再デプロイ忘れ** - Terraform apply後、変更が反映されない場合は手動で再デプロイが必要な場合がある
+
+### API Gateway再デプロイ方法
+
+```bash
+# API IDを確認
+aws apigateway get-rest-apis --region ap-northeast-1
+
+# 再デプロイ
+aws apigateway create-deployment --rest-api-id <api-id> --stage-name dev --region ap-northeast-1
+```
