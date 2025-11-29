@@ -188,7 +188,7 @@ paths:
     post:
       tags:
         - Recipe
-      summary: レシピ新規作成（手動投稿 / AI生成結果の保存）
+      summary: レシピ新規作成（手動投稿）
       security:
         - BearerAuth: []
       requestBody:
@@ -211,29 +211,91 @@ paths:
       summary: AIによるレシピ生成
       description: |
         画面遷移図の「レシピAI生成画面」に対応。
-        材料やキーワードを入力し、AI生成を実行する。
-        レスポンスとして生成されたレシピ案を返す（クライアントで確認後、POST /recipes で保存するフローを想定）。
+        ユーザーIDはAuthorizationヘッダーのJWTトークンから取得します。
+
+        ## 使用パターン
+
+        ### パターンA: 画像なしでレシピ生成（1ステップ）
+        `prompt` のみを指定してリクエスト。
+        AIがプロンプトに基づいてレシピを生成し、DynamoDBに保存して返却。
+
+        ### パターンB: 画像付きでレシピ生成（2ステップ）
+        1. `requiresImageUpload: true` を指定してリクエスト → presigned URLを取得
+        2. 取得したURLにS3へ画像をアップロード
+        3. `imageS3Key` を指定してリクエスト → 画像から食材を検出し、レシピを生成
+
+        生成されたレシピは自動的にDynamoDBに保存されます。
       security:
         - BearerAuth: []
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                keywords:
-                  type: string
-                ingredients:
-                  type: array
-                  items:
-                    type: string
+              oneOf:
+                - $ref: "#/components/schemas/AiGenerateRequest"
+                - $ref: "#/components/schemas/AiGeneratePresignedUrlRequest"
+            examples:
+              generateWithoutImage:
+                summary: 画像なしでレシピ生成
+                value:
+                  prompt: "カレーのレシピを提案して"
+              requestPresignedUrl:
+                summary: Presigned URL取得
+                value:
+                  prompt: "この食材で作れるレシピを提案して"
+                  requiresImageUpload: true
+              generateWithImage:
+                summary: 画像付きでレシピ生成
+                value:
+                  prompt: "この食材で作れるレシピを提案して"
+                  imageS3Key: "abc-123.png"
       responses:
         "200":
-          description: 生成されたレシピ案
+          description: |
+            リクエスト内容によってレスポンスが異なります:
+            - `requiresImageUpload: true` の場合: Presigned URLレスポンス
+            - それ以外の場合: 生成されたレシピ詳細
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RecipeDetail"
+                oneOf:
+                  - $ref: "#/components/schemas/PresignedUrlResponse"
+                  - $ref: "#/components/schemas/RecipeDetail"
+              examples:
+                presignedUrlResponse:
+                  summary: Presigned URLレスポンス
+                  value:
+                    uploadUrl: "https://bucket.s3.ap-northeast-1.amazonaws.com/dev/recipe-images/abc-123.png?X-Amz-Algorithm=..."
+                    imageS3Key: "abc-123.png"
+                recipeResponse:
+                  summary: レシピ生成レスポンス
+                  value:
+                    id: "12345678-1234-1234-1234-123456789012"
+                    title: "レンジで3分！虚無うどん"
+                    overview: "洗い物を出したくない日の救世主"
+                    imageUrl: "https://bucket.s3.ap-northeast-1.amazonaws.com/dev/recipe-images/12345678.png"
+                    isAiGenerated: true
+                    createdAt: "2025-11-30T12:00:00Z"
+        "400":
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                missingPrompt:
+                  value:
+                    error: "prompt is required and must be a string"
+        "401":
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                unauthorized:
+                  value:
+                    error: "認証が必要です"
 
   /recipes/{recipeId}:
     get:
@@ -553,3 +615,48 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    # --- AI Generate ---
+    AiGenerateRequest:
+      type: object
+      required: [prompt]
+      properties:
+        prompt:
+          type: string
+          description: "AIへのプロンプト（例: 簡単に作れるレシピを提案して）"
+        imageS3Key:
+          type: string
+          description: "S3にアップロードした画像のキー"
+
+    AiGeneratePresignedUrlRequest:
+      type: object
+      required: [prompt, requiresImageUpload]
+      properties:
+        prompt:
+          type: string
+          description: "AIへのプロンプト"
+        requiresImageUpload:
+          type: boolean
+          enum: [true]
+          description: "trueを指定するとpresigned URLを返却するモードになる"
+
+    PresignedUrlResponse:
+      type: object
+      properties:
+        uploadUrl:
+          type: string
+          description: "S3へのアップロード用presigned URL"
+        imageS3Key:
+          type: string
+          description: "アップロード後にリクエストで使用するS3キー"
+
+    # --- Error ---
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: "エラーメッセージ"
+        message:
+          type: string
+          description: "詳細なエラーメッセージ（オプション）"
