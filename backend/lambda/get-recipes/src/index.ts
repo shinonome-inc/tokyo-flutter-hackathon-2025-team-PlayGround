@@ -24,19 +24,27 @@ const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 interface User {
   id: string;
   name: string;
-  image_url: string;
+  imageUrl: string;
   description: string;
-  email_address: string;
+  emailAddress: string;
+}
+
+interface Ingredient {
+  id: string;
+  name: string;
+  amount: string;
 }
 
 interface RecipeOverview {
   id: string;
   title: string;
   overview: string;
-  image_url: string;
-  is_ai_generated: boolean;
-  created_at: string;
+  imageUrl: string;
+  isAiGenerated: boolean;
+  createdAt: string;
   user: User;
+  ingredients: Ingredient[];
+  likeCount: number;
 }
 
 /**
@@ -60,25 +68,90 @@ async function getRecipesFromTimeline(): Promise<RecipeOverview[]> {
     return [];
   }
 
-  const userIds = [...new Set(result.Items.map((item) => item.user_id as string))];
+  const userIds = [...new Set(result.Items.map((item) => item.UserId as string))];
+  const recipeIds = result.Items.map((item) => (item.PK as string).replace("RECIPE#", ""));
 
-  const users = await batchGetUsers(userIds);
+  // ユーザー情報と各レシピの詳細（材料、いいね）を並行で取得
+  const [users, recipeDetails] = await Promise.all([
+    batchGetUsers(userIds),
+    getRecipeDetails(recipeIds),
+  ]);
 
-  return result.Items.map((item: Record<string, unknown>) => ({
-    id: (item.PK as string).replace("RECIPE#", ""),
-    title: item.title as string,
-    overview: item.overview as string,
-    image_url: (item.image_url as string) || "",
-    is_ai_generated: (item.is_ai_generated as boolean) || false,
-    created_at: item.created_at as string,
-    user: users[item.user_id as string] || {
-      id: item.user_id as string,
-      name: "Unknown",
-      image_url: "",
-      description: "",
-      email_address: "",
-    },
-  }));
+  return result.Items.map((item: Record<string, unknown>) => {
+    const recipeId = (item.PK as string).replace("RECIPE#", "");
+    const details = recipeDetails[recipeId] || { ingredients: [], likeCount: 0 };
+
+    return {
+      id: recipeId,
+      title: item.Title as string,
+      overview: item.Overview as string,
+      imageUrl: (item.ImageUrl as string) || "",
+      isAiGenerated: (item.IsAiGenerated as boolean) || false,
+      createdAt: item.CreatedAt as string,
+      user: users[item.UserId as string] || {
+        id: item.UserId as string,
+        name: "Unknown",
+        imageUrl: "",
+        description: "",
+        emailAddress: "",
+      },
+      ingredients: details.ingredients,
+      likeCount: details.likeCount,
+    };
+  });
+}
+
+/**
+ * 各レシピの材料といいね数を取得する
+ */
+async function getRecipeDetails(
+  recipeIds: string[]
+): Promise<Record<string, { ingredients: Ingredient[]; likeCount: number }>> {
+  if (recipeIds.length === 0) {
+    return {};
+  }
+
+  // 各レシピのPKでQueryを並行実行
+  const queries = recipeIds.map((recipeId) =>
+    getDocClient().send(
+      new QueryCommand({
+        TableName: TABLE_NAME,
+        KeyConditionExpression: "PK = :pk",
+        ExpressionAttributeValues: {
+          ":pk": `RECIPE#${recipeId}`,
+        },
+      })
+    )
+  );
+
+  const results = await Promise.all(queries);
+  const details: Record<string, { ingredients: Ingredient[]; likeCount: number }> = {};
+
+  recipeIds.forEach((recipeId, index) => {
+    const items = results[index].Items || [];
+
+    // 材料を抽出（SKがINGREDIENT#で始まるもの）
+    const ingredients: Ingredient[] = items
+      .filter((item) => (item.SK as string).startsWith("INGREDIENT#"))
+      .map((item) => ({
+        id: item.IngredientId as string,
+        name: item.Name as string,
+        amount: (item.Amount as string) || "",
+      }))
+      .sort((a, b) => {
+        // OrderIndexでソート
+        const aIndex = items.find((i) => i.IngredientId === a.id)?.OrderIndex || 0;
+        const bIndex = items.find((i) => i.IngredientId === b.id)?.OrderIndex || 0;
+        return (aIndex as number) - (bIndex as number);
+      });
+
+    // いいね数をカウント（SKがLIKE#で始まるもの）
+    const likeCount = items.filter((item) => (item.SK as string).startsWith("LIKE#")).length;
+
+    details[recipeId] = { ingredients, likeCount };
+  });
+
+  return details;
 }
 
 /**
@@ -112,10 +185,10 @@ async function batchGetUsers(
       const userId = item.PK.replace("USER#", "");
       users[userId] = {
         id: userId,
-        name: item.name || "",
-        image_url: item.image_url || "",
-        description: item.description || "",
-        email_address: item.email_address || "",
+        name: item.UserName || "",
+        imageUrl: item.ImageUrl || "",
+        description: item.Description || "",
+        emailAddress: item.EmailAddress || "",
       };
     }
   }

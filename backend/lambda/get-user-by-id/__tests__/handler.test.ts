@@ -89,9 +89,9 @@ describe("GET /users/{userId} ハンドラー", () => {
       expect(body).toMatchObject({
         id: "user-123",
         name: "テストユーザー",
-        image_url: "https://example.com/image.jpg",
+        imageUrl: "https://example.com/image.jpg",
         description: "自己紹介文",
-        email_address: "test@example.com",
+        emailAddress: "test@example.com",
       });
 
       // GetCommandのパラメータを確認
@@ -159,9 +159,9 @@ describe("GET /users/{userId} ハンドラー", () => {
       expect(body).toMatchObject({
         id: "user-123",
         name: "",
-        image_url: "",
+        imageUrl: "",
         description: "",
-        email_address: "test@example.com",
+        emailAddress: "test@example.com",
       });
     });
   });

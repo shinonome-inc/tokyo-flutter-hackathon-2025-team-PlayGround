@@ -12,36 +12,92 @@ const ddbDocClient = DynamoDBDocumentClient.from(client);
 
 const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 
+const corsHeaders = {
+  "Content-Type": "application/json",
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+};
+
 interface Ingredient {
   name: string;
   amount: string;
 }
 
 interface Step {
-  order_number: number;
+  orderNumber: number;
   description: string;
 }
 
 interface RecipeRequestBody {
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-  image_url: string;
+  imageUrl?: string;
   title: string;
-  notes: string;
-  is_ai_generated: boolean;
+  notes?: string;
+  isAiGenerated?: boolean;
   overview: string;
   ingredients: Ingredient[];
   steps: Step[];
 }
 
+/**
+ * AuthorizationヘッダーからユーザーIDを取得する
+ * JWTトークンをデコードしてsubクレームを抽出
+ */
+function getUserIdFromAuthHeader(event: APIGatewayProxyEvent): string | null {
+  const authHeader = event.headers?.Authorization || event.headers?.authorization;
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  try {
+    // JWTのペイロード部分（2番目の部分）をデコード
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
+    return decoded.sub || null;
+  } catch {
+    return null;
+  }
+}
+
 export const handler = async (
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> => {
+  // CORS preflight対応
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 200,
+      headers: corsHeaders,
+      body: "",
+    };
+  }
+
   try {
-    const body: RecipeRequestBody = JSON.parse(event.body!);
+    // AuthorizationヘッダーからユーザーIDを取得
+    const userId = getUserIdFromAuthHeader(event);
+    if (!userId) {
+      return {
+        statusCode: 401,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          message: "認証が必要です",
+        }),
+      };
+    }
+
+    if (!event.body) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          message: "リクエストボディが必要です",
+        }),
+      };
+    }
+
+    const body: RecipeRequestBody = JSON.parse(event.body);
     const recipeId = uuidv4();
-    const createdAt = body.created_at || new Date().toISOString();
+    const createdAt = new Date().toISOString();
 
     // トランザクションでレシピ、材料、手順を一括登録
     const transactItems: TransactWriteCommandInput["TransactItems"] = [];
@@ -54,17 +110,16 @@ export const handler = async (
           PK: `RECIPE#${recipeId}`,
           SK: `RECIPE#${recipeId}`,
           RecipeId: recipeId,
-          UserId: body.user_id,
+          UserId: userId,
           CreatedAt: createdAt,
-          UpdatedAt: body.updated_at,
-          ImageUrl: body.image_url,
+          ImageUrl: body.imageUrl || "",
           Title: body.title,
-          Notes: body.notes,
-          IsAiGenerated: body.is_ai_generated,
+          Notes: body.notes || "",
+          IsAiGenerated: body.isAiGenerated || false,
           Overview: body.overview,
           EntityType: "RECIPE",
           // GSI1: ユーザーのレシピ一覧取得用
-          GSI1PK: `USER#${body.user_id}`,
+          GSI1PK: `USER#${userId}`,
           GSI1SK: `RECIPE#${createdAt}`,
           // GSI2: タイムライン用（公開レシピ）
           GSI2PK: "RECIPE_STATUS#PUB",
@@ -103,10 +158,10 @@ export const handler = async (
           TableName: TABLE_NAME,
           Item: {
             PK: `RECIPE#${recipeId}`,
-            SK: `STEP#${String(step.order_number).padStart(3, "0")}#${stepId}`,
+            SK: `STEP#${String(step.orderNumber).padStart(3, "0")}#${stepId}`,
             StepId: stepId,
             RecipeId: recipeId,
-            OrderNumber: step.order_number,
+            OrderNumber: step.orderNumber,
             Description: step.description,
             EntityType: "STEP",
           },
@@ -122,10 +177,7 @@ export const handler = async (
 
     return {
       statusCode: 201,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         message: "レシピの作成に成功しました",
         recipeId: recipeId,
@@ -135,10 +187,7 @@ export const handler = async (
     console.error("Error creating recipe:", error);
     return {
       statusCode: 500,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         message: `サーバーエラーが起きました: ${error}`,
       }),

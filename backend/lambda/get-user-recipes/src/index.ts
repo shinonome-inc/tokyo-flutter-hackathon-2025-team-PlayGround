@@ -20,18 +20,18 @@ const corsHeaders = {
 interface User {
   id: string;
   name: string;
-  image_url: string;
+  imageUrl: string;
   description: string;
-  email_address: string;
+  emailAddress: string;
 }
 
 interface RecipeOverview {
   id: string;
   title: string;
   overview: string;
-  image_url: string;
-  is_ai_generated: boolean;
-  created_at: string;
+  imageUrl: string;
+  isAiGenerated: boolean;
+  createdAt: string;
   user: User;
 }
 
@@ -56,9 +56,9 @@ async function getUser(userId: string): Promise<User | null> {
   return {
     id: result.Item.UserId || userId,
     name: result.Item.UserName || "",
-    image_url: result.Item.ImageUrl || "",
+    imageUrl: result.Item.ImageUrl || "",
     description: result.Item.Description || "",
-    email_address: result.Item.EmailAddress || "",
+    emailAddress: result.Item.EmailAddress || "",
   };
 }
 
@@ -88,11 +88,11 @@ async function getUserRecipes(
 
   return result.Items.map((item: Record<string, unknown>) => ({
     id: (item.PK as string).replace("RECIPE#", ""),
-    title: (item.title as string) || "",
-    overview: (item.overview as string) || "",
-    image_url: (item.image_url as string) || "",
-    is_ai_generated: (item.is_ai_generated as boolean) || false,
-    created_at: (item.created_at as string) || "",
+    title: (item.Title as string) || "",
+    overview: (item.Overview as string) || "",
+    imageUrl: (item.ImageUrl as string) || "",
+    isAiGenerated: (item.IsAiGenerated as boolean) || false,
+    createdAt: (item.CreatedAt as string) || "",
     user: user,
   }));
 }

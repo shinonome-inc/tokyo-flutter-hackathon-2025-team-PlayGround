@@ -274,6 +274,95 @@ backend/lambda/
 | GSI2 | `RECIPE_STATUS#PUB` | `{createdAt}` | タイムライン（新着順） |
 | GSI3 | - | - | 予備 |
 
+### フィールド名の命名規則
+
+**重要**: DynamoDBに保存するフィールド名は **UpperCamelCase（PascalCase）** を使用すること。
+
+#### Recipeエンティティ
+
+| DynamoDBフィールド名 | APIレスポンスのキー名 |
+|---------------------|---------------------|
+| `RecipeId` | `id` |
+| `UserId` | - |
+| `Title` | `title` |
+| `Overview` | `overview` |
+| `Notes` | `notes` |
+| `ImageUrl` | `imageUrl` |
+| `IsAiGenerated` | `isAiGenerated` |
+| `CreatedAt` | `createdAt` |
+| `EntityType` | - |
+
+#### Userエンティティ
+
+| DynamoDBフィールド名 | APIレスポンスのキー名 |
+|---------------------|---------------------|
+| `UserId` | `id` |
+| `UserName` | `name` |
+| `ImageUrl` | `imageUrl` |
+| `Description` | `description` |
+| `EmailAddress` | `emailAddress` |
+| `EntityType` | - |
+
+#### Ingredientエンティティ
+
+| DynamoDBフィールド名 | APIレスポンスのキー名 |
+|---------------------|---------------------|
+| `IngredientId` | `id` |
+| `Name` | `name` |
+| `Amount` | `amount` |
+| `OrderIndex` | - |
+| `EntityType` | - |
+
+#### Stepエンティティ
+
+| DynamoDBフィールド名 | APIレスポンスのキー名 |
+|---------------------|---------------------|
+| `StepId` | - |
+| `OrderNumber` | `orderNumber` |
+| `Description` | `description` |
+| `EntityType` | - |
+
+#### Commentエンティティ
+
+| DynamoDBフィールド名 | APIレスポンスのキー名 |
+|---------------------|---------------------|
+| `CommentId` | `id` |
+| `UserId` | `userId` |
+| `UserName` | `userName` |
+| `Description` | `description` |
+| `CreatedAt` | `createdAt` |
+| `EntityType` | - |
+
+#### Likeエンティティ
+
+| DynamoDBフィールド名 | APIレスポンスのキー名 |
+|---------------------|---------------------|
+| `UserId` | - |
+| `CreatedAt` | - |
+| `EntityType` | - |
+
+### コード例
+
+```typescript
+// ✅ 正しい例: DynamoDBのフィールド名はUpperCamelCase
+return {
+  id: item.RecipeId as string,
+  title: item.Title as string,
+  overview: item.Overview as string,
+  imageUrl: item.ImageUrl as string,
+  isAiGenerated: item.IsAiGenerated as boolean,
+  createdAt: item.CreatedAt as string,
+};
+
+// ❌ 間違った例: snake_caseで参照するとundefinedになる
+return {
+  id: item.recipe_id as string,      // undefined!
+  title: item.title as string,        // undefined!
+  overview: item.overview as string,  // undefined!
+  imageUrl: item.image_url as string, // undefined!
+};
+```
+
 ## よくあるミス
 
 1. **workspaceの追加忘れ** - CIでzipファイルが生成されずTerraform validateが失敗する
@@ -285,6 +374,7 @@ backend/lambda/
 7. **CloudWatch Log Groupの追加忘れ** - Lambda関数の起動時にエラーが発生する
 8. **API Gatewayの再デプロイ忘れ** - Terraform apply後、変更が反映されない場合は手動で再デプロイが必要な場合がある
 9. **個別Lambda関数へのjest.config.js追加** - 各Lambda関数ディレクトリには`jest.config.js`を作成しないこと。テスト設定は`backend/lambda/jest.config.js`で一元管理されており、個別に作成すると不整合が発生する
+10. **DynamoDBフィールド名の命名規則ミス** - DynamoDBのフィールドは`UpperCamelCase`（例: `Title`, `ImageUrl`, `UserName`）で保存されている。`snake_case`（例: `title`, `image_url`, `user_name`）や`camelCase`（例: `title`, `imageUrl`, `userName`）で参照すると`undefined`になる。必ず上記の「フィールド名の命名規則」セクションを参照すること
 
 ### API Gateway再デプロイ方法
 

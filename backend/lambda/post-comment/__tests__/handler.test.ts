@@ -21,6 +21,16 @@ jest.mock("uuid", () => ({
 }));
 
 /**
+ * テスト用のJWTトークンを作成する
+ */
+function createMockJwt(sub: string): string {
+  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64");
+  const payload = Buffer.from(JSON.stringify({ sub })).toString("base64");
+  const signature = "mock-signature";
+  return `${header}.${payload}.${signature}`;
+}
+
+/**
  * テスト用のAPIGatewayProxyEventを作成する
  */
 function createMockEvent(
@@ -29,7 +39,9 @@ function createMockEvent(
   return {
     httpMethod: "POST",
     path: "/v1/recipes/test-recipe-id/comments",
-    headers: {},
+    headers: {
+      Authorization: `Bearer ${createMockJwt("user-1")}`,
+    },
     multiValueHeaders: {},
     queryStringParameters: null,
     multiValueQueryStringParameters: null,
@@ -38,7 +50,6 @@ function createMockEvent(
     requestContext: {} as APIGatewayProxyEvent["requestContext"],
     resource: "",
     body: JSON.stringify({
-      user_id: "user-1",
       description: "テストコメント",
     }),
     isBase64Encoded: false,
@@ -72,6 +83,29 @@ describe("POST /recipes/{recipeId}/comments ハンドラー", () => {
     });
   });
 
+  describe("認証", () => {
+    it("Authorizationヘッダーがない場合は401を返す", async () => {
+      const event = createMockEvent({ headers: {} });
+
+      const result = await handler(event);
+
+      expect(result.statusCode).toBe(401);
+
+      const body = JSON.parse(result.body);
+      expect(body.message).toBe("認証が必要です");
+    });
+
+    it("不正なトークン形式の場合は401を返す", async () => {
+      const event = createMockEvent({
+        headers: { Authorization: "Bearer invalid-token" },
+      });
+
+      const result = await handler(event);
+
+      expect(result.statusCode).toBe(401);
+    });
+  });
+
   describe("POSTリクエスト", () => {
     it("コメントを正常に作成できる", async () => {
       const mockUser = {
@@ -96,11 +130,11 @@ describe("POST /recipes/{recipeId}/comments ハンドラー", () => {
       const body = JSON.parse(result.body);
       expect(body).toMatchObject({
         id: "mock-uuid-12345",
-        user_id: "user-1",
-        user_name: "テストユーザー",
+        userId: "user-1",
+        userName: "テストユーザー",
         description: "テストコメント",
       });
-      expect(body.created_at).toBeDefined();
+      expect(body.createdAt).toBeDefined();
     });
 
     it("recipeIdがない場合は400を返す", async () => {
@@ -127,7 +161,7 @@ describe("POST /recipes/{recipeId}/comments ハンドラー", () => {
 
     it("descriptionがない場合は400を返す", async () => {
       const event = createMockEvent({
-        body: JSON.stringify({ user_id: "user-1" }),
+        body: JSON.stringify({}),
       });
 
       const result = await handler(event);
@@ -136,19 +170,6 @@ describe("POST /recipes/{recipeId}/comments ハンドラー", () => {
 
       const body = JSON.parse(result.body);
       expect(body.message).toBe("descriptionは必須です");
-    });
-
-    it("user_idがない場合は400を返す", async () => {
-      const event = createMockEvent({
-        body: JSON.stringify({ description: "テストコメント" }),
-      });
-
-      const result = await handler(event);
-
-      expect(result.statusCode).toBe(400);
-
-      const body = JSON.parse(result.body);
-      expect(body.message).toBe("user_idは必須です");
     });
 
     it("ユーザー情報が取得できない場合はUnknown Userを使用する", async () => {
@@ -160,7 +181,7 @@ describe("POST /recipes/{recipeId}/comments ハンドラー", () => {
       expect(result.statusCode).toBe(201);
 
       const body = JSON.parse(result.body);
-      expect(body.user_name).toBe("Unknown User");
+      expect(body.userName).toBe("Unknown User");
     });
 
     it("DynamoDBエラー時は500を返す", async () => {
@@ -173,6 +194,36 @@ describe("POST /recipes/{recipeId}/comments ハンドラー", () => {
 
       const body = JSON.parse(result.body);
       expect(body.message).toContain("サーバーエラーが発生しました");
+    });
+
+    it("DynamoDBに正しいパラメータで保存される（userIdはJWTのsubを使用）", async () => {
+      const mockUser = {
+        PK: "USER#user-1",
+        SK: "PROFILE",
+        UserName: "テストユーザー",
+      };
+
+      mockSend
+        .mockResolvedValueOnce({ Item: mockUser })
+        .mockResolvedValueOnce({});
+
+      const event = createMockEvent();
+      await handler(event);
+
+      expect(mockSend).toHaveBeenCalledTimes(2);
+
+      // GetCommand でユーザー情報を取得
+      const getCommand = mockSend.mock.calls[0][0];
+      expect(getCommand.type).toBe("Get");
+      expect(getCommand.params.Key.PK).toBe("USER#user-1");
+
+      // PutCommand でコメントを保存
+      const putCommand = mockSend.mock.calls[1][0];
+      expect(putCommand.type).toBe("Put");
+      expect(putCommand.params.TableName).toBe("test-table");
+      expect(putCommand.params.Item.PK).toBe("RECIPE#test-recipe-id");
+      expect(putCommand.params.Item.UserId).toBe("user-1");
+      expect(putCommand.params.Item.EntityType).toBe("COMMENT");
     });
   });
 });

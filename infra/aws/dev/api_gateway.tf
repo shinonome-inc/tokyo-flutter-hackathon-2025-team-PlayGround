@@ -1,6 +1,6 @@
 resource "aws_api_gateway_rest_api" "main_api" {
   name        = "${var.project_name}-dev-api"
-  description = "開発環境用のAPIゲートウェイ"
+  description = "限界飯レシピアプリ開発環境用のAPIゲートウェイ"
 }
 
 resource "aws_api_gateway_resource" "v1" {

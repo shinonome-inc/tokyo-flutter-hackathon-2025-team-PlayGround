@@ -24,22 +24,28 @@ const TABLE_NAME = process.env.DYNAMODB_TABLE_NAME || "";
 interface User {
   id: string;
   name: string;
-  image_url: string;
+  imageUrl: string;
   description: string;
-  email_address: string;
+  emailAddress: string;
 }
 
 interface Ingredient {
   id: string;
   name: string;
   amount: string;
-  order_index: number;
 }
 
 interface Step {
-  id: string;
-  order_number: number;
+  orderNumber: number;
   description: string;
+}
+
+interface Comment {
+  id: string;
+  userId: string;
+  userName: string;
+  description: string;
+  createdAt: string;
 }
 
 interface RecipeDetail {
@@ -47,13 +53,36 @@ interface RecipeDetail {
   title: string;
   overview: string;
   notes: string;
-  image_url: string;
-  is_ai_generated: boolean;
-  created_at: string;
-  updated_at: string;
+  imageUrl: string;
+  isAiGenerated: boolean;
+  createdAt: string;
   user: User;
   ingredients: Ingredient[];
   steps: Step[];
+  comments: Comment[];
+  isLikedByMe: boolean;
+  likeCount: number;
+}
+
+/**
+ * AuthorizationヘッダーからユーザーIDを取得する
+ * JWTトークンをデコードしてsubクレームを抽出
+ */
+function getUserIdFromAuthHeader(event: APIGatewayProxyEvent): string | null {
+  const authHeader = event.headers?.Authorization || event.headers?.authorization;
+  if (!authHeader) {
+    return null;
+  }
+
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  try {
+    // JWTのペイロード部分（2番目の部分）をデコード
+    const payload = token.split(".")[1];
+    const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
+    return decoded.sub || null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -94,10 +123,10 @@ async function getUser(userId: string): Promise<User | null> {
 
   return {
     id: userId,
-    name: result.Item.name || "",
-    image_url: result.Item.image_url || "",
-    description: result.Item.description || "",
-    email_address: result.Item.email_address || "",
+    name: result.Item.UserName || "",
+    imageUrl: result.Item.ImageUrl || "",
+    description: result.Item.Description || "",
+    emailAddress: result.Item.EmailAddress || "",
   };
 }
 
@@ -107,7 +136,8 @@ async function getUser(userId: string): Promise<User | null> {
 function buildRecipeDetail(
   recipeId: string,
   items: Record<string, unknown>[],
-  user: User
+  user: User,
+  currentUserId: string | null
 ): RecipeDetail | null {
   const recipeItem = items.find(
     (item) => item.SK === `RECIPE#${recipeId}`
@@ -123,31 +153,52 @@ function buildRecipeDetail(
       id: item.IngredientId as string,
       name: item.Name as string,
       amount: item.Amount as string,
-      order_index: item.OrderIndex as number,
+      orderIndex: item.OrderIndex as number,
     }))
-    .sort((a, b) => a.order_index - b.order_index);
+    .sort((a, b) => a.orderIndex - b.orderIndex)
+    .map(({ orderIndex, ...rest }) => rest);
 
   const steps: Step[] = items
     .filter((item) => (item.SK as string).startsWith("STEP#"))
     .map((item) => ({
-      id: item.StepId as string,
-      order_number: item.OrderNumber as number,
+      orderNumber: item.OrderNumber as number,
       description: item.Description as string,
     }))
-    .sort((a, b) => a.order_number - b.order_number);
+    .sort((a, b) => a.orderNumber - b.orderNumber);
+
+  // コメントを抽出
+  const comments: Comment[] = items
+    .filter((item) => (item.SK as string).startsWith("COMMENT#"))
+    .map((item) => ({
+      id: item.CommentId as string,
+      userId: item.UserId as string,
+      userName: (item.UserName as string) || "",
+      description: item.Description as string,
+      createdAt: item.CreatedAt as string,
+    }))
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+  // いいねを抽出
+  const likes = items.filter((item) => (item.SK as string).startsWith("LIKE#"));
+  const likeCount = likes.length;
+  const isLikedByMe = currentUserId
+    ? likes.some((item) => item.SK === `LIKE#${currentUserId}`)
+    : false;
 
   return {
     id: recipeId,
     title: recipeItem.Title as string,
     overview: recipeItem.Overview as string,
     notes: (recipeItem.Notes as string) || "",
-    image_url: (recipeItem.ImageUrl as string) || "",
-    is_ai_generated: (recipeItem.IsAiGenerated as boolean) || false,
-    created_at: recipeItem.CreatedAt as string,
-    updated_at: (recipeItem.UpdatedAt as string) || "",
+    imageUrl: (recipeItem.ImageUrl as string) || "",
+    isAiGenerated: (recipeItem.IsAiGenerated as boolean) || false,
+    createdAt: recipeItem.CreatedAt as string,
     user,
     ingredients,
     steps,
+    comments,
+    isLikedByMe,
+    likeCount,
   };
 }
 
@@ -188,6 +239,9 @@ export const handler = async (
   }
 
   try {
+    // AuthorizationヘッダーからユーザーIDを取得（オプション）
+    const currentUserId = getUserIdFromAuthHeader(event);
+
     const items = await getRecipeItems(recipeId);
 
     if (items.length === 0) {
@@ -222,10 +276,10 @@ export const handler = async (
     const recipeDetail = buildRecipeDetail(recipeId, items, user || {
       id: userId,
       name: "Unknown",
-      image_url: "",
+      imageUrl: "",
       description: "",
-      email_address: "",
-    });
+      emailAddress: "",
+    }, currentUserId);
 
     if (!recipeDetail) {
       return {

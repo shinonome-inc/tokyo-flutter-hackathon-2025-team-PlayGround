@@ -4,6 +4,11 @@ info:
   description: |
     画面遷移図およびDynamoDB設計に基づいたAPI定義。
     アクセスパターン（No.1〜11）をカバーするように設計されています。
+
+    ## 認証について
+    - GET系エンドポイント: 認証不要（未ログインユーザーも利用可能）
+    - POST/PUT/DELETE系エンドポイント: Bearer Token認証が必要
+    - 認証が必要なエンドポイントには `security` が設定されています
   version: 1.0.0
 
 servers:
@@ -49,19 +54,21 @@ paths:
         - User
       summary: ユーザー作成 (サインアップ時)
       description: 認証後にDB上のユーザーデータを作成する
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [email_address]
+              required: [emailAddress]
               properties:
                 name:
                   type: string
-                email_address:
+                emailAddress:
                   type: string
-                image_url:
+                imageUrl:
                   type: string
       responses:
         "201":
@@ -95,6 +102,8 @@ paths:
         - User
       summary: ユーザープロフィール編集
       description: ユーザー編集画面での保存
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: userId
@@ -180,6 +189,8 @@ paths:
       tags:
         - Recipe
       summary: レシピ新規作成（手動投稿 / AI生成結果の保存）
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
@@ -202,6 +213,8 @@ paths:
         画面遷移図の「レシピAI生成画面」に対応。
         材料やキーワードを入力し、AI生成を実行する。
         レスポンスとして生成されたレシピ案を返す（クライアントで確認後、POST /recipes で保存するフローを想定）。
+      security:
+        - BearerAuth: []
       requestBody:
         content:
           application/json:
@@ -232,6 +245,11 @@ paths:
         DynamoDBの PK=RECIPE#{id} に対する Query を実行し、
         META(基本情報), INGREDIENT(材料), STEP(手順), COMMENT(コメント), LIKE(自身のいいね)
         を結合して返す。
+
+        認証はオプショナル。認証ありの場合は isLikedByMe に自身のいいね状態が反映される。
+      security:
+        - BearerAuth: []
+        - {}
       parameters:
         - in: path
           name: recipeId
@@ -249,13 +267,13 @@ paths:
                 id: "RECIPE#12345678"
                 title: "レンジで3分！虚無うどん"
                 overview: "洗い物を出したくない日の救世主。冷凍うどんをそのままチンするだけ。"
-                image_url: "https://api.genkaimeshi.com/images/udon.jpg"
-                is_ai_generated: false
-                created_at: "2025-11-20T19:00:00Z"
+                imageUrl: "https://api.genkaimeshi.com/images/udon.jpg"
+                isAiGenerated: false
+                createdAt: "2025-11-20T19:00:00Z"
                 user:
                   id: "USER#98765432"
                   name: "限界社会人A"
-                  image_url: "https://api.genkaimeshi.com/users/icon_a.jpg"
+                  imageUrl: "https://api.genkaimeshi.com/users/icon_a.jpg"
                 notes: "ネギはキッチンバサミで切れば包丁要らず。卵を入れると豪華になります。"
                 ingredients:
                   - id: "INGREDIENT#01"
@@ -268,23 +286,25 @@ paths:
                     name: "ごま油"
                     amount: "ひとまわし"
                 steps:
-                  - order_number: 1
+                  - orderNumber: 1
                     description: "耐熱皿に冷凍うどんを乗せ、ラップをして600Wで3分加熱。"
-                  - order_number: 2
+                  - orderNumber: 2
                     description: "めんつゆとごま油をかけて混ぜる。完成。"
                 comments:
                   - id: "COMMENT#202511211000#abc"
-                    user_id: "USER#11111"
-                    user_name: "通りすがり"
+                    userId: "USER#11111"
+                    userName: "通りすがり"
                     description: "本当に楽でした！神レシピ。"
-                    created_at: "2025-11-21T10:00:00Z"
-                is_liked_by_me: true
-                like_count: 108
+                    createdAt: "2025-11-21T10:00:00Z"
+                isLikedByMe: true
+                likeCount: 108
 
     put:
       tags:
         - Recipe
       summary: レシピ編集
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -303,6 +323,8 @@ paths:
       tags:
         - Recipe
       summary: レシピ削除
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -322,6 +344,8 @@ paths:
         - Recipe
       summary: コメント投稿
       description: DynamoDBの SK=COMMENT#{created_at}#{id} を作成
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -351,6 +375,8 @@ paths:
         - Recipe
       summary: いいねを実行
       description: DynamoDBの SK=LIKE#{user_id} を作成
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -365,7 +391,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  is_liked:
+                  isLiked:
                     type: boolean
                     example: true
 
@@ -373,6 +399,8 @@ paths:
       tags:
         - Recipe
       summary: いいねを取り消し
+      security:
+        - BearerAuth: []
       parameters:
         - in: path
           name: recipeId
@@ -387,6 +415,13 @@ paths:
 # Components / Schemas
 # ------------------------------------------------------------------------------
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Cognito認証トークン（Authorization: Bearer {token}）"
+
   schemas:
     # --- User ---
     User:
@@ -397,11 +432,11 @@ components:
           description: User ID (UUID)
         name:
           type: string
-        image_url:
+        imageUrl:
           type: string
         description:
           type: string
-        email_address:
+        emailAddress:
           type: string
 
     UserUpdateInput:
@@ -409,7 +444,7 @@ components:
       properties:
         name:
           type: string
-        image_url:
+        imageUrl:
           type: string
         description:
           type: string
@@ -424,15 +459,23 @@ components:
           type: string
         overview:
           type: string
-        image_url:
+        imageUrl:
           type: string
-        is_ai_generated:
+        isAiGenerated:
           type: boolean
-        created_at:
+        createdAt:
           type: string
           format: date-time
         user:
           $ref: "#/components/schemas/User"
+        ingredients:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ingredient"
+          description: レシピの材料一覧
+        likeCount:
+          type: integer
+          description: いいね数
 
     # --- Recipe (Full Detail) ---
     RecipeDetail:
@@ -442,10 +485,6 @@ components:
           properties:
             notes:
               type: string
-            ingredients:
-              type: array
-              items:
-                $ref: "#/components/schemas/Ingredient"
             steps:
               type: array
               items:
@@ -454,12 +493,9 @@ components:
               type: array
               items:
                 $ref: "#/components/schemas/Comment"
-            is_liked_by_me:
+            isLikedByMe:
               type: boolean
               description: リクエストしたユーザーが既にいいねしているか
-            like_count:
-              type: integer
-              description: (Optional) サーバー側で集計する場合
 
     RecipeCreateInput:
       type: object
@@ -469,11 +505,11 @@ components:
           type: string
         overview:
           type: string
-        image_url:
+        imageUrl:
           type: string
         notes:
           type: string
-        is_ai_generated:
+        isAiGenerated:
           type: boolean
         ingredients:
           type: array
@@ -498,7 +534,7 @@ components:
     Step:
       type: object
       properties:
-        order_number:
+        orderNumber:
           type: integer
         description:
           type: string
@@ -508,12 +544,12 @@ components:
       properties:
         id:
           type: string
-        user_id:
+        userId:
           type: string
-        user_name:
+        userName:
           type: string
         description:
           type: string
-        created_at:
+        createdAt:
           type: string
           format: date-time

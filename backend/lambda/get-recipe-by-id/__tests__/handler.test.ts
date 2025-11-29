@@ -17,6 +17,16 @@ jest.mock("@aws-sdk/lib-dynamodb", () => ({
 }));
 
 /**
+ * テスト用のJWTトークンを作成する
+ */
+function createMockJwt(sub: string): string {
+  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64");
+  const payload = Buffer.from(JSON.stringify({ sub })).toString("base64");
+  const signature = "mock-signature";
+  return `${header}.${payload}.${signature}`;
+}
+
+/**
  * テスト用のAPIGatewayProxyEventを作成する
  */
 function createMockEvent(
@@ -66,7 +76,7 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
   });
 
   describe("GETリクエスト", () => {
-    it("レシピ詳細を正常に取得できる", async () => {
+    it("レシピ詳細を正常に取得できる（認証なし）", async () => {
       const recipeId = "test-recipe-id";
       const userId = "user-1";
 
@@ -82,7 +92,6 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
           ImageUrl: "https://example.com/image.jpg",
           IsAiGenerated: false,
           CreatedAt: "2025-01-01T00:00:00Z",
-          UpdatedAt: "2025-01-02T00:00:00Z",
           EntityType: "RECIPE",
         },
         {
@@ -97,16 +106,6 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
         },
         {
           PK: `RECIPE#${recipeId}`,
-          SK: "INGREDIENT#001#ing-2",
-          IngredientId: "ing-2",
-          RecipeId: recipeId,
-          Name: "材料2",
-          Amount: "200ml",
-          OrderIndex: 1,
-          EntityType: "INGREDIENT",
-        },
-        {
-          PK: `RECIPE#${recipeId}`,
           SK: "STEP#001#step-1",
           StepId: "step-1",
           RecipeId: recipeId,
@@ -116,22 +115,37 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
         },
         {
           PK: `RECIPE#${recipeId}`,
-          SK: "STEP#002#step-2",
-          StepId: "step-2",
-          RecipeId: recipeId,
-          OrderNumber: 2,
-          Description: "手順2の説明",
-          EntityType: "STEP",
+          SK: "COMMENT#2025-01-02T00:00:00Z#comment-1",
+          CommentId: "comment-1",
+          UserId: "commenter-1",
+          UserName: "コメントユーザー",
+          Description: "素晴らしいレシピです！",
+          CreatedAt: "2025-01-02T00:00:00Z",
+          EntityType: "COMMENT",
+        },
+        {
+          PK: `RECIPE#${recipeId}`,
+          SK: "LIKE#liker-1",
+          UserId: "liker-1",
+          CreatedAt: "2025-01-03T00:00:00Z",
+          EntityType: "LIKE",
+        },
+        {
+          PK: `RECIPE#${recipeId}`,
+          SK: "LIKE#liker-2",
+          UserId: "liker-2",
+          CreatedAt: "2025-01-04T00:00:00Z",
+          EntityType: "LIKE",
         },
       ];
 
       const mockUser = {
         PK: `USER#${userId}`,
         SK: "PROFILE",
-        name: "テストユーザー",
-        image_url: "https://example.com/user.jpg",
-        description: "ユーザー説明",
-        email_address: "test@example.com",
+        UserName: "テストユーザー",
+        ImageUrl: "https://example.com/user.jpg",
+        Description: "ユーザー説明",
+        EmailAddress: "test@example.com",
       };
 
       mockSend
@@ -149,44 +163,144 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
         title: "テストレシピ",
         overview: "テスト概要",
         notes: "メモ",
-        image_url: "https://example.com/image.jpg",
-        is_ai_generated: false,
-        created_at: "2025-01-01T00:00:00Z",
-        updated_at: "2025-01-02T00:00:00Z",
+        imageUrl: "https://example.com/image.jpg",
+        isAiGenerated: false,
+        createdAt: "2025-01-01T00:00:00Z",
         user: {
           id: userId,
           name: "テストユーザー",
-          image_url: "https://example.com/user.jpg",
+          imageUrl: "https://example.com/user.jpg",
           description: "ユーザー説明",
-          email_address: "test@example.com",
+          emailAddress: "test@example.com",
         },
       });
 
-      expect(body.ingredients).toHaveLength(2);
+      // 材料のチェック
+      expect(body.ingredients).toHaveLength(1);
       expect(body.ingredients[0]).toMatchObject({
         id: "ing-1",
         name: "材料1",
         amount: "100g",
-        order_index: 0,
-      });
-      expect(body.ingredients[1]).toMatchObject({
-        id: "ing-2",
-        name: "材料2",
-        amount: "200ml",
-        order_index: 1,
       });
 
-      expect(body.steps).toHaveLength(2);
+      // 手順のチェック
+      expect(body.steps).toHaveLength(1);
       expect(body.steps[0]).toMatchObject({
-        id: "step-1",
-        order_number: 1,
+        orderNumber: 1,
         description: "手順1の説明",
       });
-      expect(body.steps[1]).toMatchObject({
-        id: "step-2",
-        order_number: 2,
-        description: "手順2の説明",
+
+      // コメントのチェック
+      expect(body.comments).toHaveLength(1);
+      expect(body.comments[0]).toMatchObject({
+        id: "comment-1",
+        userId: "commenter-1",
+        userName: "コメントユーザー",
+        description: "素晴らしいレシピです！",
+        createdAt: "2025-01-02T00:00:00Z",
       });
+
+      // いいね関連のチェック（認証なし）
+      expect(body.likeCount).toBe(2);
+      expect(body.isLikedByMe).toBe(false);
+    });
+
+    it("認証ありの場合、isLikedByMeが正しく判定される", async () => {
+      const recipeId = "test-recipe-id";
+      const userId = "user-1";
+      const currentUserId = "liker-1"; // いいね済みユーザー
+
+      const mockRecipeItems = [
+        {
+          PK: `RECIPE#${recipeId}`,
+          SK: `RECIPE#${recipeId}`,
+          RecipeId: recipeId,
+          UserId: userId,
+          Title: "テストレシピ",
+          Overview: "テスト概要",
+          CreatedAt: "2025-01-01T00:00:00Z",
+          EntityType: "RECIPE",
+        },
+        {
+          PK: `RECIPE#${recipeId}`,
+          SK: `LIKE#${currentUserId}`,
+          UserId: currentUserId,
+          CreatedAt: "2025-01-03T00:00:00Z",
+          EntityType: "LIKE",
+        },
+      ];
+
+      const mockUser = {
+        PK: `USER#${userId}`,
+        SK: "PROFILE",
+        UserName: "テストユーザー",
+      };
+
+      mockSend
+        .mockResolvedValueOnce({ Items: mockRecipeItems })
+        .mockResolvedValueOnce({ Item: mockUser });
+
+      const event = createMockEvent({
+        headers: {
+          Authorization: `Bearer ${createMockJwt(currentUserId)}`,
+        },
+      });
+      const result = await handler(event);
+
+      expect(result.statusCode).toBe(200);
+
+      const body = JSON.parse(result.body);
+      expect(body.isLikedByMe).toBe(true);
+      expect(body.likeCount).toBe(1);
+    });
+
+    it("認証ありでいいねしていない場合、isLikedByMeがfalseになる", async () => {
+      const recipeId = "test-recipe-id";
+      const userId = "user-1";
+      const currentUserId = "not-liked-user";
+
+      const mockRecipeItems = [
+        {
+          PK: `RECIPE#${recipeId}`,
+          SK: `RECIPE#${recipeId}`,
+          RecipeId: recipeId,
+          UserId: userId,
+          Title: "テストレシピ",
+          Overview: "テスト概要",
+          CreatedAt: "2025-01-01T00:00:00Z",
+          EntityType: "RECIPE",
+        },
+        {
+          PK: `RECIPE#${recipeId}`,
+          SK: "LIKE#other-user",
+          UserId: "other-user",
+          CreatedAt: "2025-01-03T00:00:00Z",
+          EntityType: "LIKE",
+        },
+      ];
+
+      const mockUser = {
+        PK: `USER#${userId}`,
+        SK: "PROFILE",
+        UserName: "テストユーザー",
+      };
+
+      mockSend
+        .mockResolvedValueOnce({ Items: mockRecipeItems })
+        .mockResolvedValueOnce({ Item: mockUser });
+
+      const event = createMockEvent({
+        headers: {
+          Authorization: `Bearer ${createMockJwt(currentUserId)}`,
+        },
+      });
+      const result = await handler(event);
+
+      expect(result.statusCode).toBe(200);
+
+      const body = JSON.parse(result.body);
+      expect(body.isLikedByMe).toBe(false);
+      expect(body.likeCount).toBe(1);
     });
 
     it("recipeIdがない場合は400を返す", async () => {
@@ -244,9 +358,9 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
       expect(body.user).toMatchObject({
         id: userId,
         name: "Unknown",
-        image_url: "",
+        imageUrl: "",
         description: "",
-        email_address: "",
+        emailAddress: "",
       });
     });
 
@@ -316,7 +430,7 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
 
       mockSend
         .mockResolvedValueOnce({ Items: mockRecipeItems })
-        .mockResolvedValueOnce({ Item: { name: "ユーザー" } });
+        .mockResolvedValueOnce({ Item: { UserName: "ユーザー" } });
 
       const event = createMockEvent();
       const result = await handler(event);
@@ -325,11 +439,66 @@ describe("GET /recipes/{recipeId} ハンドラー", () => {
 
       const body = JSON.parse(result.body);
 
-      expect(body.ingredients[0].order_index).toBe(0);
-      expect(body.ingredients[1].order_index).toBe(2);
+      // 材料がOrderIndexでソートされている
+      expect(body.ingredients[0].name).toBe("材料1");
+      expect(body.ingredients[1].name).toBe("材料3");
 
-      expect(body.steps[0].order_number).toBe(1);
-      expect(body.steps[1].order_number).toBe(3);
+      // 手順がOrderNumberでソートされている
+      expect(body.steps[0].orderNumber).toBe(1);
+      expect(body.steps[1].orderNumber).toBe(3);
+    });
+
+    it("コメントが作成日時順でソートされる", async () => {
+      const recipeId = "test-recipe-id";
+      const userId = "user-1";
+
+      const mockRecipeItems = [
+        {
+          PK: `RECIPE#${recipeId}`,
+          SK: `RECIPE#${recipeId}`,
+          RecipeId: recipeId,
+          UserId: userId,
+          Title: "テストレシピ",
+          Overview: "テスト概要",
+          CreatedAt: "2025-01-01T00:00:00Z",
+          EntityType: "RECIPE",
+        },
+        {
+          PK: `RECIPE#${recipeId}`,
+          SK: "COMMENT#2025-01-03T00:00:00Z#comment-2",
+          CommentId: "comment-2",
+          UserId: "user-2",
+          UserName: "ユーザー2",
+          Description: "後のコメント",
+          CreatedAt: "2025-01-03T00:00:00Z",
+          EntityType: "COMMENT",
+        },
+        {
+          PK: `RECIPE#${recipeId}`,
+          SK: "COMMENT#2025-01-01T00:00:00Z#comment-1",
+          CommentId: "comment-1",
+          UserId: "user-1",
+          UserName: "ユーザー1",
+          Description: "先のコメント",
+          CreatedAt: "2025-01-01T00:00:00Z",
+          EntityType: "COMMENT",
+        },
+      ];
+
+      mockSend
+        .mockResolvedValueOnce({ Items: mockRecipeItems })
+        .mockResolvedValueOnce({ Item: { UserName: "ユーザー" } });
+
+      const event = createMockEvent();
+      const result = await handler(event);
+
+      expect(result.statusCode).toBe(200);
+
+      const body = JSON.parse(result.body);
+
+      // コメントが作成日時順でソートされている
+      expect(body.comments[0].description).toBe("先のコメント");
+      expect(body.comments[1].description).toBe("後のコメント");
     });
   });
 });

@@ -190,7 +190,7 @@ resource "aws_lambda_permission" "api_gateway_post_comment_lambda" {
   source_arn = "${aws_api_gateway_rest_api.main_api.execution_arn}/*/*"
 }
 
-# いいね投稿Lambda
+# いいね投稿/削除Lambda
 resource "aws_lambda_function" "post_like" {
   function_name = "${var.project_name}-post-like"
   role          = aws_iam_role.lambda_execution_role.arn

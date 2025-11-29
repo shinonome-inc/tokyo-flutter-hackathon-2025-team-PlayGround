@@ -65,11 +65,9 @@ export const handler = async (
     const response = {
       id: user.UserId || "",
       name: user.UserName || "",
-      image_url: user.ImageUrl || "",
+      imageUrl: user.ImageUrl || "",
       description: user.Description || "",
-      email_address: user.EmailAddress || "",
-      created_at: user.CreatedAt || "",
-      updated_at: user.UpdatedAt || "",
+      emailAddress: user.EmailAddress || "",
     };
 
     return {
