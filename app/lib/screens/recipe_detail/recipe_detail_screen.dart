@@ -25,17 +25,38 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
         children: [
           Column(
             children: [
-              if (recipe.imageUrl!.isNotEmpty) ...[
-                SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.width,
-                  child: Image.network(
-                    recipe.imageUrl!,
-                    gaplessPlayback: true,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ],
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.width,
+                child: recipe.imageUrl!.isNotEmpty
+                    ? Image.network(
+                        recipe.imageUrl!,
+                        gaplessPlayback: true,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.width,
+                            color: const Color(0xFFF5F5F5),
+                            child: const Icon(
+                              Icons.restaurant_menu,
+                              size: 64,
+                              color: Color(0xFF9E9E9E),
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.width,
+                        color: const Color(0xFFF5F5F5),
+                        child: const Icon(
+                          Icons.restaurant_menu,
+                          size: 64,
+                          color: Color(0xFF9E9E9E),
+                        ),
+                      ),
+              ),
               Expanded(
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
