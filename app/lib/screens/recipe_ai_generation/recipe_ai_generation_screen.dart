@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:app/enums/app_page.dart';
 import 'package:app/screens/recipe_ai_generation/recipe_ai_generation_header.dart';
 import 'package:app/screens/recipe_ai_generation/recipe_ai_generation_notifier.dart';
@@ -5,7 +6,6 @@ import 'package:app/screens/recipe_ai_generation/recipe_ai_generation_state.dart
 import 'package:app/screens/recipe_detail/recipe_detail_notifier.dart';
 import 'package:app/widgets/loading_view.dart';
 import 'package:app/widgets/network_error_view.dart';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -125,7 +125,9 @@ class _RecipeAiGenerationScreenState
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.black.withOpacity(0.6),
+                                        color: Colors.black.withAlpha(
+                                          (255 * 0.6).round(),
+                                        ),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(

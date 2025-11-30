@@ -57,9 +57,6 @@ class GenkaimeshiRepository {
     required String prompt,
     bool requiresImageUpload = true,
   }) async {
-    print(
-      'Generating presigned URL with prompt: $prompt, requiresImageUpload: $requiresImageUpload',
-    );
     try {
       final requestBody = <String, dynamic>{
         'prompt': prompt,
@@ -156,7 +153,6 @@ class GenkaimeshiRepository {
     Dio? dio,
     String contentType = 'image/jpeg',
   }) async {
-    print('Uploading image to S3 with uploadUrl: $uploadUrl');
     try {
       // S3へのアップロード用に新しいDioインスタンスを使用（認証ヘッダーが不要なため）
       final uploadDio = dio ?? Dio();
@@ -182,7 +178,6 @@ class GenkaimeshiRepository {
     required String prompt,
     String? imageS3Key,
   }) async {
-    print('Generating AI recipe with prompt: $prompt');
     try {
       final requestBody = <String, dynamic>{
         'prompt': prompt,
@@ -193,18 +188,12 @@ class GenkaimeshiRepository {
         '/recipes/ai-generate',
         data: requestBody,
       );
-      print('generateAIRecipe requestBody: $requestBody');
-      print('generateAIRecipe response: $response');
-      print('response.statusCode: ${response.statusCode}');
-      print('response.data: ${response.data}');
       if (response.statusCode == 200 && response.data != null) {
         return Recipe.fromJson(response.data!);
       } else {
-        print('AIレシピの生成に失敗しました');
         throw Exception('AIレシピの生成に失敗しました');
       }
     } catch (e) {
-      print('Error in generateAIRecipe: $e');
       throw Exception('予期しないエラーが発生しました: $e');
     }
   }
@@ -224,18 +213,14 @@ class _AuthInterceptor extends Interceptor {
       if (session.isSignedIn) {
         final cognitoSession = session as CognitoAuthSession;
         final accessToken =
-            cognitoSession.userPoolTokensResult.value?.accessToken.raw;
-        if (accessToken != null) {
-          options.headers['Authorization'] = 'Bearer $accessToken';
-          safePrint('Authorization header added successfully');
-          // トークンの最初の50文字だけログ出力（セキュリティ上の理由で全体は出力しない）
-          final tokenPreview = accessToken.length > 50
-              ? accessToken.substring(0, 50)
-              : accessToken;
-          safePrint('Token preview: $tokenPreview...');
-        } else {
-          safePrint('Access token is null!');
-        }
+            cognitoSession.userPoolTokensResult.value.accessToken.raw;
+        options.headers['Authorization'] = 'Bearer $accessToken';
+        safePrint('Authorization header added successfully');
+        // トークンの最初の50文字だけログ出力（セキュリティ上の理由で全体は出力しない）
+        final tokenPreview = accessToken.length > 50
+            ? accessToken.substring(0, 50)
+            : accessToken;
+        safePrint('Token preview: $tokenPreview...');
       } else {
         safePrint('User is not signed in! 403 error is expected!');
       }
