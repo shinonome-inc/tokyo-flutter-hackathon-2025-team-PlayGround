@@ -52,11 +52,11 @@ class GenkaimeshiRepository {
   Future<Map<String, dynamic>> createRecipe({
     required String title,
     required String overview,
+    required List<Map<String, String>> ingredients,
+    required List<Map<String, dynamic>> steps,
     String? imageUrl,
     String? notes,
     bool isAiGenerated = false,
-    required List<Map<String, String>> ingredients,
-    required List<Map<String, dynamic>> steps,
   }) async {
     try {
       final requestData = {
@@ -66,16 +66,20 @@ class GenkaimeshiRepository {
         'notes': notes,
         'isAiGenerated': isAiGenerated,
         'ingredients': ingredients
-            .map((ingredient) => {
-                  'name': ingredient['name'],
-                  'amount': ingredient['amount'],
-                })
+            .map(
+              (ingredient) => {
+                'name': ingredient['name'],
+                'amount': ingredient['amount'],
+              },
+            )
             .toList(),
         'steps': steps
-            .map((step) => {
-                  'orderNumber': step['orderNumber'],
-                  'description': step['description'],
-                })
+            .map(
+              (step) => {
+                'orderNumber': step['orderNumber'],
+                'description': step['description'],
+              },
+            )
             .toList(),
       };
 
@@ -110,7 +114,7 @@ class _AuthInterceptor extends Interceptor {
             cognitoSession.userPoolTokensResult.value.accessToken.raw;
 
         options.headers['Authorization'] = 'Bearer $accessToken';
-            }
+      }
     } on AuthException catch (e) {
       safePrint('Auth error in interceptor: ${e.message}');
     }
@@ -132,15 +136,22 @@ class _LogInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    safePrint('✅ RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}');
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    safePrint('''
+✅ RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}''');
     safePrint('Data: ${response.data}');
     super.onResponse(response, handler);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    safePrint('❌ ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}');
+    safePrint(
+      '''
+❌ ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}''',
+    );
     safePrint('Message: ${err.message}');
     if (err.response?.data != null) {
       safePrint('Error Data: ${err.response?.data}');

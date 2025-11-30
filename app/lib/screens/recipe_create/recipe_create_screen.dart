@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:app/providers/auth_user_provider.dart';
 import 'package:app/screens/recipe_create/recipe_create_notifier.dart';
 import 'package:app/screens/recipe_create/recipe_create_state.dart';
@@ -58,13 +59,13 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
       _titleController.clear();
       _descriptionController.clear();
       _instructionsController.clear();
-      
+
       // 既存の材料コントローラーを破棄
       for (final ingredient in _ingredients) {
         ingredient['name']?.dispose();
         ingredient['amount']?.dispose();
       }
-      
+
       // 材料リストを初期状態（1個）にリセット
       _ingredients.clear();
       _ingredients.add({
@@ -89,63 +90,70 @@ class _RecipeCreateScreenState extends ConsumerState<RecipeCreateScreen> {
       return;
     }
 
-    final hasValidIngredient = _ingredients.any((ingredient) =>
-        (ingredient['name']?.text.trim().isNotEmpty ?? false) &&
-        (ingredient['amount']?.text.trim().isNotEmpty ?? false));
+    final hasValidIngredient = _ingredients.any(
+      (ingredient) =>
+          (ingredient['name']?.text.trim().isNotEmpty ?? false) &&
+          (ingredient['amount']?.text.trim().isNotEmpty ?? false),
+    );
 
     if (!hasValidIngredient) {
       _showSnackBar('材料を1つ以上入力してください');
       return;
     }
 
-    await ref.read(recipeCreateProvider.notifier).createRecipe(
-      title: _titleController.text.trim(),
-      overview: _descriptionController.text.trim(),
-      instructions: _instructionsController.text.trim(),
-      ingredients: _ingredients,
-      imageUrl: _imageUrl,
-    );
+    await ref
+        .read(recipeCreateProvider.notifier)
+        .createRecipe(
+          title: _titleController.text.trim(),
+          overview: _descriptionController.text.trim(),
+          instructions: _instructionsController.text.trim(),
+          ingredients: _ingredients,
+          imageUrl: _imageUrl,
+        );
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _onTapImageArea() async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.gallery);
-    
+
     if (image != null) {
       try {
         final imageBytes = await image.readAsBytes();
-        final imageUrl = await ImageUploadService.instance.uploadImage(imageBytes);
+        final imageUrl = await ImageUploadService.instance.uploadImage(
+          imageBytes,
+        );
         setState(() {
           _imageUrl = imageUrl;
         });
         _showSnackBar('画像をアップロードしました');
-      } catch (e) {
-        _showSnackBar('画像のアップロードに失敗しました');
+      } on StorageException catch (e) {
+        _showSnackBar('画像のアップロードに失敗しました: ${e.message}');
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     final currentDate = DateFormatUtil.formatNow();
     final authUserAsync = ref.watch(authUserProvider);
-    
+
     // レシピ作成状態を監視
     ref.listen<RecipeCreateState>(recipeCreateProvider, (previous, next) {
       if (next.isSuccess && (previous?.isSuccess != true)) {
-        _showSnackBar(next.successMessage.isNotEmpty ? next.successMessage : 'レシピを投稿しました');
+        _showSnackBar(
+          next.successMessage.isNotEmpty ? next.successMessage : 'レシピを投稿しました',
+        );
       } else if (next.hasNetworkError && (previous?.hasNetworkError != true)) {
         _showSnackBar('投稿に失敗しました。再度お試しください。');
       }
     });
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFE0E0E0),
       body: authUserAsync.when(

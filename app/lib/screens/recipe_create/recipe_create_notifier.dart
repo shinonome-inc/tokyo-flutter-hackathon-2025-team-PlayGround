@@ -114,7 +114,7 @@ class RecipeCreateNotifier extends _$RecipeCreateNotifier {
       );
 
       final message = result['message'] ?? 'レシピを投稿しました';
-      _setSuccessMessage(successMessage: message);
+      _setSuccessMessage(successMessage: message.toString());
       _setIsSuccess(isSuccess: true);
     } on Exception catch (e) {
       _setHasNetworkError(hasNetworkError: true);
