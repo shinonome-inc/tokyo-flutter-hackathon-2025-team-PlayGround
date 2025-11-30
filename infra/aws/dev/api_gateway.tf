@@ -9,10 +9,11 @@ resource "aws_api_gateway_resource" "v1" {
   path_part   = "v1"
 }
 
+# /v1/recipes/ai-generate リソース（/v1/recipesの子リソース）
 resource "aws_api_gateway_resource" "recipe_ai_resource" {
   rest_api_id = aws_api_gateway_rest_api.main_api.id
-  parent_id   = aws_api_gateway_resource.v1.id
-  path_part   = "generate-recipe"
+  parent_id   = aws_api_gateway_resource.post_recipe_resource.id
+  path_part   = "ai-generate"
 }
 
 resource "aws_api_gateway_method" "recipe_ai_method" {
@@ -30,6 +31,77 @@ resource "aws_api_gateway_integration" "recipe_ai_integration" {
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.recipe_ai_generator.invoke_arn
+}
+
+# POST /recipes/ai-generate method response
+resource "aws_api_gateway_method_response" "recipe_ai_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_ai_resource.id
+  http_method = aws_api_gateway_method.recipe_ai_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = true
+  }
+}
+
+# POST /recipes/ai-generate integration response
+resource "aws_api_gateway_integration_response" "recipe_ai_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_ai_resource.id
+  http_method = aws_api_gateway_method.recipe_ai_method.http_method
+  status_code = aws_api_gateway_method_response.recipe_ai_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Origin" = "'*'"
+  }
+
+  depends_on = [aws_api_gateway_integration.recipe_ai_integration]
+}
+
+# OPTIONS /recipes/ai-generate (CORS)
+resource "aws_api_gateway_method" "recipe_ai_options_method" {
+  rest_api_id   = aws_api_gateway_rest_api.main_api.id
+  resource_id   = aws_api_gateway_resource.recipe_ai_resource.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+
+resource "aws_api_gateway_integration" "recipe_ai_options_integration" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_ai_resource.id
+  http_method = aws_api_gateway_method.recipe_ai_options_method.http_method
+
+  type = "MOCK"
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+
+resource "aws_api_gateway_method_response" "recipe_ai_options_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_ai_resource.id
+  http_method = aws_api_gateway_method.recipe_ai_options_method.http_method
+  status_code = "200"
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+
+resource "aws_api_gateway_integration_response" "recipe_ai_options_integration_response" {
+  rest_api_id = aws_api_gateway_rest_api.main_api.id
+  resource_id = aws_api_gateway_resource.recipe_ai_resource.id
+  http_method = aws_api_gateway_method.recipe_ai_options_method.http_method
+  status_code = aws_api_gateway_method_response.recipe_ai_options_response.status_code
+
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,Authorization'"
+    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+  }
 }
 
 resource "aws_api_gateway_resource" "presigned_url_resource" {
@@ -914,6 +986,9 @@ resource "aws_api_gateway_integration_response" "user_likes_options_integration_
 resource "aws_api_gateway_deployment" "main_deployment" {
   depends_on = [
     aws_api_gateway_integration.recipe_ai_integration,
+    aws_api_gateway_integration_response.recipe_ai_integration_response,
+    aws_api_gateway_integration.recipe_ai_options_integration,
+    aws_api_gateway_integration_response.recipe_ai_options_integration_response,
     aws_api_gateway_integration.presigned_url_integration,
     aws_api_gateway_integration.recipes_get_integration,
     aws_api_gateway_integration.post_recipe_integration,
