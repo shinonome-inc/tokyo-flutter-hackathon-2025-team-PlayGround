@@ -15,20 +15,22 @@ class RecipeDetailScreen extends StatefulHookConsumerWidget {
 class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   @override
   Widget build(BuildContext context) {
-    final recipeDetail = ref.watch(recipeDetailProvider);
-    final isLiked = useState(recipeDetail.recipe!.isLikedByMe);
+    final recipe = ref.watch(
+      recipeDetailProvider.select((value) => value.recipe),
+      );
+    final isLiked = useState(recipe!.isLikedByMe);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: [
           Column(
             children: [
-              if (recipeDetail.recipe!.imageUrl!.isNotEmpty)...[
+              if (recipe.imageUrl!.isNotEmpty)...[
               SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.width,
             child: Image.network(
-              recipeDetail.recipe!.imageUrl!, 
+              recipe.imageUrl!, 
               gaplessPlayback: true, 
               fit: BoxFit.cover,
               ),
@@ -114,7 +116,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                     children: [
                       const SizedBox(height: 16),
                       Text(
-                        recipeDetail.recipe!.title ?? '', 
+                        recipe.title ?? '', 
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -125,7 +127,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Text(
-                          recipeDetail.recipe!.overview ?? '',
+                          recipe.overview ?? '',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w300,
@@ -143,7 +145,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           ),
                           const SizedBox(width: 1),
                           Text(
-                            '${recipeDetail.recipe!.likeCount}',
+                            '${recipe.likeCount}',
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w300,
@@ -154,8 +156,8 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                           Column(
                             children: [
                               Text(
-                                recipeDetail.recipe!.createdAt != null 
-                                ? '${recipeDetail.recipe!.createdAt!.year}/${recipeDetail.recipe!.createdAt!.month}/${recipeDetail.recipe!.createdAt!.day}'
+                                recipe.createdAt != null 
+                                ? '${recipe.createdAt!.year}/${recipe.createdAt!.month}/${recipe.createdAt!.day}'
                                 : '',
                                 style: const TextStyle(
                                   fontSize: 12,
@@ -165,7 +167,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                 ),
                               const SizedBox(height: 2),
                               Text(
-                                recipeDetail.recipe!.user!.id!,
+                                recipe.user!.id!,
                                 style: const TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w300,
@@ -191,10 +193,10 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                             ),
                           child: Column(
                             children: [
-                              ...recipeDetail.recipe!.ingredients!.map(
+                              ...recipe.ingredients!.map(
                                 (ingredient) {
                                   final index = 
-                                    recipeDetail.recipe!.ingredients!.indexOf(
+                                    recipe.ingredients!.indexOf(
                                       ingredient,
                                     );
                                   return Column(
@@ -222,7 +224,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                   ),
                                   if (
                                     index 
-                                      != recipeDetail.recipe!.ingredients!.length - 1
+                                      != recipe.ingredients!.length - 1
                                     ) ...[
                                     const SizedBox(height: 8),
                                   ],
@@ -247,7 +249,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                         child: Column(
                           children: [
-                            ...recipeDetail.recipe!.steps!.map((step) {
+                            ...recipe.steps!.map((step) {
                         return Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
