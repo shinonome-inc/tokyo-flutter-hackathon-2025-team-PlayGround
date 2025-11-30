@@ -1,4 +1,3 @@
-import 'package:app/enums/app_page.dart';
 import 'package:app/screens/user_list/user_list_item.dart';
 import 'package:app/screens/user_list/user_list_notifier.dart';
 import 'package:app/screens/user_list/user_list_state.dart';
@@ -6,7 +5,6 @@ import 'package:app/widgets/loading_view.dart';
 import 'package:app/widgets/network_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 class UserListScreen extends ConsumerStatefulWidget {
   const UserListScreen({super.key});
@@ -16,11 +14,6 @@ class UserListScreen extends ConsumerStatefulWidget {
 }
 
 class _UserListScreenState extends ConsumerState<UserListScreen> {
-  void _onTapUser(String userId) {
-    // TODO: ユーザー詳細画面にユーザーIDを渡す処理を実装
-    context.go(AppPage.userDetail.path);
-  }
-
   Future<void> _onTapReload() async {
     await ref.read(userListProvider.notifier).fetchUsers();
   }
