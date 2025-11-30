@@ -1,10 +1,11 @@
 import 'package:app/enums/app_page.dart';
 import 'package:app/screens/recipe_detail/recipe_detail_notifier.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class RecipeDetailScreen extends ConsumerStatefulWidget {
+class RecipeDetailScreen extends StatefulHookConsumerWidget {
   const RecipeDetailScreen({super.key});
 
   @override
@@ -15,6 +16,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final recipeDetail = ref.watch(recipeDetailProvider);
+    final isLiked = useState(recipeDetail.recipe!.isLikedByMe);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -73,7 +75,11 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   ),
                   ),
                   const Spacer(),
-                  Container(
+                  InkWell(
+                    onTap: () {
+                      isLiked.value = !isLiked.value!;
+                    },
+                    child: Container(
                     height: 46,
                     width: 46,
                     decoration: BoxDecoration(
@@ -82,11 +88,14 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                         (255 * 0.6).round(),
                         ),
                     ),
-                    child: const Icon(
-                      Icons.favorite_outline, 
-                      color: Color(0xFF1D1B20),
+                    child: Icon(
+                      isLiked.value! 
+                      ? Icons.favorite 
+                      : Icons.favorite_outline, 
+                      color: const Color(0xFF1D1B20),
                       size: 24,
                       ),
+                  ),
                   ),
                   const SizedBox(width: 24),
                 ],
