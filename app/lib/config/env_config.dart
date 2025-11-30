@@ -8,6 +8,8 @@ abstract class EnvConfig {
   String get cognitoUserPoolId;
   String get cognitoAppClientId;
   String get cognitoDomain;
+  String get cognitoIdentityPoolId;
+  String get s3BucketName;
 
   /// AWSリージョン（全環境共通）
   String get awsRegion => 'ap-northeast-1';

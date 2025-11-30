@@ -1,5 +1,6 @@
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:amplify_storage_s3/amplify_storage_s3.dart';
 import 'package:app/config/amplifyconfiguration.dart';
 import 'package:app/config/env_config.dart';
 import 'package:flutter/foundation.dart';
@@ -20,7 +21,8 @@ Future<void> configureAmplify({required EnvConfig envConfig}) async {
   _currentEnvConfig = envConfig;
   try {
     final auth = AmplifyAuthCognito();
-    await Amplify.addPlugins([auth]);
+    final storage = AmplifyStorageS3();
+    await Amplify.addPlugins([auth, storage]);
     await Amplify.configure(amplifyconfig);
   } on AmplifyAlreadyConfiguredException {
     debugPrint('Amplify was already configured.');

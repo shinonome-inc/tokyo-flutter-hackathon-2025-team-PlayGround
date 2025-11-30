@@ -14,6 +14,7 @@ class RecipeCreateForm extends StatelessWidget {
     required this.onAddIngredient,
     required this.onTapDelete,
     required this.onTapPost,
+    this.imageUrl,
     super.key,
   });
 
@@ -27,6 +28,7 @@ class RecipeCreateForm extends StatelessWidget {
   final VoidCallback onAddIngredient;
   final VoidCallback onTapDelete;
   final VoidCallback onTapPost;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class RecipeCreateForm extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RecipeImageSelector(onTap: onTapImageArea),
+            RecipeImageSelector(onTap: onTapImageArea, imageUrl: imageUrl),
             const SizedBox(height: 16),
             RecipeFormCard(
               currentDate: currentDate,
