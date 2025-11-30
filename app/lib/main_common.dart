@@ -19,12 +19,11 @@ Future<void> mainCommon(EnvConfig envConfig) async {
   );
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(routerProvider);
+  Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Genkaimeshi Recipe',
       theme: ThemeData(
