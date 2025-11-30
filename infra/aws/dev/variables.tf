@@ -39,8 +39,7 @@ variable "cognito_callback_urls" {
   type        = list(string)
   default = [
     "myapp://callback",
-    "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/",
-    "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com",
+    "https://dbl8v0pptk17o.cloudfront.net/",
     "http://localhost:5173/"
   ]
 }
@@ -50,8 +49,7 @@ variable "cognito_logout_urls" {
   type        = list(string)
   default = [
     "myapp://logout",
-    "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/",
-    "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com",
+    "https://dbl8v0pptk17o.cloudfront.net/",
     "http://localhost:5173/"
   ]
 }

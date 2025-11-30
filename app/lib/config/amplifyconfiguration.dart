@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 /// プラットフォームに応じたコールバックURLを取得する
 String _getSignInRedirectURI() {
   if (kIsWeb) {
-    return 'https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/callback';
+    return 'https://dbl8v0pptk17o.cloudfront.net/';
   } else {
     return 'myapp://callback';
   }
@@ -12,7 +12,7 @@ String _getSignInRedirectURI() {
 
 String _getSignOutRedirectURI() {
   if (kIsWeb) {
-    return 'https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/logout';
+    return 'https://dbl8v0pptk17o.cloudfront.net/';
   } else {
     return 'myapp://logout';
   }
