@@ -25,6 +25,7 @@
 
 - [app/README.md](app/README.md) - Flutter アプリケーション
 - [backend/README.md](backend/README.md) - バックエンド
+- [backend/openapi.yaml](backend/openapi.yaml) - API 仕様書
 - [infra/README.md](infra/README.md) - インフラストラクチャ構成
 
 ### 開発ルール

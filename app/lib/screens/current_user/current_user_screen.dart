@@ -1,3 +1,4 @@
+import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:app/enums/app_page.dart';
 import 'package:app/providers/auth_user_provider.dart';
 import 'package:app/widgets/not_login_view.dart';
@@ -13,12 +14,19 @@ class CurrentUserScreen extends ConsumerStatefulWidget {
 }
 
 class _CurrentUserScreenState extends ConsumerState<CurrentUserScreen> {
-  void _onTapProfileEdit() {
-    context.go(AppPage.userEdit.path);
-  }
-
-  void _onTapSettings() {
-    context.go(AppPage.settings.path);
+  Future<void> _onTapLogout() async {
+    try {
+      await Amplify.Auth.signOut();
+      if (mounted) {
+        context.go(AppPage.signIn.path);
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ログアウトエラー: ${e.message}')),
+        );
+      }
+    }
   }
 
   @override
@@ -121,30 +129,13 @@ class _CurrentUserScreenState extends ConsumerState<CurrentUserScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: _onTapSettings,
-                      icon: const Icon(Icons.settings),
-                      label: const Text('設定'),
+                      onPressed: _onTapLogout,
+                      icon: const Icon(Icons.logout),
+                      label: const Text('ログアウト'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6B8E4A),
+                        backgroundColor: const Color(0xFFD2523C),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _onTapProfileEdit,
-                      icon: const Icon(Icons.edit),
-                      label: const Text('プロフィール編集'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF6B8E4A),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: Color(0xFF6B8E4A)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),

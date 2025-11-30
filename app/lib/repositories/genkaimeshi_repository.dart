@@ -215,6 +215,38 @@ class GenkaimeshiRepository {
       throw Exception('予期しないエラーが発生しました: $e');
     }
   }
+
+  /// ユーザーを登録する。
+  ///
+  /// [emailAddress] メールアドレス（必須）
+  /// [name] ユーザー名（オプション）
+  /// [imageUrl] プロフィール画像URL（オプション）
+  Future<User> createUser({
+    required String emailAddress,
+    String? name,
+    String? imageUrl,
+  }) async {
+    try {
+      final requestBody = <String, dynamic>{
+        'emailAddress': emailAddress,
+        if (name != null) 'name': name,
+        if (imageUrl != null) 'imageUrl': imageUrl,
+      };
+
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/users',
+        data: requestBody,
+      );
+
+      if (response.statusCode == 201 && response.data != null) {
+        return User.fromJson(response.data!);
+      } else {
+        throw Exception('ユーザーの作成に失敗しました');
+      }
+    } catch (e) {
+      throw Exception('予期しないエラーが発生しました: $e');
+    }
+  }
 }
 
 /// Cognitoアクセストークンを自動的にリクエストヘッダーに付与するインターセプター
