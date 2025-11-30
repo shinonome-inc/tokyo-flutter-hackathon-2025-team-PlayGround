@@ -35,6 +35,12 @@ class _SignInScreenState extends State<SignInScreen> {
     });
 
     try {
+      // 既存のセッションがある場合はサインアウトする
+      final session = await Amplify.Auth.fetchAuthSession();
+      if (session.isSignedIn) {
+        await Amplify.Auth.signOut();
+      }
+
       final result = await Amplify.Auth.signIn(
         username: _emailController.text.trim(),
         password: _passwordController.text,
@@ -100,6 +106,12 @@ class _SignInScreenState extends State<SignInScreen> {
     });
 
     try {
+      // 既存のセッションがある場合はサインアウトする
+      final session = await Amplify.Auth.fetchAuthSession();
+      if (session.isSignedIn) {
+        await Amplify.Auth.signOut();
+      }
+
       final result = await Amplify.Auth.signInWithWebUI(
         provider: AuthProvider.google,
       );
@@ -129,6 +141,12 @@ class _SignInScreenState extends State<SignInScreen> {
     });
 
     try {
+      // 既存のセッションがある場合はサインアウトする
+      final session = await Amplify.Auth.fetchAuthSession();
+      if (session.isSignedIn) {
+        await Amplify.Auth.signOut();
+      }
+
       final result = await Amplify.Auth.signInWithWebUI(
         provider: const AuthProvider.custom('LINE'),
       );
