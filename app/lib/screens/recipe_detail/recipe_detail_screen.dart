@@ -17,7 +17,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   Widget build(BuildContext context) {
     final recipe = ref.watch(
       recipeDetailProvider.select((value) => value.recipe),
-      );
+    );
     final isLiked = useState(recipe!.isLikedByMe);
     return Scaffold(
       backgroundColor: Colors.white,
@@ -25,27 +25,27 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
         children: [
           Column(
             children: [
-              if (recipe.imageUrl!.isNotEmpty)...[
-              SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.width,
-            child: Image.network(
-              recipe.imageUrl!, 
-              gaplessPlayback: true, 
-              fit: BoxFit.cover,
-              ),
-          ),
-          ],
-          Expanded(
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: Image.asset(
-                'assets/images/recipe_detail_backgound.jpg',
-                gaplessPlayback: true,
-                fit: BoxFit.cover,
+              if (recipe.imageUrl!.isNotEmpty) ...[
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.width,
+                  child: Image.network(
+                    recipe.imageUrl!,
+                    gaplessPlayback: true,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-            ),
-            ),
+              ],
+              Expanded(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Image.asset(
+                    'assets/images/recipe_detail_backgound.jpg',
+                    gaplessPlayback: true,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
             ],
           ),
           Column(
@@ -59,22 +59,22 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       context.go(AppPage.recipeList.path);
                     },
                     child: Container(
-                    height: 46,
-                    width: 46,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: const Color(0xFFFFFFFF).withAlpha(
-                        (255 * 0.6).round(),
+                      height: 46,
+                      width: 46,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        color: const Color(
+                          0xFFFFFFFF,
+                        ).withAlpha((255 * 0.6).round()),
+                      ),
+                      padding: const EdgeInsets.only(left: 8),
+                      child: const Center(
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          color: Color(0xFF1D1B20),
                         ),
-                    ),
-                    padding: const EdgeInsets.only(left: 8),
-                    child: const Center(
-                      child: Icon(
-                      Icons.arrow_back_ios, 
-                      color: Color(0xFF1D1B20),
                       ),
                     ),
-                  ),
                   ),
                   const Spacer(),
                   InkWell(
@@ -82,201 +82,218 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                       isLiked.value = !isLiked.value!;
                     },
                     child: Container(
-                    height: 46,
-                    width: 46,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: const Color(0xFFFFFFFF).withAlpha(
-                        (255 * 0.6).round(),
-                        ),
-                    ),
-                    child: Icon(
-                      isLiked.value! 
-                      ? Icons.favorite 
-                      : Icons.favorite_outline, 
-                      color: const Color(0xFF1D1B20),
-                      size: 24,
+                      height: 46,
+                      width: 46,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        color: const Color(
+                          0xFFFFFFFF,
+                        ).withAlpha((255 * 0.6).round()),
                       ),
-                  ),
+                      child: Icon(
+                        isLiked.value!
+                            ? Icons.favorite
+                            : Icons.favorite_outline,
+                        color: const Color(0xFF1D1B20),
+                        size: 24,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 24),
                 ],
               ),
-              const Spacer(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Container(
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(20),
+              SizedBox(height: MediaQuery.of(context).size.width * 0.64),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(20),
+                      ),
+                      color: Color(0xFFFFFFFF),
                     ),
-                    color: Color(0xFFFFFFFF),
-                  ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 16),
-                      Text(
-                        recipe.title ?? '', 
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF000000),
-                      ),
-                      ),
-                      const SizedBox(height: 6),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          recipe.overview ?? '',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w300,
-                            color: Color(0xFF000000),
-                          ),
-                          ),
-                        ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          const SizedBox(width: 10),
-                          const Icon(
-                            Icons.favorite_outline, size: 20, 
-                            color: Color(0xFF1D1B20),
-                          ),
-                          const SizedBox(width: 1),
-                          Text(
-                            '${recipe.likeCount}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w300,
-                              color: Color(0xFF000000),
-                            ),
-                            ),
-                          const Spacer(),
-                          Column(
-                            children: [
-                              Text(
-                                recipe.createdAt != null 
-                                ? '${recipe.createdAt!.year}/${recipe.createdAt!.month}/${recipe.createdAt!.day}'
-                                : '',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w300,
-                                  color: Color(0xFF6B6B6B),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 16),
+                                Text(
+                                  recipe.title ?? '',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF000000),
+                                  ),
                                 ),
+                                const SizedBox(height: 6),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  child: Text(
+                                    recipe.overview ?? '',
+                                    style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w300,
+                                      color: Color(0xFF000000),
+                                    ),
+                                  ),
                                 ),
-                              const SizedBox(height: 2),
-                              Text(
-                                recipe.user!.id!,
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w300,
-                                  color: Color(0xFF6B6B6B),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    const SizedBox(width: 10),
+                                    const Icon(
+                                      Icons.favorite_outline,
+                                      size: 20,
+                                      color: Color(0xFF1D1B20),
+                                    ),
+                                    const SizedBox(width: 1),
+                                    Text(
+                                      '${recipe.likeCount}',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w300,
+                                        color: Color(0xFF000000),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    Column(
+                                      children: [
+                                        Text(
+                                          recipe.createdAt != null
+                                              ? '${recipe.createdAt!.year}/${recipe.createdAt!.month}/${recipe.createdAt!.day}'
+                                              : '',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w300,
+                                            color: Color(0xFF6B6B6B),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          recipe.user!.id!,
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w300,
+                                            color: Color(0xFF6B6B6B),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 10),
+                                  ],
                                 ),
+                                const SizedBox(height: 20),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: const Color(0xFFEFEFEF),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 16,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        ...recipe.ingredients!.map((
+                                          ingredient,
+                                        ) {
+                                          final index = recipe.ingredients!
+                                              .indexOf(ingredient);
+                                          return Column(
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    ingredient.name!,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w300,
+                                                      color: Color(0xFF000000),
+                                                    ),
+                                                  ),
+                                                  const Spacer(),
+                                                  Text(
+                                                    ingredient.amount!,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.w300,
+                                                      color: Color(0xFF000000),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              if (index !=
+                                                  recipe.ingredients!.length -
+                                                      1) ...[
+                                                const SizedBox(height: 8),
+                                              ],
+                                            ],
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                            ],
-                          ),
-                          const SizedBox(width: 10),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: const Color(0xFFEFEFEF),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20, 
-                            vertical: 16,
-                            ),
-                          child: Column(
-                            children: [
-                              ...recipe.ingredients!.map(
-                                (ingredient) {
-                                  final index = 
-                                    recipe.ingredients!.indexOf(
-                                      ingredient,
-                                    );
-                                  return Column(
+                                const SizedBox(height: 20),
+                                const Text(
+                                  '作り方',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w300,
+                                    color: Color(0xFF000000),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                  ),
+                                  child: Column(
                                     children: [
-                                      Row(
-                                    children: [
-                                      Text(
-                                        ingredient.name!, 
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w300,
-                                          color: Color(0xFF000000),
-                                        ),
-                                        ),
-                                      const Spacer(),
-                                      Text(
-                                        ingredient.amount!,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w300,
-                                          color: Color(0xFF000000),
-                                        ),
-                                        ),
+                                      ...recipe.steps!.map((step) {
+                                        return Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${step.orderNumber}.',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w300,
+                                                color: Color(0xFF000000),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                step.description!,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w300,
+                                                  color: Color(0xFF000000),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      }),
                                     ],
                                   ),
-                                  if (
-                                    index 
-                                      != recipe.ingredients!.length - 1
-                                    ) ...[
-                                    const SizedBox(height: 8),
-                                  ],
-                                    ],
-                                  );
-                              }),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        '作り方',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w300,
-                          color: Color(0xFF000000),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Column(
-                          children: [
-                            ...recipe.steps!.map((step) {
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '${step.orderNumber}.',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w300,
-                                color: Color(0xFF000000),
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                step.description!,
-                                style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w300,
-                                color: Color(0xFF000000),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        );
-                      }),
-                          ],
-                        ),
+                          ),
                         ),
                         const SizedBox(height: 38),
                         Row(
@@ -289,11 +306,11 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                 borderRadius: BorderRadius.circular(6),
                                 color: const Color(0xFF797979),
                               ),
-                              child:const Icon(
-                                Icons.delete, 
-                                color: Color(0xFFFFFFFF), 
+                              child: const Icon(
+                                Icons.delete,
+                                color: Color(0xFFFFFFFF),
                                 size: 24,
-                                ),
+                              ),
                             ),
                             const Spacer(),
                             Container(
@@ -303,11 +320,11 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                 borderRadius: BorderRadius.circular(6),
                                 color: const Color(0xFFFF6464),
                               ),
-                              child:const Icon(
-                                Icons.comment, 
-                                color: Color(0xFFFFFFFF), 
+                              child: const Icon(
+                                Icons.comment,
+                                color: Color(0xFFFFFFFF),
                                 size: 24,
-                                ),
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Container(
@@ -317,26 +334,27 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                 borderRadius: BorderRadius.circular(6),
                                 color: const Color(0xFFFF9A6B),
                               ),
-                              child:const Icon(
-                                Icons.share, 
-                                color: Color(0xFFFFFFFF), 
+                              child: const Icon(
+                                Icons.share,
+                                color: Color(0xFFFFFFFF),
                                 size: 24,
-                                ),
+                              ),
                             ),
                             const SizedBox(width: 10),
                           ],
                         ),
                         SizedBox(
                           height: MediaQuery.of(context).padding.bottom + 16,
-                          ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                ),
+              ),
             ],
-          )
+          ),
         ],
       ),
-      );
+    );
   }
 }

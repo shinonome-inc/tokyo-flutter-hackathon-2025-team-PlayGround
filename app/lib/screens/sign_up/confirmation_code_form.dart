@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 /// 確認コード入力フォームコンポーネント
 class ConfirmationCodeForm extends StatelessWidget {
-
   const ConfirmationCodeForm({
     required this.confirmationCodeController,
-    required this.isLoading, super.key,
+    required this.isLoading,
+    super.key,
     this.onConfirmSignUp,
   });
   final TextEditingController confirmationCodeController;

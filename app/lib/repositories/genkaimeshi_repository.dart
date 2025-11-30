@@ -49,7 +49,6 @@ class GenkaimeshiRepository {
     }
   }
 
-
   /// Presigned URLを生成する。
   ///
   /// [prompt] AIへのプロンプト（例: 簡単に作れるレシピを提案して）
@@ -81,7 +80,7 @@ class GenkaimeshiRepository {
       throw Exception('予期しないエラーが発生しました: $e');
     }
   }
-        
+
   Future<Recipe> fetchRecipeByRecipeId(String recipeId) async {
     try {
       final response = await _dio.get<dynamic>('/recipes/$recipeId');
@@ -285,10 +284,8 @@ class _LogInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    safePrint(
-      '''
-❌ ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}''',
-    );
+    safePrint('''
+❌ ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}''');
     safePrint('Message: ${err.message}');
     if (err.response?.data != null) {
       safePrint('Error Data: ${err.response?.data}');

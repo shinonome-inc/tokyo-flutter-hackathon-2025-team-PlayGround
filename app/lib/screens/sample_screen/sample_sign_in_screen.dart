@@ -147,9 +147,7 @@ class _SampleSignInScreenState extends State<SampleSignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ログイン'),
-      ),
+      appBar: AppBar(title: const Text('ログイン')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -186,10 +184,7 @@ class _SampleSignInScreenState extends State<SampleSignInScreen> {
               const SizedBox(height: 32),
               const Divider(),
               const SizedBox(height: 16),
-              const Text(
-                'または',
-                textAlign: TextAlign.center,
-              ),
+              const Text('または', textAlign: TextAlign.center),
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: _isLoading ? null : _signInWithGoogle,

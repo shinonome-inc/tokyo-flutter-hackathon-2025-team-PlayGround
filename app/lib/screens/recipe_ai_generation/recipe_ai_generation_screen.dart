@@ -36,12 +36,12 @@ class _RecipeAiGenerationScreenState
     final generatedRecipe = ref.watch(
       recipeAiGenerationProvider.select((value) => value.generateRecipe),
     );
-    await ref.read(recipeDetailProvider.notifier).updateRecipe(
-      generatedRecipe!.id,
-    );
-    ref.read(recipeAiGenerationProvider.notifier).setIsLoading(
-      isLoading: false,
-    );
+    await ref
+        .read(recipeDetailProvider.notifier)
+        .updateRecipe(generatedRecipe!.id);
+    ref
+        .read(recipeAiGenerationProvider.notifier)
+        .setIsLoading(isLoading: false);
     context.go(AppPage.recipeDetail.path);
   }
 

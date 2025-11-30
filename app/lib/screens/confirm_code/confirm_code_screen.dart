@@ -18,9 +18,9 @@ class _ConfirmCodeScreenState extends ConsumerState<ConfirmCodeScreen> {
 
   void _onTapResendCode() {
     // TODO: コード再送信処理
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('確認コードを再送信しました')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('確認コードを再送信しました')));
   }
 
   @override

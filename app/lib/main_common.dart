@@ -11,9 +11,7 @@ Future<void> mainCommon(EnvConfig envConfig) async {
   await configureAmplify(envConfig: envConfig);
   runApp(
     ProviderScope(
-      overrides: [
-        envConfigProvider.overrideWithValue(envConfig),
-      ],
+      overrides: [envConfigProvider.overrideWithValue(envConfig)],
       child: const MyApp(),
     ),
   );
