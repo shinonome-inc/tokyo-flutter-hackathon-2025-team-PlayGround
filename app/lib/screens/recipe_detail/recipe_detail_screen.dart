@@ -1,4 +1,8 @@
 import 'package:app/enums/app_page.dart';
+import 'package:app/models/cooking_step.dart';
+import 'package:app/models/ingredient.dart';
+import 'package:app/models/recipe.dart';
+import 'package:app/models/user.dart';
 import 'package:app/screens/recipe_detail/recipe_detail_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -17,8 +21,36 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
   Widget build(BuildContext context) {
     final recipe = ref.watch(
       recipeDetailProvider.select((value) => value.recipe),
+    ) ?? Recipe(
+      id: 'sample_id',
+      title: 'チキンカレー',
+      overview: '本格的なスパイスを使った美味しいチキンカレーです。',
+      imageUrl: 'https://via.placeholder.com/300/FFB6C1/000000?text=ChickenCurry',
+      isAiGenerated: false,
+      isLikedByMe: false,
+      likeCount: 42,
+      createdAt: DateTime.now(),
+      user: const User(
+        name: 'クック太郎',
+        id: 'user1',
+      ),
+      ingredients: const [
+        Ingredient(id: '1', name: '鶏肉', amount: '300g'),
+        Ingredient(id: '2', name: '玉ねぎ', amount: '1個'),
+        Ingredient(id: '3', name: 'トマト缶', amount: '1缶'),
+        Ingredient(id: '4', name: 'カレー粉', amount: '大さじ2'),
+        Ingredient(id: '5', name: 'ココナッツミルク', amount: '200ml'),
+      ],
+      steps: const [
+        CookingStep(orderNumber: 1, description: '鶏肉を一口大に切る'),
+        CookingStep(orderNumber: 2, description: '玉ねぎを薄切りにする'),
+        CookingStep(orderNumber: 3, description: 'フライパンで鶏肉を炒める'),
+        CookingStep(orderNumber: 4, description: '玉ねぎを加えて炒める'),
+        CookingStep(orderNumber: 5, description: 'カレー粉を加えて香りを出す'),
+        CookingStep(orderNumber: 6, description: 'トマト缶とココナッツミルクを加えて煮込む'),
+      ],
     );
-    final isLiked = useState(recipe!.isLikedByMe);
+    final isLiked = useState(recipe.isLikedByMe ?? false);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
@@ -100,7 +132,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                   const Spacer(),
                   InkWell(
                     onTap: () {
-                      isLiked.value = !isLiked.value!;
+                      isLiked.value = !isLiked.value;
                     },
                     child: Container(
                       height: 46,
@@ -112,7 +144,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                         ).withAlpha((255 * 0.6).round()),
                       ),
                       child: Icon(
-                        isLiked.value!
+                        isLiked.value
                             ? Icons.favorite
                             : Icons.favorite_outline,
                         color: const Color(0xFF1D1B20),
