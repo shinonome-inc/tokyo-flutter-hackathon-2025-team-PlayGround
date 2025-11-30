@@ -37,13 +37,23 @@ variable "line_channel_secret" {
 variable "cognito_callback_urls" {
   description = "Cognito認証後のコールバックURL"
   type        = list(string)
-  default     = ["myapp://callback", "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/"]
+  default = [
+    "myapp://callback",
+    "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/",
+    "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com",
+    "http://localhost:5173/"
+  ]
 }
 
 variable "cognito_logout_urls" {
   description = "Cognitoログアウト後のリダイレクトURL"
   type        = list(string)
-  default     = ["myapp://logout", "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/"]
+  default = [
+    "myapp://logout",
+    "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/",
+    "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com",
+    "http://localhost:5173/"
+  ]
 }
 
 variable "gemini_api_key" {

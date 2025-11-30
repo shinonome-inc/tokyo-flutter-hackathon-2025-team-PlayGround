@@ -34,8 +34,8 @@ String get amplifyconfig =>
             "OAuth": {
               "WebDomain": "${currentEnv.cognitoDomain}.auth.${currentEnv.awsRegion}.amazoncognito.com",
               "AppClientId": "${currentEnv.cognitoAppClientId}",
-              "SignInRedirectURI": "myapp://callback",
-              "SignOutRedirectURI": "myapp://logout",
+              "SignInRedirectURI": "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/",
+              "SignOutRedirectURI": "https://genkaimeshi-recipe-web-dev.s3.ap-northeast-1.amazonaws.com/",
               "Scopes": ["openid", "email", "profile"]
             },
             "authenticationFlowType": "USER_SRP_AUTH",
