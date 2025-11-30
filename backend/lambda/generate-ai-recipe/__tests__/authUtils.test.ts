@@ -32,8 +32,15 @@ function createMockEvent(authHeader?: string): APIGatewayProxyEvent {
   };
 }
 
+/**
+ * 注意: 以下のテストは非推奨の getUserIdFromAuthHeader 関数をテストしています。
+ * この関数はJWTトークンの署名を検証しません。
+ * 新しい verifyAndGetUserId 関数は、aws-jwt-verify を使用して
+ * CognitoのJWKS（JSON Web Key Set）から公開鍵を取得し、署名を検証するため、
+ * ユニットテストではモックが必要になります。
+ */
 describe("authUtils", () => {
-  describe("getUserIdFromAuthHeader", () => {
+  describe("getUserIdFromAuthHeader (deprecated)", () => {
     it("有効なJWTトークンからユーザーIDを取得できる", () => {
       const userId = "user-123-abc";
       const token = createMockJwt({ sub: userId, exp: 9999999999 });
@@ -124,3 +131,27 @@ describe("authUtils", () => {
     });
   });
 });
+
+/**
+ * verifyAndGetUserId のテストは、実際のCognito User Poolに対する
+ * 統合テストまたはaws-jwt-verifyをモックしたテストとして実装する必要があります。
+ *
+ * モックを使用したテスト例:
+ *
+ * jest.mock('aws-jwt-verify', () => ({
+ *   CognitoJwtVerifier: {
+ *     create: jest.fn().mockReturnValue({
+ *       verify: jest.fn().mockResolvedValue({ sub: 'test-user-id' })
+ *     })
+ *   }
+ * }));
+ *
+ * describe('verifyAndGetUserId', () => {
+ *   it('正常に検証されたトークンからユーザーIDを取得できる', async () => {
+ *     const event = createMockEvent('Bearer valid-token');
+ *     const result = await verifyAndGetUserId(event);
+ *     expect(result.isValid).toBe(true);
+ *     expect(result.userId).toBe('test-user-id');
+ *   });
+ * });
+ */

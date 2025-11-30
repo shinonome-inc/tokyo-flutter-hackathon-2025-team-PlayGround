@@ -20,6 +20,16 @@ jest.mock("uuid", () => ({
   v4: jest.fn(() => "mock-uuid-12345"),
 }));
 
+// aws-jwt-verify をモック
+const mockVerify = jest.fn();
+jest.mock("aws-jwt-verify", () => ({
+  CognitoJwtVerifier: {
+    create: jest.fn(() => ({
+      verify: mockVerify,
+    })),
+  },
+}));
+
 /**
  * テスト用のJWTトークンを作成する
  */
@@ -64,6 +74,23 @@ describe("POST /recipes/{recipeId}/comments ハンドラー", () => {
     jest.clearAllMocks();
     jest.resetModules();
     process.env.DYNAMODB_TABLE_NAME = "test-table";
+    process.env.COGNITO_USER_POOL_ID = "test-user-pool-id";
+    process.env.COGNITO_CLIENT_ID = "test-client-id";
+
+    // 有効なトークンの場合はユーザーIDを返す
+    mockVerify.mockImplementation((token: string) => {
+      // トークンからペイロードを取得してsubを返す
+      try {
+        const payload = token.split(".")[1];
+        const decoded = JSON.parse(Buffer.from(payload, "base64").toString("utf-8"));
+        if (decoded.sub) {
+          return Promise.resolve({ sub: decoded.sub });
+        }
+      } catch {
+        // パースエラーの場合は検証失敗
+      }
+      return Promise.reject(new Error("Invalid token"));
+    });
 
     const module = await import("../src/index");
     handler = module.handler;

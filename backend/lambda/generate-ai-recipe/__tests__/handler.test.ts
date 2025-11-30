@@ -1,5 +1,15 @@
 import { APIGatewayProxyEvent } from "aws-lambda";
 
+// aws-jwt-verify をモック
+const mockVerify = jest.fn();
+jest.mock("aws-jwt-verify", () => ({
+  CognitoJwtVerifier: {
+    create: jest.fn(() => ({
+      verify: mockVerify,
+    })),
+  },
+}));
+
 // モックの設定
 jest.mock("uuid", () => ({
   v4: jest.fn(() => "mock-uuid-1234"),
@@ -80,6 +90,27 @@ describe("generate-ai-recipe handler", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockSend.mockResolvedValue({});
+    process.env.COGNITO_USER_POOL_ID = "test-user-pool-id";
+    process.env.COGNITO_CLIENT_ID = "test-client-id";
+
+    // 有効なトークンの場合はユーザーIDを返す
+    mockVerify.mockImplementation((token: string) => {
+      // トークンからペイロードを取得してsubを返す
+      try {
+        const parts = token.split(".");
+        if (parts.length !== 3) {
+          return Promise.reject(new Error("Invalid token format"));
+        }
+        const payload = parts[1];
+        const decoded = JSON.parse(Buffer.from(payload, "base64url").toString("utf-8"));
+        if (decoded.sub) {
+          return Promise.resolve({ sub: decoded.sub });
+        }
+      } catch {
+        // パースエラーの場合は検証失敗
+      }
+      return Promise.reject(new Error("Invalid token"));
+    });
   });
 
   describe("認証", () => {
@@ -89,7 +120,7 @@ describe("generate-ai-recipe handler", () => {
       const result = await handler(event);
 
       expect(result.statusCode).toBe(401);
-      expect(JSON.parse(result.body)).toEqual({
+      expect(JSON.parse(result.body)).toMatchObject({
         error: "認証が必要です",
       });
     });

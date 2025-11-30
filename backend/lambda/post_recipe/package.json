@@ -13,6 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.705.0",
     "@aws-sdk/lib-dynamodb": "^3.705.0",
+    "aws-jwt-verify": "^4.0.1",
     "mnemonist": "^0.40.3",
     "uuid": "^11.0.3"
   }

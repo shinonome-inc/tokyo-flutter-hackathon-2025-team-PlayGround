@@ -15,6 +15,8 @@ resource "aws_lambda_function" "recipe_ai_generator" {
       S3_BUCKET_NAME              = aws_s3_bucket.recipe_images.bucket
       ENVIRONMENT                 = "prod"
       GCP_PROJECT_ID              = var.gcp_project_id
+      COGNITO_USER_POOL_ID        = aws_cognito_user_pool.main.id
+      COGNITO_CLIENT_ID           = aws_cognito_user_pool_client.app.id
     }
   }
 
@@ -33,8 +35,10 @@ resource "aws_lambda_function" "post_recipe" {
   source_code_hash = filebase64sha256("../../../backend/lambda/dist/post_recipe.zip")
   environment {
     variables = {
-      ENVIRONMENT         = "prod"
-      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
+      ENVIRONMENT          = "prod"
+      DYNAMODB_TABLE_NAME  = aws_dynamodb_table.main_table.name
+      COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+      COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.app.id
     }
   }
 
@@ -137,8 +141,10 @@ resource "aws_lambda_function" "get_recipe_by_id" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
-      ENVIRONMENT         = "prod"
+      DYNAMODB_TABLE_NAME  = aws_dynamodb_table.main_table.name
+      ENVIRONMENT          = "prod"
+      COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+      COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.app.id
     }
   }
 
@@ -170,8 +176,10 @@ resource "aws_lambda_function" "post_comment" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
-      ENVIRONMENT         = "prod"
+      DYNAMODB_TABLE_NAME  = aws_dynamodb_table.main_table.name
+      ENVIRONMENT          = "prod"
+      COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+      COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.app.id
     }
   }
 
@@ -203,8 +211,10 @@ resource "aws_lambda_function" "post_like" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
-      ENVIRONMENT         = "prod"
+      DYNAMODB_TABLE_NAME  = aws_dynamodb_table.main_table.name
+      ENVIRONMENT          = "prod"
+      COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+      COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.app.id
     }
   }
 
@@ -236,8 +246,10 @@ resource "aws_lambda_function" "post_user" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE_NAME = aws_dynamodb_table.main_table.name
-      ENVIRONMENT         = "prod"
+      DYNAMODB_TABLE_NAME  = aws_dynamodb_table.main_table.name
+      ENVIRONMENT          = "prod"
+      COGNITO_USER_POOL_ID = aws_cognito_user_pool.main.id
+      COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.app.id
     }
   }
 
