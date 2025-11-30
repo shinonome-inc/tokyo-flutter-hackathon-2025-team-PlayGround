@@ -185,8 +185,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
                 Image.asset(
                   'assets/images/app_icon.png',
-                  width: 180,
-                  height: 180,
+                  width: 160,
+                  height: 160,
                   fit: BoxFit.contain,
                 ),
 
