@@ -3,6 +3,7 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:app/enums/app_env.dart';
 import 'package:app/models/presigned_url_response.dart';
 import 'package:app/models/recipe.dart';
+import 'package:app/models/user.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -192,6 +193,23 @@ class GenkaimeshiRepository {
         return Recipe.fromJson(response.data!);
       } else {
         throw Exception('AIレシピの生成に失敗しました');
+      }
+    } catch (e) {
+      throw Exception('予期しないエラーが発生しました: $e');
+    }
+  }
+
+  /// ユーザー一覧を取得する。
+  Future<List<User>> fetchUsers() async {
+    try {
+      final response = await _dio.get<List<dynamic>>('/users');
+      if (response.statusCode == 200 && response.data != null) {
+        final users = response.data!
+            .map((json) => User.fromJson(json as Map<String, dynamic>))
+            .toList();
+        return users;
+      } else {
+        throw Exception('ユーザーの取得に失敗しました');
       }
     } catch (e) {
       throw Exception('予期しないエラーが発生しました: $e');
