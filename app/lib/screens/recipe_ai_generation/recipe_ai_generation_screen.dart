@@ -91,11 +91,39 @@ class _RecipeAiGenerationScreenState
                           padding: const EdgeInsets.only(bottom: 8),
                           alignment: Alignment.centerLeft,
                           child: SizedBox(
-                            width: 64,
-                            height: 64,
-                            child: Image.file(
-                              File(_selectedImage!.path),
-                              fit: BoxFit.cover,
+                            width: 80,
+                            height: 80,
+                            child: Stack(
+                              children: [
+                                Image.file(
+                                  File(_selectedImage!.path),
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.cover,
+                                ),
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedImage = null;
+                                      });
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.6),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.close,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
