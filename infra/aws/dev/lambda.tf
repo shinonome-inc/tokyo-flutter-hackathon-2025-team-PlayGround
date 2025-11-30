@@ -15,6 +15,7 @@ resource "aws_lambda_function" "recipe_ai_generator" {
       S3_BUCKET_NAME              = aws_s3_bucket.recipe_images.bucket
       ENVIRONMENT                 = "dev"
       GCP_PROJECT_ID              = var.gcp_project_id
+      DYNAMODB_TABLE_NAME         = aws_dynamodb_table.main_table.name
     }
   }
 

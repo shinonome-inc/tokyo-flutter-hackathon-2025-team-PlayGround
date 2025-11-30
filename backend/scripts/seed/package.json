@@ -1,0 +1,25 @@
+{
+  "name": "@genkaimeshi/seed",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "seed": "npx tsx src/index.ts",
+    "seed:delete-only": "npx tsx src/index.ts --delete-only",
+    "seed:insert-only": "npx tsx src/index.ts --insert-only"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.705.0",
+    "@aws-sdk/lib-dynamodb": "^3.705.0",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  }
+}
