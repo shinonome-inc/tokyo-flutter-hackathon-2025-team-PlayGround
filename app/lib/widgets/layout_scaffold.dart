@@ -10,11 +10,11 @@ class LayoutScaffold extends StatelessWidget {
 
   /// 各タブのUIの情報をリスト化
   static const _tabs = [
-    (icon: Icons.settings, label: 'レシピ'),
-    (icon: Icons.list, label: '投稿'),
+    (icon: Icons.restaurant_menu, label: 'レシピ'),
+    (icon: Icons.add_circle, label: '投稿'),
     (icon: Icons.keyboard_double_arrow_up, label: 'AI生成'),
-    (icon: Icons.group, label: 'マイページ'),
-    (icon: Icons.person, label: 'ユーザー'),
+    (icon: Icons.group, label: 'ユーザー'),
+    (icon: Icons.person, label: 'マイページ'),
   ];
 
   @override

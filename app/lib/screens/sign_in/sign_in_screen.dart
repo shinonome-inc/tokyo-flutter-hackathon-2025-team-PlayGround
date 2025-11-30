@@ -168,7 +168,7 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 60),
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -176,8 +176,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
                 Image.asset(
                   'assets/images/login_logo.png',
-                  width: 120,
-                  height: 120,
+                  width: 104,
+                  height: 104,
                   fit: BoxFit.contain,
                 ),
 
@@ -185,8 +185,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
                 Image.asset(
                   'assets/images/app_icon.png',
-                  width: 180,
-                  height: 180,
+                  width: 136,
+                  height: 136,
                   fit: BoxFit.contain,
                 ),
 
@@ -360,6 +360,20 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                   ),
+                  TextButton(
+                    onPressed: () {
+                      context.go(AppPage.recipeList.path);
+                    },
+                    child: const Text(
+                      'ログインせずに利用',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF6B8E4A),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
                 ] else ...[
                   // MFAコード入力
                   Container(
@@ -447,6 +461,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         )
                       : null,
                 ),
+                const Spacer(),
               ],
             ),
           ),
