@@ -1,5 +1,6 @@
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:app/enums/app_page.dart';
+import 'package:app/repositories/genkaimeshi_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -79,6 +80,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       if (result.isSignUpComplete) {
+        await GenkaimeshiRepository.instance.createUser(
+          emailAddress: _emailController.text.trim(),
+        );
+
         setState(() {
           _message = '登録完了しました';
         });
@@ -87,6 +92,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } on AuthException catch (e) {
       setState(() {
         _message = 'エラー: ${e.message}';
+      });
+    } on Exception {
+      setState(() {
+        _message = 'エラー: ユーザー情報の作成に失敗しました';
       });
     } finally {
       setState(() {
@@ -107,6 +116,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       if (result.isSignedIn) {
+        final userAttributes = await Amplify.Auth.fetchUserAttributes();
+        final email = userAttributes
+            .firstWhere(
+              (attr) => attr.userAttributeKey == AuthUserAttributeKey.email,
+            )
+            .value;
+
+        await GenkaimeshiRepository.instance.createUser(emailAddress: email);
+
         setState(() {
           _message = 'Googleで登録完了しました';
         });
@@ -115,6 +133,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } on AuthException catch (e) {
       setState(() {
         _message = 'エラー: ${e.message}';
+      });
+    } on Exception {
+      setState(() {
+        _message = 'エラー: ユーザー情報の作成に失敗しました';
       });
     } finally {
       setState(() {
@@ -135,6 +157,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       if (result.isSignedIn) {
+        final userAttributes = await Amplify.Auth.fetchUserAttributes();
+        final email = userAttributes
+            .firstWhere(
+              (attr) => attr.userAttributeKey == AuthUserAttributeKey.email,
+            )
+            .value;
+
+        await GenkaimeshiRepository.instance.createUser(emailAddress: email);
+
         setState(() {
           _message = 'LINEで登録完了しました';
         });
@@ -143,6 +174,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } on AuthException catch (e) {
       setState(() {
         _message = 'エラー: ${e.message}';
+      });
+    } on Exception {
+      setState(() {
+        _message = 'エラー: ユーザー情報の作成に失敗しました';
       });
     } finally {
       setState(() {
