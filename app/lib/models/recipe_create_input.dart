@@ -1,5 +1,5 @@
+import 'package:app/models/cooking_step.dart';
 import 'package:app/models/ingredient.dart';
-import 'package:app/models/step.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'recipe_create_input.freezed.dart';
@@ -14,7 +14,7 @@ abstract class RecipeCreateInput with _$RecipeCreateInput {
     String? notes,
     bool? isAiGenerated,
     List<Ingredient>? ingredients,
-    List<Step>? steps,
+    List<CookingStep>? steps,
   }) = _RecipeCreateInput;
 
   factory RecipeCreateInput.fromJson(Map<String, Object?> json) =>

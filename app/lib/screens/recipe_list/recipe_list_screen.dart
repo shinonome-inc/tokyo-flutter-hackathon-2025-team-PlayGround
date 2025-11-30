@@ -1,4 +1,5 @@
 import 'package:app/enums/app_page.dart';
+import 'package:app/screens/recipe_detail/recipe_detail_notifier.dart';
 import 'package:app/screens/recipe_list/recipe_list_item.dart';
 import 'package:app/screens/recipe_list/recipe_list_notifier.dart';
 import 'package:app/screens/recipe_list/recipe_list_state.dart';
@@ -16,7 +17,8 @@ class RecipeListScreen extends ConsumerStatefulWidget {
 }
 
 class _RecipeListScreenState extends ConsumerState<RecipeListScreen> {
-  void _onTapRecipeItem() {
+  Future<void> _onTapRecipeItem(String recipeId) async {
+    await ref.read(recipeDetailProvider.notifier).updateRecipe(recipeId);
     context.go(AppPage.recipeDetail.path);
   }
 
@@ -83,7 +85,9 @@ class _RecipeListScreenState extends ConsumerState<RecipeListScreen> {
                       itemBuilder: (context, index) {
                         return RecipeListItem(
                           recipe: state.recipes[index],
-                          onTapItem: _onTapRecipeItem,
+                          onTapItem: () async {
+                            await _onTapRecipeItem(state.recipes[index].id);
+                          },
                           onTapLike: onTapLike,
                         );
                       },

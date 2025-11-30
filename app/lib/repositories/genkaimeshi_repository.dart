@@ -4,6 +4,7 @@ import 'package:app/enums/app_env.dart';
 import 'package:app/models/presigned_url_response.dart';
 import 'package:app/models/recipe.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 /// 限界飯APIのリポジトリクラス。
 class GenkaimeshiRepository {
@@ -11,6 +12,9 @@ class GenkaimeshiRepository {
     : _dio = dio ?? Dio() {
     _dio.options.baseUrl = _getBaseUrl(environment);
     _dio.interceptors.add(_AuthInterceptor());
+    if (kDebugMode) {
+      _dio.interceptors.add(_LogInterceptor());
+    }
   }
 
   static final GenkaimeshiRepository instance = GenkaimeshiRepository();
@@ -45,6 +49,7 @@ class GenkaimeshiRepository {
     }
   }
 
+
   /// Presigned URLを生成する。
   ///
   /// [prompt] AIへのプロンプト（例: 簡単に作れるレシピを提案して）
@@ -74,6 +79,70 @@ class GenkaimeshiRepository {
       }
     } catch (e) {
       throw Exception('予期しないエラーが発生しました: $e');
+    }
+  }
+        
+  Future<Recipe> fetchRecipeByRecipeId(String recipeId) async {
+    try {
+      final response = await _dio.get<dynamic>('/recipes/$recipeId');
+      if (response.statusCode == 200 && response.data != null) {
+        final recipe = Recipe.fromJson(response.data! as Map<String, dynamic>);
+        return recipe;
+      } else {
+        throw Exception('レシピIDによってレシピを取得することができませんでした');
+      }
+    } on Exception catch (e) {
+      throw Exception('予期せぬエラーが発生しました: $e');
+    }
+  }
+
+  /// レシピを新規作成する。
+  Future<Map<String, dynamic>> createRecipe({
+    required String title,
+    required String overview,
+    required List<Map<String, String>> ingredients,
+    required List<Map<String, dynamic>> steps,
+    String? imageUrl,
+    String? notes,
+    bool isAiGenerated = false,
+  }) async {
+    try {
+      final requestData = {
+        'title': title,
+        'overview': overview,
+        'imageUrl': imageUrl,
+        'notes': notes,
+        'isAiGenerated': isAiGenerated,
+        'ingredients': ingredients
+            .map(
+              (ingredient) => {
+                'name': ingredient['name'],
+                'amount': ingredient['amount'],
+              },
+            )
+            .toList(),
+        'steps': steps
+            .map(
+              (step) => {
+                'orderNumber': step['orderNumber'],
+                'description': step['description'],
+              },
+            )
+            .toList(),
+      };
+
+      final response = await _dio.post<Map<String, dynamic>>(
+        '/recipes',
+        data: requestData,
+      );
+
+      if (response.statusCode == 201 && response.data != null) {
+        return response.data!;
+      } else {
+        throw Exception('レシピの作成に失敗しました');
+      }
+    } catch (e) {
+      throw Exception('予期せぬエラーが発生しました: $e');
     }
   }
 
@@ -157,7 +226,6 @@ class _AuthInterceptor extends Interceptor {
         final cognitoSession = session as CognitoAuthSession;
         final accessToken =
             cognitoSession.userPoolTokensResult.value?.accessToken.raw;
-
         if (accessToken != null) {
           options.headers['Authorization'] = 'Bearer $accessToken';
           safePrint('Authorization header added successfully');
@@ -189,5 +257,42 @@ class _AuthInterceptor extends Interceptor {
     safePrint('  Response data: ${err.response?.data}');
     safePrint('  Response headers: ${err.response?.headers}');
     handler.next(err);
+  }
+}
+
+/// HTTPリクエストとレスポンスのログを出力するインターセプター
+class _LogInterceptor extends Interceptor {
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    safePrint('🚀 REQUEST[${options.method}] => PATH: ${options.path}');
+    safePrint('Headers: ${options.headers}');
+    if (options.data != null) {
+      safePrint('Data: ${options.data}');
+    }
+    super.onRequest(options, handler);
+  }
+
+  @override
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
+    safePrint('''
+✅ RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}''');
+    safePrint('Data: ${response.data}');
+    super.onResponse(response, handler);
+  }
+
+  @override
+  void onError(DioException err, ErrorInterceptorHandler handler) {
+    safePrint(
+      '''
+❌ ERROR[${err.response?.statusCode}] => PATH: ${err.requestOptions.path}''',
+    );
+    safePrint('Message: ${err.message}');
+    if (err.response?.data != null) {
+      safePrint('Error Data: ${err.response?.data}');
+    }
+    super.onError(err, handler);
   }
 }
