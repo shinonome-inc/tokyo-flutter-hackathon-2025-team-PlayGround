@@ -373,6 +373,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                   ),
+                  const Spacer(),
                 ] else ...[
                   // MFAコード入力
                   Container(
@@ -460,6 +461,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         )
                       : null,
                 ),
+                const Spacer(),
               ],
             ),
           ),
