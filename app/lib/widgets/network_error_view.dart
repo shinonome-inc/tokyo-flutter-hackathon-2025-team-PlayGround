@@ -14,7 +14,7 @@ class NetworkErrorView extends StatelessWidget {
       children: [
         const Text('ネットワークエラーが発生しました。'),
         const SizedBox(height: 120),
-        ElevatedButton(onPressed: onTapReload, child: const Text('トップに戻る')),
+        ElevatedButton(onPressed: onTapReload, child: const Text('再読み込み')),
       ],
     );
   }

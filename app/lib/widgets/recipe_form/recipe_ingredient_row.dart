@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 
 class RecipeIngredientRow extends StatelessWidget {
-  const RecipeIngredientRow({
-    required this.ingredient,
-    super.key,
-  });
+  const RecipeIngredientRow({required this.ingredient, super.key});
 
   final Map<String, TextEditingController> ingredient;
 
@@ -19,10 +16,7 @@ class RecipeIngredientRow extends StatelessWidget {
             decoration: const InputDecoration(
               hintText: '材料',
               border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
           ),
         ),
@@ -34,10 +28,7 @@ class RecipeIngredientRow extends StatelessWidget {
             decoration: const InputDecoration(
               hintText: '量、個数',
               border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
           ),
         ),

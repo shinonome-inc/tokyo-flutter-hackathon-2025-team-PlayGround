@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 
 class RecipeImageSelector extends StatelessWidget {
-  const RecipeImageSelector({
-    required this.onTap,
-    this.imageUrl,
-    super.key,
-  });
+  const RecipeImageSelector({required this.onTap, this.imageUrl, super.key});
 
   final VoidCallback onTap;
   final String? imageUrl;
@@ -31,11 +27,7 @@ class RecipeImageSelector extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
               )
-            : const Icon(
-                Icons.image_outlined,
-                size: 48,
-                color: Colors.white,
-              ),
+            : const Icon(Icons.image_outlined, size: 48, color: Colors.white),
       ),
     );
   }

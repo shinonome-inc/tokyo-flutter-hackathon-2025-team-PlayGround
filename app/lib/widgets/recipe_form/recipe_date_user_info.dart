@@ -17,18 +17,12 @@ class RecipeDateUserInfo extends StatelessWidget {
       children: [
         Text(
           currentDate,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.black54,
-          ),
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
         ),
         const SizedBox(width: 8),
         Text(
           userId,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.black54,
-          ),
+          style: const TextStyle(fontSize: 12, color: Colors.black54),
         ),
       ],
     );

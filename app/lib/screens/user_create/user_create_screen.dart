@@ -33,10 +33,7 @@ class _UserCreateScreenState extends ConsumerState<UserCreateScreen> {
               onPressed: _onTapCreateUser,
               child: const Text('ユーザー情報を登録'),
             ),
-            TextButton(
-              onPressed: _onTapSkip,
-              child: const Text('スキップ'),
-            ),
+            TextButton(onPressed: _onTapSkip, child: const Text('スキップ')),
           ],
         ),
       ),

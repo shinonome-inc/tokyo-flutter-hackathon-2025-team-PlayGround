@@ -107,9 +107,7 @@ class _SampleSignOutScreenState extends State<SampleSignOutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ログアウト'),
-      ),
+      appBar: AppBar(title: const Text('ログアウト')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -147,9 +145,7 @@ class _SampleSignOutScreenState extends State<SampleSignOutScreen> {
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: _globalSignOut,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.red,
-                ),
+                style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                 child: const Padding(
                   padding: EdgeInsets.all(16),
                   child: Text('全デバイスからログアウト'),

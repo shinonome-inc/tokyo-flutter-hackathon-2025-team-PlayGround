@@ -152,9 +152,7 @@ class _SampleSignUpScreenState extends State<SampleSignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('新規登録'),
-      ),
+      appBar: AppBar(title: const Text('新規登録')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -191,10 +189,7 @@ class _SampleSignUpScreenState extends State<SampleSignUpScreen> {
               const SizedBox(height: 32),
               const Divider(),
               const SizedBox(height: 16),
-              const Text(
-                'または',
-                textAlign: TextAlign.center,
-              ),
+              const Text('または', textAlign: TextAlign.center),
               const SizedBox(height: 16),
               OutlinedButton(
                 onPressed: _isLoading ? null : _signUpWithGoogle,

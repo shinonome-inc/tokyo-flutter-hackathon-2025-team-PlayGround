@@ -14,18 +14,18 @@ class ImageUploadService {
     try {
       final fileName = _generateUniqueFileName();
       safePrint('Starting image upload: $fileName');
-      
+
       final result = await Amplify.Storage.uploadData(
         data: S3DataPayload.bytes(imageBytes),
         path: StoragePath.fromString('recipe-images/$fileName'),
       ).result;
-      
+
       safePrint('Upload completed: ${result.uploadedItem.path}');
 
       final urlResult = await Amplify.Storage.getUrl(
         path: StoragePath.fromString(result.uploadedItem.path),
       ).result;
-      
+
       safePrint('URL generated: ${urlResult.url}');
       return urlResult.url.toString();
     } on StorageException catch (e) {

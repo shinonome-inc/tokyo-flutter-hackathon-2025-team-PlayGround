@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 /// メール登録フォームコンポーネント
 class EmailSignUpForm extends StatelessWidget {
-
   const EmailSignUpForm({
     required this.emailController,
     required this.passwordController,
-    required this.isLoading, super.key,
+    required this.isLoading,
+    super.key,
     this.onSignUpWithEmail,
     this.onSignUpWithGoogle,
     this.onSignUpWithLine,
@@ -53,10 +53,7 @@ class EmailSignUpForm extends StatelessWidget {
         const SizedBox(height: 32),
         const Divider(),
         const SizedBox(height: 16),
-        const Text(
-          'または',
-          textAlign: TextAlign.center,
-        ),
+        const Text('または', textAlign: TextAlign.center),
         const SizedBox(height: 16),
         OutlinedButton(
           onPressed: isLoading ? null : onSignUpWithGoogle,
