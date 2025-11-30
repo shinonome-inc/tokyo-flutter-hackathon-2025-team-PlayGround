@@ -168,7 +168,7 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 60),
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -176,8 +176,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
                 Image.asset(
                   'assets/images/login_logo.png',
-                  width: 120,
-                  height: 120,
+                  width: 104,
+                  height: 104,
                   fit: BoxFit.contain,
                 ),
 
@@ -185,8 +185,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
                 Image.asset(
                   'assets/images/app_icon.png',
-                  width: 160,
-                  height: 160,
+                  width: 136,
+                  height: 136,
                   fit: BoxFit.contain,
                 ),
 
@@ -353,6 +353,19 @@ class _SignInScreenState extends State<SignInScreen> {
                     onPressed: _onTapSignUp,
                     child: const Text(
                       'アカウントを新規作成',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Color(0xFF6B8E4A),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.go(AppPage.recipeList.path);
+                    },
+                    child: const Text(
+                      'ログインせずに利用',
                       style: TextStyle(
                         fontSize: 14,
                         color: Color(0xFF6B8E4A),
