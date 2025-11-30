@@ -175,7 +175,7 @@ class _RecipeDetailScreenState extends ConsumerState<RecipeDetailScreen> {
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          recipe.user!.id!,
+                                          recipe.user!.name,
                                           style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w300,

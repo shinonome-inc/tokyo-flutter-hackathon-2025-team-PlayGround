@@ -74,7 +74,7 @@ class RecipeListItem extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        recipe.user?.id ?? '@id',
+                        recipe.user?.name ?? '@id',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
