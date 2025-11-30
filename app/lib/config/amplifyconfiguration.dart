@@ -21,6 +21,14 @@ String get amplifyconfig =>
             "Region": "${currentEnv.awsRegion}"
           }
         },
+        "CredentialsProvider": {
+          "CognitoIdentity": {
+            "Default": {
+              "PoolId": "${currentEnv.cognitoIdentityPoolId}",
+              "Region": "${currentEnv.awsRegion}"
+            }
+          }
+        },
         "Auth": {
           "Default": {
             "OAuth": {
@@ -46,6 +54,14 @@ String get amplifyconfig =>
             "mfaTypes": ["TOTP"]
           }
         }
+      }
+    }
+  },
+  "storage": {
+    "plugins": {
+      "awsS3StoragePlugin": {
+        "bucket": "${currentEnv.s3BucketName}",
+        "region": "${currentEnv.awsRegion}"
       }
     }
   }
