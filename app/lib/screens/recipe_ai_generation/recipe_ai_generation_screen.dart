@@ -1,12 +1,15 @@
+import 'package:app/enums/app_page.dart';
 import 'package:app/screens/recipe_ai_generation/recipe_ai_generation_header.dart';
 import 'package:app/screens/recipe_ai_generation/recipe_ai_generation_notifier.dart';
 import 'package:app/screens/recipe_ai_generation/recipe_ai_generation_state.dart';
+import 'package:app/screens/recipe_detail/recipe_detail_notifier.dart';
 import 'package:app/widgets/loading_view.dart';
 import 'package:app/widgets/network_error_view.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 
 class RecipeAiGenerationScreen extends ConsumerStatefulWidget {
@@ -30,6 +33,16 @@ class _RecipeAiGenerationScreenState
     await ref
         .read(recipeAiGenerationProvider.notifier)
         .generateAIRecipe(prompt: _textController.text);
+    final generatedRecipe = ref.watch(
+      recipeAiGenerationProvider.select((value) => value.generateRecipe),
+    );
+    await ref.read(recipeDetailProvider.notifier).updateRecipe(
+      generatedRecipe!.id,
+    );
+    ref.read(recipeAiGenerationProvider.notifier).setIsLoading(
+      isLoading: false,
+    );
+    context.go(AppPage.recipeDetail.path);
   }
 
   Future<void> _onTapReload() async {

@@ -22,7 +22,7 @@ class RecipeAiGenerationNotifier extends _$RecipeAiGenerationNotifier {
     state = const RecipeAiGenerationState();
   }
 
-  void _setIsLoading({required bool isLoading}) {
+  void setIsLoading({required bool isLoading}) {
     state = state.copyWith(isLoading: isLoading);
   }
 
@@ -40,7 +40,7 @@ class RecipeAiGenerationNotifier extends _$RecipeAiGenerationNotifier {
     }
 
     _reset();
-    _setIsLoading(isLoading: true);
+    setIsLoading(isLoading: true);
     PresignedUrlResponse? presignedUrlResponse;
     if (image != null) {
       try {
@@ -65,8 +65,6 @@ class RecipeAiGenerationNotifier extends _$RecipeAiGenerationNotifier {
       _setGeneratedRecipe(generatedRecipe: recipe);
     } on Exception {
       _setHasNetworkError(hasNetworkError: true);
-    } finally {
-      _setIsLoading(isLoading: false);
     }
   }
 }
