@@ -74,6 +74,18 @@ resource "aws_s3_bucket_policy" "flutter_web" {
   depends_on = [aws_s3_bucket_public_access_block.flutter_web]
 }
 
+resource "aws_s3_bucket_cors_configuration" "flutter_web" {
+  bucket = aws_s3_bucket.flutter_web.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
+
 resource "aws_s3_bucket_website_configuration" "flutter_web" {
   bucket = aws_s3_bucket.flutter_web.id
 
