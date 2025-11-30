@@ -2,10 +2,7 @@ import 'package:app/models/user.dart';
 import 'package:flutter/material.dart';
 
 class UserListItem extends StatelessWidget {
-  const UserListItem({
-    required this.user,
-    super.key,
-  });
+  const UserListItem({required this.user, super.key});
 
   final User user;
 
@@ -23,9 +20,9 @@ class UserListItem extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             child: CircleAvatar(
               radius: 30,
-              backgroundImage: user.imageUrl != null
-                  ? NetworkImage(user.imageUrl!)
-                  : null,
+              backgroundImage: user.imageUrl == null
+                  ? null
+                  : NetworkImage(user.imageUrl!),
               child: user.imageUrl == null
                   ? const Icon(Icons.person, size: 30)
                   : null,
@@ -49,10 +46,7 @@ class UserListItem extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '@${user.id}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                   if (user.description != null) ...[
@@ -69,14 +63,6 @@ class UserListItem extends StatelessWidget {
                   ],
                 ],
               ),
-            ),
-          ),
-          // 右矢印アイコン
-          const Padding(
-            padding: EdgeInsets.only(right: 12),
-            child: Icon(
-              Icons.chevron_right,
-              color: Colors.grey,
             ),
           ),
         ],
